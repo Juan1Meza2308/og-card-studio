@@ -376,4 +376,21 @@
   .delay-4 { animation-delay: 320ms; }
   .delay-5 { animation-delay: 400ms; }
   .delay-6 { animation-delay: 480ms; }
+
+  /* ===== Auth Pages ===== */
+  .auth-shell {
+    @apply relative min-h-screen flex items-center justify-center px-4 py-12;
+    background: radial-gradient(ellipse at 50% 0%, var(--color-primary) 0%, transparent 60%),
+                var(--color-background);
+  }
+
+  .auth-panel {
+    @apply w-full max-w-md rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-8 shadow-[0_25px_50px_-12px_rgb(0,0,0,0.4)];
+    animation: fade-up 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  .auth-panel > * + * {
+    @apply mt-8;
+  }
 }
