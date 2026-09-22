@@ -18,19 +18,24 @@ const themes = {
   ember: { label: "Warm ember", colors: ["#be123c", "#7c2d12", "#09090b"] },
   mint: { label: "Signal mint", colors: ["#047857", "#134e4a", "#09090b"] },
 };
-const templates = ["Tech", "Minimalist", "Dark Gradient", "Clean White"];
+const templates = [
+    { value: "tech", label: "Tech", className: "og-tech" },
+    { value: "minimalist", label: "Minimalist", className: "og-minimalist" },
+    { value: "dark-gradient", label: "Dark Gradient", className: "og-dark-gradient" },
+    { value: "clean-white", label: "Clean White", className: "og-clean-white og-light" },
+  ] as const;
 
 export function Playground() {
   const [title, setTitle] = useState("Ship ideas people remember.");
   const [subtitle, setSubtitle] = useState("ENGINEERING · PRODUCT · DESIGN");
   const [theme, setTheme] = useState<keyof typeof themes>("violet");
-  const [template, setTemplate] = useState("Tech");
+  const [template, setTemplate] = useState(templates[0].value);
   const [logoUrl, setLogoUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const url = useMemo(
     () =>
-      `https://api.ogcraft.dev/v1/og?title=${encodeURIComponent(title)}&theme=${theme}&template=${encodeURIComponent(template.toLowerCase())}`,
+      `https://api.ogcraft.dev/v1/og?title=${encodeURIComponent(title)}&theme=${theme}&template=${encodeURIComponent(template)}`,
     [title, theme, template],
   );
 
@@ -46,11 +51,16 @@ export function Playground() {
     canvas.height = 630;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    const currentTemplate = templates.find(t => t.value === template);
+    const isLight = currentTemplate?.className.includes("og-light") ?? false;
+
     const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-    themes[theme].colors.forEach((color, index) => gradient.addColorStop(index / 2, color));
-    ctx.fillStyle = template === "Clean White" ? "#fafafa" : gradient;
+    themes[theme].colors.forEach((color, index) => gradient.addColorStop(index / (themes[theme].colors.length - 1), color));
+
+    ctx.fillStyle = isLight ? "#fafafa" : gradient;
     ctx.fillRect(0, 0, 1200, 630);
-    ctx.fillStyle = template === "Clean White" ? "#111113" : "#ffffff";
+    ctx.fillStyle = isLight ? "#111113" : "#ffffff";
     ctx.font = "600 72px sans-serif";
     ctx.fillText(title.slice(0, 32), 72, 310);
     ctx.font = "500 24px monospace";
@@ -135,8 +145,8 @@ export function Playground() {
               </SelectTrigger>
               <SelectContent>
                 {templates.map((item) => (
-                  <SelectItem value={item} key={item}>
-                    {item}
+                  <SelectItem value={item.value} key={item.value}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -146,7 +156,7 @@ export function Playground() {
         <div className="min-w-0 p-4 sm:p-6">
           <div
             ref={previewRef}
-            className={`og-preview og-${theme} ${template === "Clean White" ? "og-light" : ""}`}
+            className={`og-preview og-${theme} ${templates.find(t => t.value === template)?.className || ""}`}
           >
             <div className="og-grid" />
             <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">
