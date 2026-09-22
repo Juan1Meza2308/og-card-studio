@@ -19,11 +19,11 @@ const themes = {
   mint: { label: "Signal mint", colors: ["#047857", "#134e4a", "#09090b"] },
 };
 const templates = [
-    { value: "tech", label: "Tech", className: "og-tech" },
-    { value: "minimalist", label: "Minimalist", className: "og-minimalist" },
-    { value: "dark-gradient", label: "Dark Gradient", className: "og-dark-gradient" },
-    { value: "clean-white", label: "Clean White", className: "og-clean-white og-light" },
-  ] as const;
+  { value: "tech", label: "Tech", className: "og-tech" },
+  { value: "minimalist", label: "Minimalist", className: "og-minimalist" },
+  { value: "dark-gradient", label: "Dark Gradient", className: "og-dark-gradient" },
+  { value: "clean-white", label: "Clean White", className: "og-clean-white og-light" },
+] as const;
 
 export function Playground() {
   const [title, setTitle] = useState("Ship ideas people remember.");
@@ -52,11 +52,13 @@ export function Playground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const currentTemplate = templates.find(t => t.value === template);
+    const currentTemplate = templates.find((t) => t.value === template);
     const isLight = currentTemplate?.className.includes("og-light") ?? false;
 
     const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-    themes[theme].colors.forEach((color, index) => gradient.addColorStop(index / (themes[theme].colors.length - 1), color));
+    themes[theme].colors.forEach((color, index) =>
+      gradient.addColorStop(index / (themes[theme].colors.length - 1), color),
+    );
 
     ctx.fillStyle = isLight ? "#fafafa" : gradient;
     ctx.fillRect(0, 0, 1200, 630);
@@ -156,7 +158,7 @@ export function Playground() {
         <div className="min-w-0 p-4 sm:p-6">
           <div
             ref={previewRef}
-            className={`og-preview og-${theme} ${templates.find(t => t.value === template)?.className || ""}`}
+            className={`og-preview og-${theme} ${templates.find((t) => t.value === template)?.className || ""}`}
           >
             <div className="og-grid" />
             <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">

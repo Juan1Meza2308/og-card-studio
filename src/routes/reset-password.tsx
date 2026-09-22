@@ -61,12 +61,12 @@ function ResetPassword() {
       <div className="auth-panel w-full max-w-md animate-fade-up">
         <div className="text-center mb-10">
           <Logo className="mx-auto mb-6" />
-          <p className="font-mono text-[10px] uppercase text-primary tracking-wider">Developer access</p>
+          <p className="font-mono text-[10px] uppercase text-primary tracking-wider">
+            Developer access
+          </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">Set a new password</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {ready
-              ? "Enter your new password below."
-              : "This recovery link is missing or expired."}
+            {ready ? "Enter your new password below." : "This recovery link is missing or expired."}
           </p>
         </div>
 
@@ -77,15 +77,25 @@ function ResetPassword() {
                 New password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
+                <Lock
+                  className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <Input
                   id="new-password"
                   required
                   minLength={8}
                   type={show ? "text" : "password"}
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                  className={cn("pl-10 pr-12", error && "border-destructive focus:border-destructive focus:ring-destructive/20")}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError("");
+                  }}
+                  className={cn(
+                    "pl-10 pr-12",
+                    error &&
+                      "border-destructive focus:border-destructive focus:ring-destructive/20",
+                  )}
                   placeholder="••••••••"
                   aria-invalid={error ? "true" : "false"}
                   aria-describedby={error ? "password-error" : undefined}
@@ -106,7 +116,11 @@ function ResetPassword() {
                 </Button>
               </div>
               {error && (
-                <p id="password-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <p
+                  id="password-error"
+                  className="text-xs text-destructive flex items-center gap-1"
+                  role="alert"
+                >
                   <AlertCircle className="size-3" />
                   {error}
                 </p>
@@ -117,14 +131,19 @@ function ResetPassword() {
               <div
                 className={cn(
                   "rounded-lg p-3 text-sm flex items-start gap-2 animate-slide-down",
-                  message.type === "error" && "border-destructive/30 bg-destructive/10 text-destructive",
-                  message.type === "success" && "border-success/30 bg-success/10 text-success"
+                  message.type === "error" &&
+                    "border-destructive/30 bg-destructive/10 text-destructive",
+                  message.type === "success" && "border-success/30 bg-success/10 text-success",
                 )}
                 role="alert"
                 aria-live="polite"
               >
-                {message.type === "error" && <AlertCircle className="size-4 flex-shrink-0 mt-0.5" />}
-                {message.type === "success" && <CheckCircle className="size-4 flex-shrink-0 mt-0.5" />}
+                {message.type === "error" && (
+                  <AlertCircle className="size-4 flex-shrink-0 mt-0.5" />
+                )}
+                {message.type === "success" && (
+                  <CheckCircle className="size-4 flex-shrink-0 mt-0.5" />
+                )}
                 <span>{message.text}</span>
               </div>
             )}

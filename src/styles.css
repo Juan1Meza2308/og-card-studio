@@ -134,7 +134,7 @@
   --code-foreground: oklch(0.92 0.02 265);
 
   --dashboard: oklch(0.065 0.005 265);
-  --workspace: oklch(0.10 0.006 265);
+  --workspace: oklch(0.1 0.006 265);
   --sidebar: oklch(0.095 0.006 265);
   --sidebar-foreground: oklch(0.985 0.002 265);
   --sidebar-primary: oklch(0.62 0.24 270);
@@ -151,7 +151,7 @@
   --chart-2: oklch(0.62 0.18 195);
   --chart-3: oklch(0.68 0.16 320);
   --chart-4: oklch(0.72 0.18 45);
-  --chart-5: oklch(0.65 0.20 340);
+  --chart-5: oklch(0.65 0.2 340);
 }
 
 @layer base {
@@ -201,14 +201,16 @@
 
   /* Glow shadow for primary elements */
   .shadow-glow {
-    box-shadow: 0 0 0 1px oklch(0.62 0.24 270 / 0.15),
-                0 8px 32px -8px oklch(0.62 0.24 270 / 0.25);
+    box-shadow:
+      0 0 0 1px oklch(0.62 0.24 270 / 0.15),
+      0 8px 32px -8px oklch(0.62 0.24 270 / 0.25);
   }
 
   /* Subtle inner glow for cards */
   .shadow-inner-glow {
-    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.05),
-                inset 0 -1px 0 oklch(0 0 0 / 0.1);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.05),
+      inset 0 -1px 0 oklch(0 0 0 / 0.1);
   }
 
   /* Scrollbar styling */
@@ -261,7 +263,13 @@
     overflow: hidden;
     background: var(--color-preview-ink);
     color: var(--color-preview-ink);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
   }
 
   .og-preview::before {
@@ -285,10 +293,18 @@
   }
 
   /* Theme gradients — defined as CSS custom properties */
-  .og-violet { --og-gradient: linear-gradient(135deg, #6d28d9, #312e81, #09090b); }
-  .og-ocean { --og-gradient: linear-gradient(135deg, #0369a1, #164e63, #09090b); }
-  .og-ember { --og-gradient: linear-gradient(135deg, #be123c, #7c2d12, #09090b); }
-  .og-mint  { --og-gradient: linear-gradient(135deg, #047857, #134e4a, #09090b); }
+  .og-violet {
+    --og-gradient: linear-gradient(135deg, #6d28d9, #312e81, #09090b);
+  }
+  .og-ocean {
+    --og-gradient: linear-gradient(135deg, #0369a1, #164e63, #09090b);
+  }
+  .og-ember {
+    --og-gradient: linear-gradient(135deg, #be123c, #7c2d12, #09090b);
+  }
+  .og-mint {
+    --og-gradient: linear-gradient(135deg, #047857, #134e4a, #09090b);
+  }
 
   /* Light template variant */
   .og-light {
@@ -313,10 +329,18 @@
   }
 
   /* Template-specific tweaks */
-  .og-preview.og-tech .og-grid { opacity: 0.05; }
-  .og-preview.og-minimalist .og-grid { opacity: 0; }
-  .og-preview.og-dark-gradient .og-grid { opacity: 0.04; }
-  .og-preview.og-clean-white .og-grid { opacity: 0; }
+  .og-preview.og-tech .og-grid {
+    opacity: 0.05;
+  }
+  .og-preview.og-minimalist .og-grid {
+    opacity: 0;
+  }
+  .og-preview.og-dark-gradient .og-grid {
+    opacity: 0.04;
+  }
+  .og-preview.og-clean-white .og-grid {
+    opacity: 0;
+  }
 
   /* Preview logo placeholder */
   .og-preview .size-8 {
@@ -368,20 +392,46 @@
     animation: slide-down 0.3s ease-out forwards;
     opacity: 0;
   }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
   /* Stagger delays */
-  .delay-1 { animation-delay: 80ms; }
-  .delay-2 { animation-delay: 160ms; }
-  .delay-3 { animation-delay: 240ms; }
-  .delay-4 { animation-delay: 320ms; }
-  .delay-5 { animation-delay: 400ms; }
-  .delay-6 { animation-delay: 480ms; }
+  .delay-1 {
+    animation-delay: 80ms;
+  }
+  .delay-2 {
+    animation-delay: 160ms;
+  }
+  .delay-3 {
+    animation-delay: 240ms;
+  }
+  .delay-4 {
+    animation-delay: 320ms;
+  }
+  .delay-5 {
+    animation-delay: 400ms;
+  }
+  .delay-6 {
+    animation-delay: 480ms;
+  }
 
   /* ===== Auth Pages ===== */
   .auth-shell {
     @apply relative min-h-screen flex items-center justify-center px-4 py-12;
-    background: radial-gradient(ellipse at 50% 0%, var(--color-primary) 0%, transparent 60%),
-                var(--color-background);
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--color-primary) 0%, transparent 60%),
+      var(--color-background);
   }
 
   .auth-panel {

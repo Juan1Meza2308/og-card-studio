@@ -1,6 +1,16 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +42,10 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [show, setShow] = useState(false);
-  const [message, setMessage] = useState<{ type: "error" | "success" | "info"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "error" | "success" | "info";
+    text: string;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -125,13 +138,15 @@ function AuthPage() {
       <div className="auth-panel w-full max-w-md animate-fade-up">
         <div className="text-center mb-10">
           <Logo className="mx-auto mb-6" />
-          <p className="font-mono text-[10px] uppercase text-primary tracking-wider">Developer access</p>
+          <p className="font-mono text-[10px] uppercase text-primary tracking-wider">
+            Developer access
+          </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
             {mode === "login"
               ? "Welcome back"
               : mode === "signup"
-              ? "Create your account"
-              : "Reset your password"}
+                ? "Create your account"
+                : "Reset your password"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "forgot"
@@ -185,15 +200,25 @@ function AuthPage() {
                 Display name
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <Input
                   id="name"
                   required
                   minLength={2}
                   maxLength={50}
                   value={name}
-                  onChange={(e) => { setName(e.target.value); if (errors.name) setErrors(prev => ({ ...prev, name: "" })); }}
-                  className={cn("pl-10", errors.name && "border-destructive focus:border-destructive focus:ring-destructive/20")}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                  }}
+                  className={cn(
+                    "pl-10",
+                    errors.name &&
+                      "border-destructive focus:border-destructive focus:ring-destructive/20",
+                  )}
                   placeholder="Jane Developer"
                   aria-invalid={errors.name ? "true" : "false"}
                   aria-describedby={errors.name ? "name-error" : undefined}
@@ -201,7 +226,11 @@ function AuthPage() {
                 />
               </div>
               {errors.name && (
-                <p id="name-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <p
+                  id="name-error"
+                  className="text-xs text-destructive flex items-center gap-1"
+                  role="alert"
+                >
                   <AlertCircle className="size-3" />
                   {errors.name}
                 </p>
@@ -214,14 +243,24 @@ function AuthPage() {
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
+              <Mail
+                className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 id="email"
                 required
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors(prev => ({ ...prev, email: "" })); }}
-                className={cn("pl-10", errors.email && "border-destructive focus:border-destructive focus:ring-destructive/20")}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                }}
+                className={cn(
+                  "pl-10",
+                  errors.email &&
+                    "border-destructive focus:border-destructive focus:ring-destructive/20",
+                )}
                 placeholder="you@example.com"
                 aria-invalid={errors.email ? "true" : "false"}
                 aria-describedby={errors.email ? "email-error" : undefined}
@@ -230,7 +269,11 @@ function AuthPage() {
               />
             </div>
             {errors.email && (
-              <p id="email-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+              <p
+                id="email-error"
+                className="text-xs text-destructive flex items-center gap-1"
+                role="alert"
+              >
                 <AlertCircle className="size-3" />
                 {errors.email}
               </p>
@@ -243,15 +286,25 @@ function AuthPage() {
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
+                <Lock
+                  className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <Input
                   id="password"
                   required
                   minLength={8}
                   type={show ? "text" : "password"}
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors(prev => ({ ...prev, password: "" })); }}
-                  className={cn("pl-10 pr-12", errors.password && "border-destructive focus:border-destructive focus:ring-destructive/20")}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
+                  className={cn(
+                    "pl-10 pr-12",
+                    errors.password &&
+                      "border-destructive focus:border-destructive focus:ring-destructive/20",
+                  )}
                   placeholder="••••••••"
                   aria-invalid={errors.password ? "true" : "false"}
                   aria-describedby={errors.password ? "password-error" : undefined}
@@ -272,7 +325,11 @@ function AuthPage() {
                 </Button>
               </div>
               {errors.password && (
-                <p id="password-error" className="text-xs text-destructive flex items-center gap-1" role="alert">
+                <p
+                  id="password-error"
+                  className="text-xs text-destructive flex items-center gap-1"
+                  role="alert"
+                >
                   <AlertCircle className="size-3" />
                   {errors.password}
                 </p>
@@ -284,15 +341,18 @@ function AuthPage() {
             <div
               className={cn(
                 "rounded-lg p-3 text-sm flex items-start gap-2 animate-slide-down",
-                message.type === "error" && "border-destructive/30 bg-destructive/10 text-destructive",
+                message.type === "error" &&
+                  "border-destructive/30 bg-destructive/10 text-destructive",
                 message.type === "success" && "border-success/30 bg-success/10 text-success",
-                message.type === "info" && "border-primary/30 bg-primary/10 text-primary"
+                message.type === "info" && "border-primary/30 bg-primary/10 text-primary",
               )}
               role="alert"
               aria-live="polite"
             >
               {message.type === "error" && <AlertCircle className="size-4 flex-shrink-0 mt-0.5" />}
-              {message.type === "success" && <CheckCircle className="size-4 flex-shrink-0 mt-0.5" />}
+              {message.type === "success" && (
+                <CheckCircle className="size-4 flex-shrink-0 mt-0.5" />
+              )}
               {message.type === "info" && <AlertCircle className="size-4 flex-shrink-0 mt-0.5" />}
               <span>{message.text}</span>
               <button
@@ -301,7 +361,13 @@ function AuthPage() {
                 className="ml-auto text-current/60 hover:text-current transition-colors"
                 aria-label="Dismiss message"
               >
-                <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -320,11 +386,13 @@ function AuthPage() {
                 <Loader2 className="size-4 mr-2 animate-spin" aria-hidden="true" />
                 Please wait…
               </>
-            ) : mode === "login"
-            ? "Log in"
-            : mode === "signup"
-            ? "Create free account"
-            : "Send reset link"}
+            ) : mode === "login" ? (
+              "Log in"
+            ) : mode === "signup" ? (
+              "Create free account"
+            ) : (
+              "Send reset link"
+            )}
           </Button>
         </form>
 
@@ -333,8 +401,8 @@ function AuthPage() {
             {mode === "signup"
               ? "Already have an account? "
               : mode === "forgot"
-              ? "Back to "
-              : "Don't have an account? "}
+                ? "Back to "
+                : "Don't have an account? "}
             <button
               type="button"
               className="text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"

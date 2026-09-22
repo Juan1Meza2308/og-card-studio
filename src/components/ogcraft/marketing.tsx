@@ -45,7 +45,10 @@ export function PublicNav() {
               key={item.to}
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground transition-colors duration-150"
             >
-              <Link to={item.to} className="px-3 py-2 rounded-md text-sm font-medium hover:text-foreground transition-colors">
+              <Link
+                to={item.to}
+                className="px-3 py-2 rounded-md text-sm font-medium hover:text-foreground transition-colors"
+              >
                 {item.label}
               </Link>
             </Button>
@@ -89,7 +92,10 @@ export function PublicNav() {
               </Button>
             ))}
             <div className="border-t border-border/50 my-1" />
-            <Button className="mt-1 w-full justify-center px-4 py-3 text-sm font-medium rounded-lg" asChild>
+            <Button
+              className="mt-1 w-full justify-center px-4 py-3 text-sm font-medium rounded-lg"
+              asChild
+            >
               <Link to="/auth" onClick={() => setOpen(false)}>
                 Get API Key Free
               </Link>
@@ -111,7 +117,10 @@ export function PublicFooter() {
             Dynamic images, built for the open web.
           </p>
         </div>
-        <nav className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground" aria-label="Footer navigation">
+        <nav
+          className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground"
+          aria-label="Footer navigation"
+        >
           <a
             href="https://github.com"
             target="_blank"
@@ -265,7 +274,9 @@ export function PricingGrid() {
               </div>
             )}
             <div className="mb-6">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{plan.name}</p>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                {plan.name}
+              </p>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
                 <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>
@@ -332,7 +343,10 @@ export function CtaBand() {
             One URL. Every social card.
           </h2>
         </div>
-        <div className="flex items-center gap-4 animate-slide-up" style={{ animationDelay: "100ms" }}>
+        <div
+          className="flex items-center gap-4 animate-slide-up"
+          style={{ animationDelay: "100ms" }}
+        >
           <Button size="lg" asChild className="gap-2">
             <Link to="/auth" className="flex items-center gap-2">
               Start free — 100 images/mo
