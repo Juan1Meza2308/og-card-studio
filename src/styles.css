@@ -251,4 +251,76 @@
   .bg-sidebar {
     background-color: var(--color-sidebar);
   }
+
+  /* ===== Playground OG Preview (1200×630) ===== */
+  .og-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1200 / 630;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-preview-ink);
+    color: var(--color-preview-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .og-preview::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--og-gradient);
+  }
+
+  .og-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.03;
+    background-image:
+      linear-gradient(oklch(1 0 0 / 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.1) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* Theme gradients — defined as CSS custom properties */
+  .og-violet { --og-gradient: linear-gradient(135deg, #6d28d9, #312e81, #09090b); }
+  .og-ocean { --og-gradient: linear-gradient(135deg, #0369a1, #164e63, #09090b); }
+  .og-ember { --og-gradient: linear-gradient(135deg, #be123c, #7c2d12, #09090b); }
+  .og-mint  { --og-gradient: linear-gradient(135deg, #047857, #134e4a, #09090b); }
+
+  /* Light template variant */
+  .og-light {
+    --og-gradient: linear-gradient(135deg, #fafafa, #f0f0f0, #e5e5e5);
+    color: #111113;
+  }
+  .og-light .og-grid {
+    background-image:
+      linear-gradient(oklch(0 0 0 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0 0 0 / 0.05) 1px, transparent 1px);
+  }
+
+  /* Preview content layout */
+  .og-preview > .relative {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Preview typography */
+  .og-preview .font-mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+
+  /* Template-specific tweaks */
+  .og-preview.og-tech .og-grid { opacity: 0.05; }
+  .og-preview.og-minimalist .og-grid { opacity: 0; }
+  .og-preview.og-dark-gradient .og-grid { opacity: 0.04; }
+  .og-preview.og-clean-white .og-grid { opacity: 0; }
+
+  /* Preview logo placeholder */
+  .og-preview .size-8 {
+    width: 32px;
+    height: 32px;
+  }
 }
