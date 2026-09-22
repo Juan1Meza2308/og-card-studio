@@ -1,5 +1,91 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Braces, Terminal } from "lucide-react";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
-export const Route = createFileRoute("/docs")({ head: () => ({ meta: [{ title: "API Documentation — OGCraft" }, { name: "description", content: "Integrate OGCraft dynamic social images with HTML, Next.js, or any HTTP client." }, { property: "og:title", content: "API Documentation — OGCraft" }, { property: "og:description", content: "Your quick-start guide to the OGCraft image API." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Docs });
-function Docs() { return <><PublicNav /><main className="min-h-screen"><PageIntro eyebrow="Documentation" title="From zero to your first image." text="Build a URL, add your API key, and use the result anywhere an image URL is accepted." icon={BookOpen} /><section className="mx-auto grid max-w-5xl gap-6 px-5 pb-24 pt-16 md:grid-cols-[220px_1fr]"><aside className="h-fit border-l border-border pl-4 text-sm"><p className="mb-3 font-medium">Getting started</p><a href="#request" className="block py-1.5 text-primary">First request</a><a href="#parameters" className="block py-1.5 text-muted-foreground">Parameters</a><a href="#auth" className="block py-1.5 text-muted-foreground">Authentication</a></aside><article className="min-w-0"><section id="request"><p className="eyebrow"><Terminal /> Quick start</p><h2 className="mt-4 text-2xl font-semibold">Create an image</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">Send a GET request to the image endpoint. The response is a production-ready PNG.</p><pre className="mt-5 overflow-x-auto rounded-lg border border-border bg-code p-5 font-mono text-xs leading-6 text-code-foreground"><code>{`curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\\n  -H "Authorization: Bearer og_live_your_key" \\\n  --output og.png`}</code></pre></section><section id="parameters" className="mt-12 border-t border-border pt-10"><p className="eyebrow"><Braces /> Parameters</p><div className="mt-5 space-y-4">{[["title", "The main headline displayed on your card."], ["subtitle", "A supporting label or category."], ["theme", "violet, ocean, ember, or mint."], ["template", "tech, minimalist, dark-gradient, or clean-white."]].map(([name, text]) => <div key={name} className="grid gap-1 border-b border-border/60 pb-4 sm:grid-cols-[120px_1fr]"><code className="text-sm text-primary">{name}</code><p className="text-sm text-muted-foreground">{text}</p></div>)}</div></section><section id="auth" className="mt-12 border-t border-border pt-10"><h2 className="text-2xl font-semibold">Authentication</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">Pass your secret key in the Authorization header. Keep keys on your server and rotate them from the dashboard.</p></section></article></section></main><PublicFooter /></>; }
+export const Route = createFileRoute("/docs")({
+  head: () => ({
+    meta: [
+      { title: "API Documentation — OGCraft" },
+      {
+        name: "description",
+        content: "Integrate OGCraft dynamic social images with HTML, Next.js, or any HTTP client.",
+      },
+      { property: "og:title", content: "API Documentation — OGCraft" },
+      { property: "og:description", content: "Your quick-start guide to the OGCraft image API." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Docs,
+});
+function Docs() {
+  return (
+    <>
+      <PublicNav />
+      <main className="min-h-screen">
+        <PageIntro
+          eyebrow="Documentation"
+          title="From zero to your first image."
+          text="Build a URL, add your API key, and use the result anywhere an image URL is accepted."
+          icon={BookOpen}
+        />
+        <section className="mx-auto grid max-w-5xl gap-6 px-5 pb-24 pt-16 md:grid-cols-[220px_1fr]">
+          <aside className="h-fit border-l border-border pl-4 text-sm">
+            <p className="mb-3 font-medium">Getting started</p>
+            <a href="#request" className="block py-1.5 text-primary">
+              First request
+            </a>
+            <a href="#parameters" className="block py-1.5 text-muted-foreground">
+              Parameters
+            </a>
+            <a href="#auth" className="block py-1.5 text-muted-foreground">
+              Authentication
+            </a>
+          </aside>
+          <article className="min-w-0">
+            <section id="request">
+              <p className="eyebrow">
+                <Terminal /> Quick start
+              </p>
+              <h2 className="mt-4 text-2xl font-semibold">Create an image</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Send a GET request to the image endpoint. The response is a production-ready PNG.
+              </p>
+              <pre className="mt-5 overflow-x-auto rounded-lg border border-border bg-code p-5 font-mono text-xs leading-6 text-code-foreground">
+                <code>{`curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\\n  -H "Authorization: Bearer og_live_your_key" \\\n  --output og.png`}</code>
+              </pre>
+            </section>
+            <section id="parameters" className="mt-12 border-t border-border pt-10">
+              <p className="eyebrow">
+                <Braces /> Parameters
+              </p>
+              <div className="mt-5 space-y-4">
+                {[
+                  ["title", "The main headline displayed on your card."],
+                  ["subtitle", "A supporting label or category."],
+                  ["theme", "violet, ocean, ember, or mint."],
+                  ["template", "tech, minimalist, dark-gradient, or clean-white."],
+                ].map(([name, text]) => (
+                  <div
+                    key={name}
+                    className="grid gap-1 border-b border-border/60 pb-4 sm:grid-cols-[120px_1fr]"
+                  >
+                    <code className="text-sm text-primary">{name}</code>
+                    <p className="text-sm text-muted-foreground">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+            <section id="auth" className="mt-12 border-t border-border pt-10">
+              <h2 className="text-2xl font-semibold">Authentication</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Pass your secret key in the Authorization header. Keep keys on your server and
+                rotate them from the dashboard.
+              </p>
+            </section>
+          </article>
+        </section>
+      </main>
+      <PublicFooter />
+    </>
+  );
+}

@@ -78,10 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "OGCraft — Dynamic OG Images via API" },
-      { name: "description", content: "Generate beautiful, customizable social share cards through one fast API URL." },
+      {
+        name: "description",
+        content: "Generate beautiful, customizable social share cards through one fast API URL.",
+      },
       { name: "author", content: "Juan1Meza2308" },
       { property: "og:title", content: "OGCraft — Dynamic OG Images via API" },
-      { property: "og:description", content: "Generate beautiful social share cards through one fast API URL." },
+      {
+        property: "og:description",
+        content: "Generate beautiful social share cards through one fast API URL.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@juan1meza2308" },

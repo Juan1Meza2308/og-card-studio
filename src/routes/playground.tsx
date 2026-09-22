@@ -1,5 +1,37 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Playground } from "@/components/ogcraft/playground";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
-export const Route = createFileRoute("/playground")({ head: () => ({ meta: [{ title: "Playground — OGCraft" }, { name: "description", content: "Design and download an Open Graph preview image instantly." }, { property: "og:title", content: "OGCraft Playground" }, { property: "og:description", content: "Build a social card and copy its API URL." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: PlaygroundPage });
-function PlaygroundPage() { return <><PublicNav /><main className="min-h-screen"><PageIntro eyebrow="Live editor" title="Craft your next social preview." text="Tune the content and style, then copy a production-ready URL." /><section className="mx-auto max-w-6xl px-5 pb-24 pt-12"><Playground /></section></main><PublicFooter /></>; }
+export const Route = createFileRoute("/playground")({
+  head: () => ({
+    meta: [
+      { title: "Playground — OGCraft" },
+      {
+        name: "description",
+        content: "Design and download an Open Graph preview image instantly.",
+      },
+      { property: "og:title", content: "OGCraft Playground" },
+      { property: "og:description", content: "Build a social card and copy its API URL." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: PlaygroundPage,
+});
+function PlaygroundPage() {
+  return (
+    <>
+      <PublicNav />
+      <main className="min-h-screen">
+        <PageIntro
+          eyebrow="Live editor"
+          title="Craft your next social preview."
+          text="Tune the content and style, then copy a production-ready URL."
+        />
+        <section className="mx-auto max-w-6xl px-5 pb-24 pt-12">
+          <Playground />
+        </section>
+      </main>
+      <PublicFooter />
+    </>
+  );
+}

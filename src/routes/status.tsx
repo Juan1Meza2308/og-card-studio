@@ -1,2 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router"; import { CheckCircle2 } from "lucide-react"; import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
-export const Route = createFileRoute("/status")({ head: () => ({ meta: [{ title: "System Status — OGCraft" }, { name: "description", content: "Current availability of OGCraft services." }, { property: "og:title", content: "System Status — OGCraft" }, { property: "og:description", content: "Current OGCraft service availability." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: () => <><PublicNav /><main className="min-h-screen"><PageIntro eyebrow="Status" title="All systems operational." text="Image rendering, API delivery, dashboards, and authentication are operating normally." icon={CheckCircle2} /></main><PublicFooter /></> });
+import { createFileRoute } from "@tanstack/react-router";
+import { CheckCircle2 } from "lucide-react";
+import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
+export const Route = createFileRoute("/status")({
+  head: () => ({
+    meta: [
+      { title: "System Status — OGCraft" },
+      { name: "description", content: "Current availability of OGCraft services." },
+      { property: "og:title", content: "System Status — OGCraft" },
+      { property: "og:description", content: "Current OGCraft service availability." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <>
+      <PublicNav />
+      <main className="min-h-screen">
+        <PageIntro
+          eyebrow="Status"
+          title="All systems operational."
+          text="Image rendering, API delivery, dashboards, and authentication are operating normally."
+          icon={CheckCircle2}
+        />
+      </main>
+      <PublicFooter />
+    </>
+  ),
+});

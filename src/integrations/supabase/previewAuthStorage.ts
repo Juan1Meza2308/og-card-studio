@@ -1,6 +1,6 @@
 // Standard localStorage-based auth storage for Supabase client
 export function brokeredPreviewStorage() {
-  if (typeof window === 'undefined') return undefined;
+  if (typeof window === "undefined") return undefined;
 
   return {
     getItem: (key: string) => localStorage.getItem(key),

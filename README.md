@@ -13,25 +13,26 @@
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| **Interactive Playground** | Live 1200×630 preview with editable content, template & gradient controls |
-| **Instant API URL** | Copy production-ready URLs with all parameters encoded |
-| **PNG Download** | Export high-resolution OG images directly from the browser |
-| **Code Integration Tabs** | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL |
-| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation |
-| **Secure API Keys** | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
-| **Row-Level Security** | Every table protected by RLS policies — users only access their own data |
-| **Dashboard** | Overview, API Keys management, Template Builder, Analytics, Billing |
-| **Usage Tracking** | Monthly quotas, per-key last-used timestamps, plan limits |
-| **Dark, High-Contrast UI** | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons |
-| **Responsive & Accessible** | Mobile-first, keyboard navigable, focus-visible, ARIA labels |
+| Feature                          | Description                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------------- |
+| **Interactive Playground**       | Live 1200×630 preview with editable content, template & gradient controls    |
+| **Instant API URL**              | Copy production-ready URLs with all parameters encoded                       |
+| **PNG Download**                 | Export high-resolution OG images directly from the browser                   |
+| **Code Integration Tabs**        | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL        |
+| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation     |
+| **Secure API Keys**              | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
+| **Row-Level Security**           | Every table protected by RLS policies — users only access their own data     |
+| **Dashboard**                    | Overview, API Keys management, Template Builder, Analytics, Billing          |
+| **Usage Tracking**               | Monthly quotas, per-key last-used timestamps, plan limits                    |
+| **Dark, High-Contrast UI**       | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons                         |
+| **Responsive & Accessible**      | Mobile-first, keyboard navigable, focus-visible, ARIA labels                 |
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 20+ (recommended: [nvm](https://github.com/nvm-sh/nvm))
 - A [Supabase](https://supabase.com) project
 
@@ -59,18 +60,18 @@ Open http://localhost:3000 — you should see the OGCraft landing page with the 
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | TanStack Start (React 19, SSR, File-based routing) |
-| **Styling** | Tailwind CSS v4 (semantic tokens), shadcn/ui components |
-| **Auth & Database** | Supabase (PostgreSQL + Row Level Security) |
-| **Forms & Validation** | React Hook Form + Zod |
-| **State & Data Fetching** | TanStack Query (React Query v5) |
-| **Charts** | Recharts |
-| **Icons** | Lucide React |
-| **Date Handling** | date-fns |
-| **Build Tool** | Vite 8 + Rolldown |
-| **Deployment Target** | Vercel (configurable) |
+| Layer                     | Technology                                              |
+| ------------------------- | ------------------------------------------------------- |
+| **Framework**             | TanStack Start (React 19, SSR, File-based routing)      |
+| **Styling**               | Tailwind CSS v4 (semantic tokens), shadcn/ui components |
+| **Auth & Database**       | Supabase (PostgreSQL + Row Level Security)              |
+| **Forms & Validation**    | React Hook Form + Zod                                   |
+| **State & Data Fetching** | TanStack Query (React Query v5)                         |
+| **Charts**                | Recharts                                                |
+| **Icons**                 | Lucide React                                            |
+| **Date Handling**         | date-fns                                                |
+| **Build Tool**            | Vite 8 + Rolldown                                       |
+| **Deployment Target**     | Vercel (configurable)                                   |
 
 ---
 
@@ -136,15 +137,15 @@ og-card-studio/
 
 ## 🔐 Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SUPABASE_URL` | ✅ | Project URL from Supabase Dashboard → Settings → API |
-| `SUPABASE_PUBLISHABLE_KEY` | ✅ | Anon/public key (safe for client) |
-| `SUPABASE_PROJECT_ID` | ✅ | Project reference ID |
-| `VITE_SUPABASE_URL` | ✅ | Same as above, for client bundle |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Same as above, for client bundle |
-| `VITE_SUPABASE_PROJECT_ID` | ✅ | Same as above, for client bundle |
-| `SUPABASE_SECRET_KEY` | ❌ | Service role key (server-only, never in client) |
+| Variable                        | Required | Description                                          |
+| ------------------------------- | -------- | ---------------------------------------------------- |
+| `SUPABASE_URL`                  | ✅       | Project URL from Supabase Dashboard → Settings → API |
+| `SUPABASE_PUBLISHABLE_KEY`      | ✅       | Anon/public key (safe for client)                    |
+| `SUPABASE_PROJECT_ID`           | ✅       | Project reference ID                                 |
+| `VITE_SUPABASE_URL`             | ✅       | Same as above, for client bundle                     |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Same as above, for client bundle                     |
+| `VITE_SUPABASE_PROJECT_ID`      | ✅       | Same as above, for client bundle                     |
+| `SUPABASE_SECRET_KEY`           | ❌       | Service role key (server-only, never in client)      |
 
 > **Never commit `.env`**. Use `.env.example` as template.
 
@@ -156,12 +157,12 @@ All tables have **Row Level Security (RLS) enabled** with policies restricting a
 
 ### Tables
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `profiles` | User profile & plan | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency) |
-| `api_keys` | Hashed API keys | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
-| `usage_stats` | Monthly quota tracking | `id`, `user_id`, `period_start`, `requests_used`, `request_limit` |
-| `templates` | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default` |
+| Table         | Purpose                   | Key Columns                                                                                        |
+| ------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `profiles`    | User profile & plan       | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency)                   |
+| `api_keys`    | Hashed API keys           | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
+| `usage_stats` | Monthly quota tracking    | `id`, `user_id`, `period_start`, `requests_used`, `request_limit`                                  |
+| `templates`   | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default`                    |
 
 ### Security Highlights
 
