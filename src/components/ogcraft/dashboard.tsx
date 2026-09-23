@@ -164,29 +164,42 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex min-h-screen bg-dashboard text-foreground">
-        <aside className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/60 bg-sidebar md:flex w-60">
+        <aside className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/60 bg-sidebar md:flex w-64">
           <div className="flex h-16 items-center justify-between border-b border-border/60 px-4">
             <Logo compact={false} />
-            <Button variant="ghost" size="icon" aria-label="Collapse sidebar">
+            <Button variant="ghost" size="icon" aria-label="Collapse sidebar" disabled>
               <ChevronLeft />
             </Button>
           </div>
-          <nav className="flex-1 space-y-1 p-3" aria-label="Main navigation">
+          <nav className="flex-1 space-y-2 p-3" aria-label="Loading navigation">
             {nav.map((item) => (
-              <Button
-                key={item.id}
-                variant={view === item.id ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                disabled
-              >
-                <item.icon />
-                {item.label}
-              </Button>
+              <div key={item.id} className="h-9 animate-pulse rounded-md bg-muted/60" />
             ))}
           </nav>
+          <div className="border-t border-border/60 p-3">
+            <div className="h-8 animate-pulse rounded-md bg-muted/60" />
+          </div>
         </aside>
-        <main className="min-w-0 flex-1 flex items-center justify-center">
-          <Loader2 className="size-8 text-primary animate-spin" aria-hidden="true" />
+        <main className="min-w-0 flex-1">
+          <header className="flex h-16 items-center justify-between border-b border-border/60 px-4 sm:px-8">
+            <div className="space-y-2">
+              <div className="h-3 w-32 animate-pulse rounded bg-muted/60" />
+              <div className="h-5 w-24 animate-pulse rounded bg-muted/60" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-32 animate-pulse rounded-full bg-muted/60" />
+              <div className="size-8 animate-pulse rounded-md bg-muted/60" />
+            </div>
+          </header>
+          <div className="mx-auto max-w-7xl space-y-4 p-4 sm:p-8" aria-hidden="true">
+            <div className="h-6 w-48 animate-pulse rounded bg-muted/60" />
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2 h-44 animate-pulse rounded-2xl bg-muted/40" />
+              <div className="h-44 animate-pulse rounded-2xl bg-muted/40" />
+            </div>
+            <div className="h-40 animate-pulse rounded-2xl bg-muted/40" />
+            <div className="h-40 animate-pulse rounded-2xl bg-muted/40" />
+          </div>
         </main>
       </div>
     );
@@ -529,13 +542,28 @@ function Keys({
         </Dialog>
       </div>
       {keys.length === 0 ? (
-        <div className="text-center py-12">
-          <KeyRound className="size-12 mx-auto text-muted-foreground/30" aria-hidden="true" />
-          <h3 className="mt-4 font-medium">No API keys yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Generate your first key to start making requests.
+        <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
+          <div className="mx-auto grid size-12 place-items-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+            <KeyRound className="size-6" aria-hidden="true" />
+          </div>
+          <h3 className="mt-4 text-base font-semibold">Create your first API key</h3>
+          <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Keys are shown once and hashed with SHA-256 — copy it somewhere safe.
           </p>
-          <Button className="mt-4" onClick={() => setOpen(true)}>
+          <div className="mx-auto mt-6 grid max-w-md gap-2 text-left sm:grid-cols-3">
+            {[
+              { n: "1", t: "Generate", d: "Click below and name the key." },
+              { n: "2", t: "Copy", d: "Save it — it won't appear twice." },
+              { n: "3", t: "Request", d: "Pass it as a header or query." },
+            ].map((step) => (
+              <div key={step.n} className="rounded-xl border border-border/50 bg-card/50 p-3">
+                <span className="font-mono text-[10px] text-primary">{step.n}</span>
+                <p className="mt-1 text-sm font-medium">{step.t}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{step.d}</p>
+              </div>
+            ))}
+          </div>
+          <Button className="mt-6" onClick={() => setOpen(true)}>
             <Plus className="size-4 mr-2" />
             Generate API Key
           </Button>
