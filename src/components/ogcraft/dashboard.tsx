@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { OnboardingBanner } from "@/components/ogcraft/onboarding-banner";
 import {
   Activity,
   BarChart3,
@@ -394,6 +395,7 @@ function Overview({ used, limit }: { used: number; limit: number }) {
 
   return (
     <div className="space-y-6 animate-fade-up">
+      <OnboardingBanner />
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="dash-card lg:col-span-2" aria-labelledby="usage-heading">
           <div className="flex items-start justify-between">
