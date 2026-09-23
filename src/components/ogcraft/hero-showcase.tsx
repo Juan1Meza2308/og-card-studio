@@ -52,6 +52,24 @@ const chips = [
   { label: "og:image", icon: ImageIcon, className: "-bottom-3 left-6 sm:left-10" },
 ];
 
+/** Print-style crop marks around the card stack — a quiet nod to the editing
+ *  table: the product cuts 1200×630 images, so the showcase sits in crop
+ *  guides. Hidden on small screens to keep the mobile hero clean. */
+function CropMarks() {
+  const corner = "absolute size-4";
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute -inset-3 z-0 hidden sm:block"
+    >
+      <span className={`${corner} left-0 top-0 border-l-2 border-t-2 border-primary/50`} />
+      <span className={`${corner} right-0 top-0 border-r-2 border-t-2 border-primary/50`} />
+      <span className={`${corner} bottom-0 left-0 border-b-2 border-l-2 border-primary/50`} />
+      <span className={`${corner} bottom-0 right-0 border-b-2 border-r-2 border-primary/50`} />
+    </div>
+  );
+}
+
 export function HeroShowcase() {
   return (
     <motion.div
@@ -59,6 +77,7 @@ export function HeroShowcase() {
       className="relative mx-auto w-full max-w-md lg:max-w-none"
       aria-hidden="true"
     >
+      <CropMarks />
       {/* Back card — ocean, rotated left */}
       <motion.div
         initial={{ opacity: 0, x: -36, rotate: 0 }}
@@ -117,6 +136,22 @@ export function HeroShowcase() {
           {chip.label}
         </motion.span>
       ))}
+
+      {/* Spec strip — the card's own technical readout, like a print label */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.95, duration: 0.5 }}
+        className="mt-7 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+      >
+        <span>1200 × 630</span>
+        <span className="size-1 rotate-45 bg-primary/60" />
+        <span>PNG</span>
+        <span className="size-1 rotate-45 bg-primary/60" />
+        <span>Edge cache</span>
+        <span className="size-1 rotate-45 bg-primary/60" />
+        <span>42ms</span>
+      </motion.p>
     </motion.div>
   );
 }

@@ -7,6 +7,7 @@ import { HeroShowcase } from "@/components/ogcraft/hero-showcase";
 import {
   CtaBand,
   FeatureGrid,
+  GenerationLog,
   PricingGrid,
   PublicFooter,
   PublicNav,
@@ -113,6 +114,7 @@ function Home() {
             </div>
           </motion.div>
         </section>
+        <GenerationLog />
         <section className="section-shell">
           <div className="section-heading">
             <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">

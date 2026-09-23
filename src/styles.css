@@ -432,6 +432,27 @@
   }
 
   /* ===== Landing Page Utilities ===== */
+  /* Live API log ticker — a quiet, product-native motion detail */
+  @keyframes api-log-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .api-log-track {
+    animation: api-log-scroll 36s linear infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .api-log-track {
+      animation: none;
+    }
+  }
+
   .hero-surface {
     @apply relative min-h-[90vh] flex items-center;
     background: var(--color-background);

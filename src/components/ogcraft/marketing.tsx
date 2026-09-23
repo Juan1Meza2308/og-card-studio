@@ -497,6 +497,56 @@ export function CtaBand() {
   );
 }
 
+const logLines = [
+  {
+    method: "GET",
+    path: "/v1/og?title=Ship fast&theme=violet",
+    status: "200 OK",
+    duration: "38ms",
+  },
+  {
+    method: "GET",
+    path: "/v1/og?title=Launch day&theme=ocean",
+    status: "200 OK",
+    duration: "41ms",
+  },
+  { method: "GET", path: "/v1/og?title=Week 12&theme=ember", status: "200 OK", duration: "29ms" },
+  { method: "GET", path: "/v1/og?title=Holidays&theme=mint", status: "200 OK", duration: "44ms" },
+  { method: "POST", path: "/v1/og/validate", status: "200 OK", duration: "19ms" },
+  { method: "GET", path: "/v1/og?title=Pricing&theme=violet", status: "200 OK", duration: "33ms" },
+] as const;
+
+export function GenerationLog() {
+  return (
+    <section aria-label="Live API log" className="border-y border-border/60 bg-card/30 py-4">
+      <div className="relative mx-auto max-w-6xl overflow-hidden px-5 [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+        <div className="api-log-track flex w-max items-center font-mono text-xs text-muted-foreground">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex items-center" aria-hidden={copy === 1}>
+              {logLines.map((line) => (
+                <span
+                  key={`${copy}-${line.method}-${line.path}`}
+                  className="flex items-center gap-2 whitespace-nowrap px-5"
+                >
+                  <span className="text-primary">{line.method}</span>
+                  <span className="text-foreground">{line.path}</span>
+                  <span className="opacity-70">→</span>
+                  <span
+                    className={line.status === "200 OK" ? "text-success" : "text-muted-foreground"}
+                  >
+                    {line.status}
+                  </span>
+                  <span className="text-muted-foreground/70">{line.duration}</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const storyRows = [
   {
     index: "01",
