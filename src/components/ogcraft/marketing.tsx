@@ -22,7 +22,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
-import { fadeUp, fadeIn, staggerContainer, staggerItem, hoverLift, hoverScale } from "@/lib/motion";
+import { staggerContainer, staggerItem } from "@/lib/motion";
 
 const links = [
   { label: "Features", to: "/features" },
@@ -193,29 +193,24 @@ export function FeatureGrid() {
   return (
     <section className="relative" aria-labelledby="features-heading">
       <motion.div
-        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        className="grid gap-x-10 gap-y-10 md:grid-cols-2"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
       >
         {featureItems.map((item) => (
-          <motion.article
+          <motion.div
             key={item.title}
             variants={staggerItem}
-            whileHover="hover"
-            className="group relative rounded-2xl border border-border/60 bg-card/50 p-7 transition-colors duration-300 hover:border-primary/30 hover:shadow-[0_8px_32px_-8px_rgb(99,102,241,0.15)] hover:shadow-glow"
+            className="group border-t border-border/60 pt-6 transition-colors duration-300"
           >
-            <motion.div
-              className="icon-box group-hover:scale-110 transition-transform duration-300"
-              variants={hoverScale}
-            >
-              <item.icon className="size-6 text-primary" strokeWidth={2} />
-            </motion.div>
-            <h3 className="mt-5 font-semibold text-lg leading-tight">{item.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
-          </motion.article>
+            <div className="icon-box">
+              <item.icon className="size-5 text-primary" strokeWidth={2} />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold leading-tight">{item.title}</h3>
+            <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{item.text}</p>
+          </motion.div>
         ))}
       </motion.div>
     </section>
@@ -324,7 +319,7 @@ export function PricingGrid() {
             whileHover="hover"
             className={`relative rounded-2xl border p-7 transition-colors duration-300 ${
               plan.popular
-                ? "border-primary/30 bg-primary/5 shadow-glow ring-1 ring-primary/10"
+                ? "border-primary/40 bg-primary/5 shadow-glow"
                 : "border-border/60 bg-card/50 hover:border-primary/20"
             }`}
           >
@@ -337,9 +332,7 @@ export function PricingGrid() {
               </div>
             )}
             <div className="mb-6">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                {plan.name}
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">{plan.name}</p>
               <div className="mt-2 flex items-baseline gap-1">
                 <motion.span
                   key={yearly ? "y" : "m"}
@@ -487,7 +480,6 @@ export function CtaBand() {
 const storyRows = [
   {
     index: "01",
-    eyebrow: "Compose",
     title: "Tune content right from the URL.",
     text: "Title, subtitle, theme, and template are plain query parameters. No SDK required — just swap the values and your social card follows.",
     points: ["Plain URL parameters", "4 curated templates", "Live preview as you type"],
@@ -512,7 +504,6 @@ const storyRows = [
   },
   {
     index: "02",
-    eyebrow: "Render",
     title: "Rendered at the edge, cached for the world.",
     text: "Every card is drawn close to your audience on a global edge network and cached automatically. The first hit is fast; every hit after is instant.",
     points: ["42ms median render time", "Global edge network", "Automatic cache headers"],
@@ -543,7 +534,6 @@ const storyRows = [
   },
   {
     index: "03",
-    eyebrow: "Ship",
     title: "Drop one meta tag and go live.",
     text: "Point your og:image at the generated URL and your link previews upgrade everywhere — Slack, X, LinkedIn, WhatsApp. Zero redeploys.",
     points: ["og:image meta tag", "Works in any stack", "Invalidate when you need"],
@@ -587,7 +577,6 @@ export function StoryRows() {
             <div className="icon-box">
               <span className="font-mono text-sm text-primary">{row.index}</span>
             </div>
-            <p className="eyebrow mt-6">{row.eyebrow}</p>
             <h3 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
               {row.title}
             </h3>
