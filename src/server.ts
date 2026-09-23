@@ -46,6 +46,14 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // Health probe for load balancers and uptime monitors.
+    if (request.url.endsWith("/api/health")) {
+      return new Response(JSON.stringify({ ok: true, service: "ogcraft", ts: Date.now() }), {
+        status: 200,
+        headers: { "content-type": "application/json; charset=utf-8" },
+      });
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
