@@ -400,9 +400,25 @@ function Overview({ used, limit }: { used: number; limit: number }) {
     }
   }
 
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
+
   return (
     <div className="space-y-6 animate-fade-up">
       <OnboardingBanner />
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">{greeting}, 👋</p>
+          <h1 className="text-2xl font-semibold">Resumen de tu proyecto</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs text-success">
+            <span className="size-1.5 rounded-full bg-success" />
+            Conectado
+          </span>
+        </div>
+      </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="dash-card lg:col-span-2" aria-labelledby="usage-heading">
           <div className="flex items-start justify-between">
@@ -797,10 +813,15 @@ function Templates() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
         {templateData.map((item, index) => (
-          <button
+          <motion.button
             type="button"
             onClick={() => setSelected(index)}
             key={item.name}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.06, duration: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
               "relative group overflow-hidden rounded-xl border transition-all duration-200",
               "p-0",
@@ -840,7 +861,7 @@ function Templates() {
                 <Check className="size-5 text-primary" strokeWidth={3} />
               </div>
             )}
-          </button>
+          </motion.button>
         ))}
       </div>
       <section className="dash-card">
@@ -893,6 +914,8 @@ function Analytics({ used }: { used: number }) {
   const max = Math.max(...bars);
   const min = Math.min(...bars);
   const total = bars.reduce((a, b) => a + b, 0);
+  const maxIndex = bars.indexOf(max);
+  const minIndex = bars.indexOf(min);
 
   return (
     <div className="grid gap-4 lg:grid-cols-3 animate-fade-up">
@@ -906,71 +929,133 @@ function Analytics({ used }: { used: number }) {
           </div>
           <span className="text-xs text-success flex items-center gap-1">
             <Activity className="size-3" aria-hidden="true" />
-            +{Math.round(((used / 100) * 100))}%
+            +18.2%
           </span>
         </div>
-        <div
-          className="mt-10 flex h-64 items-end gap-1.5"
-          role="img"
-          aria-label="Monthly requests chart"
-        >
-          {bars.map((height, i) => (
-            <motion.div
-              key={i}
-              className="flex-1 rounded-t-sm transition-all duration-300 ease-out"
-              style={{
-                height: `${height}%`,
-                background:
-                  i === bars.indexOf(max) ? "var(--primary)" : i === bars.indexOf(min) ? "var(--destructive)" : "var(--primary)/80",
-              }}
-              title={`Day ${i + 1}: ${height}%`}
-              whileHover={{ height: `${Math.min(height + 10, 95)}%` }}
-            >
-              <span className="absolute bottom-1 text-xs text-muted-foreground capitalize">
-                {i + 1}
-              </span>
-            </motion.div>
-          ))}
-          {/* Average line */}
-          <motion.div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px bg-success/60 h-full transition-all duration-500"
-            style={{ height: `${average}%` }}
-          >
-            <span className="absolute -bottom-2 text-xs text-success capitalize">
-              Avg: {average}%
-            </span>
-          </motion.div>
-          {/* Max highlight */}
-          {max !== min && bars.indexOf(max) !== -1 && (
-            <motion.div
-              className="absolute bottom-0 left-{bars.indexOf(max)} -translate-x-1/2 w-px bg-success h-full transition-all duration-300"
-              style={{ height: `${max}%` }}
-            >
-              <span className="absolute -bottom-3 text-xs text-success capitalize">
-                Max
-              </span>
-            </motion.div>
-          )}
+
+        {/* Chart */}
+        <div className="mt-8 relative">
+          {/* Y-axis labels + Grid */}
+          <div className="flex h-48 items-end gap-[3px] px-1 pb-8" role="img" aria-label="Monthly requests chart">
+            {/* Grid lines */}
+            <div className="absolute inset-x-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
+              {[0, 25, 50, 75, 100].map((val) => (
+                <div key={val} className="flex items-center gap-2">
+                  <span className="w-8 text-[10px] text-muted-foreground text-right font-mono">{val}%</span>
+                  <div className="flex-1 border-t border-border/30" />
+                </div>
+              ))}
+            </div>
+
+            {/* Bars */}
+            {bars.map((height, i) => (
+              <motion.div
+                key={i}
+                className="flex-1 rounded-t-md relative group cursor-pointer"
+                style={{
+                  background:
+                    i === maxIndex
+                      ? "var(--chart-1)"
+                      : i === minIndex
+                        ? "var(--chart-4)"
+                        : "var(--chart-1)/70",
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                title={`Day ${i + 1}: ${height}%`}
+              >
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                  <div className="rounded-lg bg-card border border-border px-3 py-1.5 shadow-lg text-xs font-mono whitespace-nowrap">
+                    <span className="text-foreground font-semibold">Day {i + 1}</span>
+                    <span className="text-muted-foreground ml-1">{height}%</span>
+                    {i === maxIndex && (
+                      <span className="text-success ml-1">Peak</span>
+                    )}
+                    {i === minIndex && (
+                      <span className="text-destructive ml-1">Low</span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Average line */}
+            <div className="absolute left-8 right-8 pointer-events-none">
+              <div
+                className="h-0.5 bg-success/50"
+                style={{
+                  bottom: `${average}%`,
+                  left: "calc(8px + 3px)",
+                  right: "calc(8px + 3px)",
+                }}
+              >
+                <motion.div
+                  className="absolute -top-1 left-1/2 -translate-x-1/2 rounded-full bg-success px-2 py-0.5 text-[10px] font-mono text-success"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.3 }}
+                >
+                  avg {average}%
+                </motion.div>
+              </div>
+            </div>
+          </div>
+
+          {/* X-axis labels */}
+          <div className="flex gap-[3px] px-1 pl-10 mt-0">
+            {bars.map((_, i) => (
+              <div key={i} className="flex-1 text-center">
+                <span className="text-[10px] text-muted-foreground font-mono">D{i + 1}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="text-center rounded-lg bg-muted/30 p-3">
+            <p className="text-xs text-muted-foreground font-mono">Total</p>
+            <p className="mt-1 text-lg font-semibold">{total}</p>
+          </div>
+          <div className="text-center rounded-lg bg-muted/30 p-3">
+            <p className="text-xs text-muted-foreground font-mono">Average</p>
+            <p className="mt-1 text-lg font-semibold">{average}%</p>
+          </div>
+          <div className="text-center rounded-lg bg-muted/30 p-3">
+            <p className="text-xs text-muted-foreground font-mono">Peak</p>
+            <p className="mt-1 text-lg font-semibold text-success">{max}%</p>
+          </div>
         </div>
       </section>
+
       <section className="dash-card" aria-labelledby="top-templates-heading">
         <p id="top-templates-heading" className="dash-label">
           Top templates
         </p>
         {[
-          { name: "Dark Gradient", renders: 19, trend: "+12%" },
-          { name: "Launch Signal", renders: 14, trend: "+8%" },
-          { name: "Editorial Clean", renders: 9, trend: "-3%" },
-          { name: "Ember Release", renders: 6, trend: "+22%" },
+          { name: "Dark Gradient", renders: 19, trend: "+12%", color: "var(--chart-1)" },
+          { name: "Launch Signal", renders: 14, trend: "+8%", color: "var(--chart-2)" },
+          { name: "Editorial Clean", renders: 9, trend: "-3%", color: "var(--chart-3)" },
+          { name: "Ember Release", renders: 6, trend: "+22%", color: "var(--chart-4)" },
         ].map((item, i) => (
-          <div
+          <motion.div
             key={item.name}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.08 + 0.3, duration: 0.3 }}
             className={cn(
               "mt-5 flex items-center justify-between text-sm",
               i > 0 && "pt-4 border-t border-border/50",
             )}
           >
-            <span className="font-medium">{item.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full" style={{ background: item.color }} />
+              <span className="font-medium">{item.name}</span>
+            </div>
             <div className="flex items-center gap-3 text-right">
               <span className="text-muted-foreground">{item.renders} renders</span>
               <span
@@ -982,12 +1067,13 @@ function Analytics({ used }: { used: number }) {
                 {item.trend}
               </span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </section>
     </div>
   );
 }
+
 
 function Billing({ used, limit }: { used: number; limit: number }) {
   return (
