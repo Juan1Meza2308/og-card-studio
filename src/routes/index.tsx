@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { Suspense, lazy } from "react";
 import { ArrowRight, BookOpen, Check, Image, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Playground } from "@/components/ogcraft/playground";
 import {
   CtaBand,
   FeatureGrid,
@@ -12,6 +12,10 @@ import {
   StoryRows,
 } from "@/components/ogcraft/marketing";
 import { staggerContainer, staggerItem } from "@/lib/motion";
+
+const Playground = lazy(() =>
+  import("@/components/ogcraft/playground").then((m) => ({ default: m.Playground })),
+);
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -97,7 +101,35 @@ function Home() {
               transition={{ delay: 0.35, type: "spring", stiffness: 120, damping: 18 }}
               className="mt-16"
             >
-              <Playground />
+              <Suspense
+                fallback={
+                  <div
+                    className="overflow-hidden rounded-2xl border border-border/80 bg-workspace shadow-panel"
+                    aria-label="Loading playground"
+                  >
+                    <div className="flex h-12 items-center justify-between border-b border-border/70 px-4">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="size-2 rounded-full bg-success" /> Live playground
+                      </div>
+                      <div className="h-8 w-24 animate-pulse rounded-md bg-muted/60" />
+                    </div>
+                    <div className="grid gap-4 p-4 sm:grid-cols-[280px_1fr] sm:p-6">
+                      <div className="space-y-3">
+                        {[80, 100, 60, 90].map((w, i) => (
+                          <div
+                            key={i}
+                            className="h-6 animate-pulse rounded bg-muted/50"
+                            style={{ width: `${w}%` }}
+                          />
+                        ))}
+                      </div>
+                      <div className="aspect-[1200/630] animate-pulse rounded-xl bg-muted/40" />
+                    </div>
+                  </div>
+                }
+              >
+                <Playground />
+              </Suspense>
             </motion.div>
           </div>
         </section>
