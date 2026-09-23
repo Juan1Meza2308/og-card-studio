@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import {
   ArrowRight,
   BookOpen,
@@ -21,6 +22,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { fadeUp, fadeIn, staggerContainer, staggerItem, hoverLift, hoverScale } from "@/lib/motion";
 
 const links = [
   { label: "Features", to: "/features" },
@@ -190,22 +192,32 @@ const featureItems = [
 export function FeatureGrid() {
   return (
     <section className="relative" aria-labelledby="features-heading">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {featureItems.map((item, index) => (
-          <article
+      <motion.div
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        {featureItems.map((item) => (
+          <motion.article
             key={item.title}
-            className="group relative rounded-2xl border border-border/60 bg-card/50 p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_32px_-8px_rgb(99,102,241,0.15)] hover:shadow-glow"
-            style={{ animationDelay: `${index * 80}ms` }}
+            variants={staggerItem}
+            whileHover="hover"
+            className="group relative rounded-2xl border border-border/60 bg-card/50 p-7 transition-colors duration-300 hover:border-primary/30 hover:shadow-[0_8px_32px_-8px_rgb(99,102,241,0.15)] hover:shadow-glow"
           >
-            <div className="icon-box group-hover:scale-110 transition-transform duration-300">
+            <motion.div
+              className="icon-box group-hover:scale-110 transition-transform duration-300"
+              variants={hoverScale}
+            >
               <item.icon className="size-6 text-primary" strokeWidth={2} />
-            </div>
+            </motion.div>
             <h3 className="mt-5 font-semibold text-lg leading-tight">{item.title}</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
-          </article>
+          </motion.article>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -260,16 +272,23 @@ const plans = [
 export function PricingGrid() {
   return (
     <section className="relative" aria-labelledby="pricing-heading">
-      <div className="grid gap-6 lg:grid-cols-3">
-        {plans.map((plan, index) => (
-          <article
+      <motion.div
+        className="grid gap-6 lg:grid-cols-3"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        {plans.map((plan) => (
+          <motion.article
             key={plan.name}
-            className={`relative rounded-2xl border p-7 transition-all duration-300 ${
+            variants={staggerItem}
+            whileHover="hover"
+            className={`relative rounded-2xl border p-7 transition-colors duration-300 ${
               plan.popular
                 ? "border-primary/30 bg-primary/5 shadow-glow ring-1 ring-primary/10"
                 : "border-border/60 bg-card/50 hover:border-primary/20"
             }`}
-            style={{ animationDelay: `${index * 100}ms` }}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -307,9 +326,9 @@ export function PricingGrid() {
                 {plan.popular && <ArrowRight className="size-4" />}
               </Link>
             </Button>
-          </article>
+          </motion.article>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -326,16 +345,32 @@ export function PageIntro({
   icon?: typeof Sparkles;
 }) {
   return (
-    <div className="mx-auto max-w-3xl pt-20 text-center animate-fade-up">
-      <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-3 py-1.5 font-mono text-[10px] uppercase text-primary">
+    <motion.div
+      className="mx-auto max-w-3xl pt-20 text-center"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.span
+        variants={staggerItem}
+        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-3 py-1.5 font-mono text-[10px] uppercase text-primary"
+      >
         <Icon className="size-3.5" strokeWidth={2} />
         {eyebrow}
-      </span>
-      <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl text-wrap-balance">
+      </motion.span>
+      <motion.h1
+        variants={staggerItem}
+        className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl text-wrap-balance"
+      >
         {title}
-      </h1>
-      <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground">{text}</p>
-    </div>
+      </motion.h1>
+      <motion.p
+        variants={staggerItem}
+        className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground"
+      >
+        {text}
+      </motion.p>
+    </motion.div>
   );
 }
 
@@ -343,29 +378,47 @@ export function CtaBand() {
   return (
     <section className="relative border-t border-border/40" aria-labelledby="cta-heading">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-16 sm:flex-row sm:items-center">
-        <div className="animate-fade-up">
-          <p className="font-mono text-xs uppercase text-primary">Ready to ship</p>
-          <h2 id="cta-heading" className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-            One URL. Every social card.
-          </h2>
-        </div>
-        <div
-          className="flex items-center gap-4 animate-slide-up"
-          style={{ animationDelay: "100ms" }}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
         >
-          <Button size="lg" asChild className="gap-2">
-            <Link to="/auth" className="flex items-center gap-2">
-              Start free — 100 images/mo
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-          <Button variant="outline" size="lg" asChild className="gap-2">
-            <Link to="/playground" className="flex items-center gap-2">
-              <Image className="size-4" />
-              Try playground
-            </Link>
-          </Button>
-        </div>
+          <motion.p variants={staggerItem} className="font-mono text-xs uppercase text-primary">
+            Ready to ship
+          </motion.p>
+          <motion.h2
+            variants={staggerItem}
+            id="cta-heading"
+            className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl"
+          >
+            One URL. Every social card.
+          </motion.h2>
+        </motion.div>
+        <motion.div
+          className="flex items-center gap-4"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.div variants={staggerItem}>
+            <Button size="lg" asChild className="gap-2">
+              <Link to="/auth" className="flex items-center gap-2">
+                Start free — 100 images/mo
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <Button variant="outline" size="lg" asChild className="gap-2">
+              <Link to="/playground" className="flex items-center gap-2">
+                <Image className="size-4" />
+                Try playground
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
