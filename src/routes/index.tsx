@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Suspense, lazy } from "react";
 import { ArrowRight, BookOpen, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroShowcase } from "@/components/ogcraft/hero-showcase";
 import {
   CtaBand,
   FeatureGrid,
@@ -16,45 +17,6 @@ import { staggerContainer, staggerItem } from "@/lib/motion";
 const Playground = lazy(() =>
   import("@/components/ogcraft/playground").then((m) => ({ default: m.Playground })),
 );
-
-function HeroBackdrop() {
-  const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
-  const blades = Array.from({ length: 6 }, (_, i) => i * 60);
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      <svg
-        viewBox="0 0 400 400"
-        fill="none"
-        stroke="currentColor"
-        className="absolute left-1/2 top-1/2 h-[130%] w-auto -translate-x-1/2 -translate-y-1/2 text-foreground opacity-[0.04] dark:opacity-[0.055]"
-      >
-        <circle cx="200" cy="200" r="190" strokeWidth="0.75" />
-        <circle cx="200" cy="200" r="120" strokeWidth="0.75" />
-        <circle cx="200" cy="200" r="60" strokeWidth="0.5" />
-        {ticks.map((deg) => (
-          <line
-            key={deg}
-            x1={200 + 182 * Math.cos((deg * Math.PI) / 180)}
-            y1={200 + 182 * Math.sin((deg * Math.PI) / 180)}
-            x2={200 + 192 * Math.cos((deg * Math.PI) / 180)}
-            y2={200 + 192 * Math.sin((deg * Math.PI) / 180)}
-            strokeWidth="0.5"
-          />
-        ))}
-        {blades.map((deg) => (
-          <line
-            key={`b-${deg}`}
-            x1={200 + 120 * Math.cos((deg * Math.PI) / 180)}
-            y1={200 + 120 * Math.sin((deg * Math.PI) / 180)}
-            x2={200 + 190 * Math.cos(((deg + 60) * Math.PI) / 180)}
-            y2={200 + 190 * Math.sin(((deg + 60) * Math.PI) / 180)}
-            strokeWidth="0.5"
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -80,10 +42,9 @@ function Home() {
       <PublicNav />
       <main>
         <section className="hero-surface">
-          <HeroBackdrop />
-          <div className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-36 sm:pt-44">
+          <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pb-24 pt-36 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <motion.div
-              className="mx-auto max-w-4xl text-center"
+              className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left"
               variants={staggerContainer}
               initial="hidden"
               animate="visible"
@@ -96,20 +57,20 @@ function Home() {
               </motion.div>
               <motion.h1
                 variants={staggerItem}
-                className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl"
+                className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl"
               >
                 Dynamic OG Images via a <span className="text-primary">Single API URL</span>
               </motion.h1>
               <motion.p
                 variants={staggerItem}
-                className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg"
+                className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg lg:mx-0"
               >
                 Generate beautiful, customizable social share cards on the fly for your blog,
                 e-commerce, or app in milliseconds.
               </motion.p>
               <motion.div
                 variants={staggerItem}
-                className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
+                className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start"
               >
                 <Button size="lg" asChild>
                   <Link to="/auth">
@@ -124,7 +85,7 @@ function Home() {
               </motion.div>
               <motion.div
                 variants={staggerItem}
-                className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground"
+                className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground lg:justify-start"
               >
                 {["No credit card", "42ms average", "Global edge cache"].map((item) => (
                   <span key={item} className="flex items-center gap-1.5">
@@ -134,42 +95,7 @@ function Home() {
                 ))}
               </motion.div>
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, type: "spring", stiffness: 120, damping: 18 }}
-              className="mt-16"
-            >
-              <Suspense
-                fallback={
-                  <div
-                    className="overflow-hidden rounded-2xl border border-border/80 bg-workspace shadow-panel"
-                    aria-label="Loading playground"
-                  >
-                    <div className="flex h-12 items-center justify-between border-b border-border/70 px-4">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="size-2 rounded-full bg-success" /> Live playground
-                      </div>
-                      <div className="h-8 w-24 animate-pulse rounded-md bg-muted/60" />
-                    </div>
-                    <div className="grid gap-4 p-4 sm:grid-cols-[280px_1fr] sm:p-6">
-                      <div className="space-y-3">
-                        {[80, 100, 60, 90].map((w, i) => (
-                          <div
-                            key={i}
-                            className="h-6 animate-pulse rounded bg-muted/50"
-                            style={{ width: `${w}%` }}
-                          />
-                        ))}
-                      </div>
-                      <div className="aspect-[1200/630] animate-pulse rounded-xl bg-muted/40" />
-                    </div>
-                  </div>
-                }
-              >
-                <Playground />
-              </Suspense>
-            </motion.div>
+            <HeroShowcase />
           </div>
         </section>
         <section className="section-shell">
@@ -182,6 +108,46 @@ function Home() {
             </p>
           </div>
           <StoryRows />
+        </section>
+        <section className="section-shell border-t border-border/70">
+          <div className="section-heading">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              Try it live, right here.
+            </h2>
+            <p>
+              Type a title, pick a theme, and watch social cards render in real time. No account
+              needed.
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div
+                className="overflow-hidden rounded-2xl border border-border/80 bg-workspace shadow-panel"
+                aria-label="Loading playground"
+              >
+                <div className="flex h-12 items-center justify-between border-b border-border/70 px-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="size-2 rounded-full bg-success" /> Live playground
+                  </div>
+                  <div className="h-8 w-24 animate-pulse rounded-md bg-muted/60" />
+                </div>
+                <div className="grid gap-4 p-4 sm:grid-cols-[280px_1fr] sm:p-6">
+                  <div className="space-y-3">
+                    {[80, 100, 60, 90].map((w, i) => (
+                      <div
+                        key={i}
+                        className="h-6 animate-pulse rounded bg-muted/50"
+                        style={{ width: `${w}%` }}
+                      />
+                    ))}
+                  </div>
+                  <div className="aspect-[1200/630] animate-pulse rounded-xl bg-muted/40" />
+                </div>
+              </div>
+            }
+          >
+            <Playground />
+          </Suspense>
         </section>
         <section className="section-shell border-t border-border/70">
           <div className="section-heading">
