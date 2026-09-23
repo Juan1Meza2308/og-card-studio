@@ -580,7 +580,7 @@ const storyRows = [
 
 export function StoryRows() {
   return (
-    <div className="space-y-20">
+    <div className="space-y-16 sm:space-y-20">
       {storyRows.map((row) => (
         <motion.div
           key={row.index}
@@ -588,7 +588,7 @@ export function StoryRows() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="group grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
+          className="group grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
         >
           <motion.div
             variants={staggerItem}

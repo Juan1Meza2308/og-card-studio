@@ -42,7 +42,7 @@ function Home() {
       <PublicNav />
       <main>
         <section className="hero-surface">
-          <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pb-24 pt-36 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-20 pt-28 sm:gap-14 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <motion.div
               className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left"
               variants={staggerContainer}
@@ -57,7 +57,7 @@ function Home() {
               </motion.div>
               <motion.h1
                 variants={staggerItem}
-                className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl"
+                className="text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
               >
                 Dynamic OG Images via a <span className="text-primary">Single API URL</span>
               </motion.h1>
@@ -101,7 +101,7 @@ function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9, duration: 0.5 }}
-            className="relative z-10 mx-auto mt-20 max-w-6xl border-t border-border/60 px-5 pt-8"
+            className="relative z-10 mx-auto mt-14 max-w-6xl border-t border-border/60 px-5 pt-6 sm:mt-20 sm:pt-8"
           >
             <p className="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               Works wherever you already build

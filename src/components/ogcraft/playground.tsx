@@ -73,7 +73,7 @@ function TemplatePreview({
           {subtitle || "YOUR CATEGORY"}
         </p>
         <h3
-          className={`mt-6 max-w-2xl ${ink} text-[clamp(26px,4.6vw,60px)] font-semibold leading-[1.05] tracking-tight`}
+          className={`mt-6 max-w-2xl ${ink} text-[clamp(17px,4.6vw,60px)] font-semibold leading-[1.05] tracking-tight`}
         >
           {title || "Your title goes here"}
         </h3>
@@ -101,7 +101,7 @@ function TemplatePreview({
               {subtitle || "YOUR CATEGORY"}
             </p>
             <h3
-              className={`mx-auto mt-4 max-w-3xl ${ink} text-[clamp(30px,5.2vw,68px)] font-semibold leading-[1.02] tracking-tight`}
+              className={`mx-auto mt-4 max-w-3xl ${ink} text-[clamp(18px,5.2vw,68px)] font-semibold leading-[1.02] tracking-tight`}
             >
               {title || "Your title goes here"}
             </h3>
@@ -128,7 +128,7 @@ function TemplatePreview({
             <p className={`${mono} ${accent} text-[clamp(10px,1.2vw,16px)]`}>
               {subtitle || "YOUR CATEGORY"}
             </p>
-            <h3 className="mt-4 max-w-2xl text-[clamp(26px,4.6vw,60px)] font-semibold leading-[1.04] tracking-tight text-[#111113]">
+            <h3 className="mt-4 max-w-2xl text-[clamp(17px,4.6vw,60px)] font-semibold leading-[1.04] tracking-tight text-[#111113]">
               {title || "Your title goes here"}
             </h3>
           </div>
@@ -153,7 +153,7 @@ function TemplatePreview({
             {subtitle || "YOUR CATEGORY"}
           </p>
           <h3
-            className={`mt-4 max-w-3xl ${ink} text-[clamp(24px,4.5vw,58px)] font-semibold leading-[1.02]`}
+            className={`mt-4 max-w-3xl ${ink} text-[clamp(17px,4.5vw,58px)] font-semibold leading-[1.02]`}
           >
             {title || "Your title goes here"}
           </h3>

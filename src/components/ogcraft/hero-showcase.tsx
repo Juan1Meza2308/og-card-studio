@@ -26,19 +26,19 @@ function OgCard({
             <span className="grid size-6 place-items-center rounded-md bg-white/10">
               <ImageIcon className="size-3.5" />
             </span>
-            <span className="text-[clamp(10px,1vw,14px)]">OGCraft</span>
+            <span className="text-[clamp(9px,1vw,14px)]">OGCraft</span>
           </div>
-          <span className="font-mono text-[clamp(8px,0.7vw,11px)] opacity-60">ogcraft.dev</span>
+          <span className="font-mono text-[clamp(7px,0.7vw,11px)] opacity-60">ogcraft.dev</span>
         </div>
         <div>
-          <p className="mb-2 font-mono text-[clamp(9px,0.9vw,13px)] uppercase text-white/80">
+          <p className="mb-2 font-mono text-[clamp(8px,0.9vw,13px)] uppercase text-white/80">
             {category}
           </p>
-          <p className="text-[clamp(16px,1.9vw,28px)] font-semibold leading-[1.05] text-white">
+          <p className="text-[clamp(13px,1.9vw,28px)] font-semibold leading-[1.05] text-white">
             {title}
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-[clamp(8px,0.7vw,11px)] text-white/70">
+        <div className="flex items-center gap-1.5 text-[clamp(7px,0.7vw,11px)] text-white/70">
           <Globe2 className="size-[1em]" /> Generated in 42ms
         </div>
       </div>
