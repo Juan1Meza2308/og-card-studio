@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { OnboardingBanner } from "@/components/ogcraft/onboarding-banner";
 import {
   Activity,
@@ -655,61 +656,72 @@ function Keys({
             </thead>
             <tbody className="divide-y divide-border/50">
               {keys.map((key) => (
-                <tr key={key.id} className="transition-colors hover:bg-card/50">
-                  <td className="py-4 font-medium">{key.name}</td>
-                  <td>
-                    <code className="rounded bg-muted px-2 py-1 text-xs font-mono">
-                      {key.key_prefix}••••{key.last_four}
-                    </code>
-                  </td>
-                  <td className="text-muted-foreground whitespace-nowrap">
-                    {new Date(key.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="text-muted-foreground whitespace-nowrap">
-                    {key.last_used_at ? (
-                      new Date(key.last_used_at).toLocaleDateString("en-US", {
+                <AnimatePresence key={key.id} >
+                  <tr
+                    key={key.id}
+                    className={cn(
+                      "transition-colors hover:bg-card/50",
+                      "animate-fade-up",
+                      { "in-view": key.id === keys[keys.length - 1]?.id }
+                    )}
+                  >
+                    <td className="py-4 font-medium">{key.name}</td>
+                    <td>
+                      <code className="rounded bg-muted px-2 py-1 text-xs font-mono">
+                        {key.key_prefix}••••{key.last_four}
+                      </code>
+                    </td>
+                    <td className="text-muted-foreground whitespace-nowrap">
+                      {new Date(key.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
-                      })
-                    ) : (
-                      <span className="text-muted-foreground/50">Never</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => copy(`${key.key_prefix}••••${key.last_four}`)}
-                        aria-label={`Copy ${key.name} prefix`}
-                      >
-                        {copied === key.last_four ? (
-                          <CheckCircle className="size-4 text-success" />
-                        ) : (
-                          <Copy className="size-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRevoke(key.id)}
-                        aria-label={`Revoke ${key.name}`}
-                        disabled={revoking === key.id}
-                      >
-                        {revoking === key.id ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Trash2 />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                      })}
+                    </td>
+                    <td className="text-muted-foreground whitespace-nowrap">
+                      {key.last_used_at ? (
+                        new Date(key.last_used_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      ) : (
+                        <span className="text-muted-foreground/50">Never</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => copy(`${key.key_prefix}••••${key.last_four}`)}
+                          aria-label={`Copy ${key.name} prefix`}
+                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                          {copied === key.last_four ? (
+                            <CheckCircle className="size-4 text-success" />
+                          ) : (
+                            <Copy className="size-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRevoke(key.id)}
+                          aria-label={`Revoke ${key.name}`}
+                          disabled={revoking === key.id}
+                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                          {revoking === key.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 />
+                          )}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                </AnimatePresence>
               ))}
             </tbody>
           </table>
