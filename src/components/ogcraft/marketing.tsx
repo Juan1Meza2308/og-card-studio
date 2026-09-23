@@ -429,50 +429,70 @@ export function PageIntro({
 
 export function CtaBand() {
   return (
-    <section className="relative border-t border-border/40" aria-labelledby="cta-heading">
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-16 sm:flex-row sm:items-center">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          <motion.p variants={staggerItem} className="font-mono text-xs uppercase text-primary">
-            Ready to ship
-          </motion.p>
-          <motion.h2
-            variants={staggerItem}
-            id="cta-heading"
-            className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl"
+    <section className="relative px-5 py-16 sm:py-24" aria-labelledby="cta-heading">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-60px" }}
+        className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-primary px-6 py-14 sm:px-12 sm:py-16 shadow-glow"
+      >
+        {/* Hairline top light — subtle inner rim, no gradient blob */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/25"
+        />
+        <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
+          <motion.div variants={staggerItem} className="max-w-xl">
+            <motion.p
+              variants={staggerItem}
+              className="font-mono text-xs uppercase text-primary-foreground/70"
+            >
+              Ready to ship
+            </motion.p>
+            <motion.h2
+              variants={staggerItem}
+              id="cta-heading"
+              className="mt-3 text-3xl font-semibold tracking-tight text-primary-foreground sm:text-4xl text-balance"
+            >
+              One URL. Every social card.
+            </motion.h2>
+            <motion.p variants={staggerItem} className="mt-3 text-primary-foreground/75">
+              Grab a free API key and replace your first og:image tag in under five minutes.
+            </motion.p>
+          </motion.div>
+          <motion.div
+            className="flex flex-col gap-3 sm:flex-row sm:items-center"
+            variants={staggerContainer}
           >
-            One URL. Every social card.
-          </motion.h2>
-        </motion.div>
-        <motion.div
-          className="flex items-center gap-4"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          <motion.div variants={staggerItem}>
-            <Button size="lg" asChild className="gap-2">
-              <Link to="/auth" className="flex items-center gap-2">
-                Start free — 100 images/mo
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <motion.div variants={staggerItem}>
+              <Button
+                size="lg"
+                asChild
+                className="bg-white text-primary shadow-sm hover:bg-white/90 gap-2"
+              >
+                <Link to="/auth" className="flex items-center gap-2">
+                  Start free — 100 images/mo
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </motion.div>
+            <motion.div variants={staggerItem}>
+              <Button
+                variant="outline"
+                size="lg"
+                asChild
+                className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground gap-2"
+              >
+                <Link to="/playground" className="flex items-center gap-2">
+                  <Image className="size-4" />
+                  Try playground
+                </Link>
+              </Button>
+            </motion.div>
           </motion.div>
-          <motion.div variants={staggerItem}>
-            <Button variant="outline" size="lg" asChild className="gap-2">
-              <Link to="/playground" className="flex items-center gap-2">
-                <Image className="size-4" />
-                Try playground
-              </Link>
-            </Button>
-          </motion.div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -97,6 +97,21 @@ function Home() {
             </motion.div>
             <HeroShowcase />
           </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
+            className="relative z-10 mx-auto mt-20 max-w-6xl border-t border-border/60 px-5 pt-8"
+          >
+            <p className="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Works wherever you already build
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm font-medium text-foreground/60">
+              {["Next.js", "Astro", "Vite", "Shopify", "Remix", "Plain HTML"].map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </motion.div>
         </section>
         <section className="section-shell">
           <div className="section-heading">
