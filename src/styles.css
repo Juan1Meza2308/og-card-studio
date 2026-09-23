@@ -296,9 +296,21 @@
     --og-gradient: linear-gradient(135deg, #047857, #134e4a, #09090b);
   }
 
+  /* Ink colors follow the template, not the site theme — dark themes always
+     render light text, and the light template always renders dark text. */
+  .og-violet,
+  .og-ocean,
+  .og-ember,
+  .og-mint {
+    --preview-ink: oklch(0.985 0.002 265);
+    --preview-accent: oklch(0.68 0.2 285);
+  }
+
   /* Light template variant */
   .og-light {
     --og-gradient: linear-gradient(135deg, #fafafa, #f0f0f0, #e5e5e5);
+    --preview-ink: oklch(0.12 0.02 270);
+    --preview-accent: oklch(0.45 0.18 285);
     color: #111113;
   }
   .og-light .og-grid {
