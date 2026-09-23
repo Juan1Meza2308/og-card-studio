@@ -594,10 +594,7 @@ export function StoryRows() {
             variants={staggerItem}
             className="transform transition-transform duration-300 group-hover:scale-[1.02]"
           >
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-60 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="relative">{row.visual}</div>
-            </div>
+            <div className="relative">{row.visual}</div>
           </motion.div>
         </motion.div>
       ))}

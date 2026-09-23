@@ -419,9 +419,7 @@
   /* ===== Landing Page Utilities ===== */
   .hero-surface {
     @apply relative min-h-[90vh] flex items-center;
-    background:
-      radial-gradient(ellipse at 50% -10%, var(--color-primary) 0%, transparent 55%),
-      var(--color-background);
+    background: var(--color-background);
     overflow: hidden;
   }
 
@@ -451,22 +449,14 @@
       0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
-  .shadow-glow {
-    box-shadow:
-      0 0 0 1px oklch(0.62 0.24 270 / 0.15),
-      0 8px 32px -8px oklch(0.62 0.24 270 / 0.25);
-  }
-
   /* ===== Auth Pages ===== */
   .auth-shell {
     @apply relative min-h-screen flex items-center justify-center px-4 py-12;
-    background:
-      radial-gradient(ellipse at 50% 0%, var(--color-primary) 0%, transparent 60%),
-      var(--color-background);
+    background: var(--color-background);
   }
 
   .auth-panel {
-    @apply w-full max-w-md rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-8 shadow-[0_2px_8px_-4px_rgb(0,0,0,0.25)];
+    @apply w-full max-w-md rounded-2xl border border-border/60 bg-card p-8 shadow-[0_2px_8px_-4px_rgb(0,0,0,0.12)];
     animation: fade-up 0.6s ease-out forwards;
     opacity: 0;
   }
