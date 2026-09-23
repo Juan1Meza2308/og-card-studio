@@ -4,11 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "@/lib/theme";
+import { pageTransition } from "@/lib/motion";
 
 import appCss from "../styles.css?url";
 
@@ -153,13 +156,27 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </ThemeProvider>
+      <MotionConfig reducedMotion="user">
+        <ThemeProvider>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={location.pathname}
+              variants={pageTransition}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex min-h-screen flex-col"
+            >
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
+        </ThemeProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }
