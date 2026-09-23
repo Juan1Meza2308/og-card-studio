@@ -65,7 +65,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
   /* Light mode — brand-tinted (violet/indigo hue 270°) not neutral "AI cream" */
   --background: oklch(0.99 0.003 270);
   --foreground: oklch(0.12 0.02 270);
@@ -191,19 +191,9 @@
 }
 
 @layer utilities {
-  /* Text gradient utility */
-  .text-gradient {
-    background: linear-gradient(135deg, oklch(0.62 0.24 270), oklch(0.68 0.22 320));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* Glow shadow for primary elements */
+  /* Glow shadow for primary elements — soft, ≤8px blur (no ghost-card pairing) */
   .shadow-glow {
-    box-shadow:
-      0 0 0 1px oklch(0.62 0.24 270 / 0.15),
-      0 8px 32px -8px oklch(0.62 0.24 270 / 0.25);
+    box-shadow: 0 2px 8px -4px oklch(0.62 0.24 270 / 0.35);
   }
 
   /* Subtle inner glow for cards */
@@ -435,11 +425,6 @@
     overflow: hidden;
   }
 
-  .hero-noise {
-    @apply absolute inset-0 opacity-[0.03] pointer-events-none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  }
-
   .section-shell {
     @apply py-20 sm:py-28 lg:py-32 px-5;
   }
@@ -481,7 +466,7 @@
   }
 
   .auth-panel {
-    @apply w-full max-w-md rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-8 shadow-[0_25px_50px_-12px_rgb(0,0,0,0.4)];
+    @apply w-full max-w-md rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-8 shadow-[0_2px_8px_-4px_rgb(0,0,0,0.25)];
     animation: fade-up 0.6s ease-out forwards;
     opacity: 0;
   }
