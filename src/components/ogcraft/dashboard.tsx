@@ -302,6 +302,7 @@ export function Dashboard() {
               newName={newName}
               setNewName={setNewName}
               revealed={revealed}
+              setRevealed={setRevealed}
               generateKey={generateKey}
               generating={generating}
               copyToClipboard={copyToClipboard}
@@ -411,6 +412,7 @@ function Keys({
   newName,
   setNewName,
   revealed,
+  setRevealed,
   generateKey,
   generating,
   copyToClipboard,
@@ -422,6 +424,7 @@ function Keys({
   newName: string;
   setNewName: (v: string) => void;
   revealed: string | null;
+  setRevealed: (v: string | null) => void;
   generateKey: () => void;
   generating: boolean;
   copyToClipboard: (value: string) => Promise<void>;

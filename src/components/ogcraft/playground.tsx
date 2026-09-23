@@ -29,7 +29,7 @@ export function Playground() {
   const [title, setTitle] = useState("Ship ideas people remember.");
   const [subtitle, setSubtitle] = useState("ENGINEERING · PRODUCT · DESIGN");
   const [theme, setTheme] = useState<keyof typeof themes>("violet");
-  const [template, setTemplate] = useState(templates[0].value);
+  const [template, setTemplate] = useState<string>(templates[0].value);
   const [logoUrl, setLogoUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);

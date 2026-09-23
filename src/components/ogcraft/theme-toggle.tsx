@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@/lib/theme";
+import { useTheme, type Theme } from "@/lib/theme";
 import { Moon, Sun, Monitor, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +29,7 @@ export function ThemeToggle() {
 
   const currentIcon = icons[theme];
   const currentLabel = labels[theme];
+  const CurrentThemeIcon = currentIcon;
 
   return (
     <DropdownMenu>
@@ -39,12 +40,12 @@ export function ThemeToggle() {
           className="relative"
           aria-label={`Current theme: ${currentLabel}. Click to change.`}
         >
-          <currentIcon className="size-5" aria-hidden="true" />
+          <CurrentThemeIcon className="size-5" aria-hidden="true" />
           <span className="sr-only">{currentLabel} mode</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+        <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as Theme)}>
           {(["light", "dark", "system"] as const).map((t) => {
             const Icon = icons[t];
             return (

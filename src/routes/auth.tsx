@@ -47,7 +47,11 @@ function AuthPage() {
     text: string;
   } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+  }>({});
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -56,7 +60,11 @@ function AuthPage() {
   }, [navigate]);
 
   function validate() {
-    const newErrors: Record<string, string> = {};
+    const newErrors: {
+      name?: string;
+      email?: string;
+      password?: string;
+    } = {};
     if (mode === "signup" && name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters";
     }
