@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3D53E5" />
+      <stop offset="1" stop-color="#2A1E70" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Aperture mark -->
+  <g transform="translate(600 300)">
+    <circle r="64" fill="none" stroke="#FFFFFF" stroke-width="14" opacity="0.95" />
+    <circle r="22" fill="#FFFFFF" />
+    <path d="M 22 0 A 64 64 0 0 1 -30 45 L 0 22 Z" fill="#FFFFFF" opacity="0.95" />
+    <path d="M -22 0 A 64 64 0 0 1 30 -45 L 0 -22 Z" fill="#FFFFFF" opacity="0.35" />
+  </g>
+
+  <text x="600" y="470" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="72" font-weight="700" fill="#FFFFFF" letter-spacing="-1">OGCraft</text>
+  <text x="600" y="522" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="28" fill="#FFFFFF" opacity="0.85" letter-spacing="2">DYNAMIC OG IMAGES VIA API</text>
+</svg>
