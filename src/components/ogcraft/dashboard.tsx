@@ -380,9 +380,15 @@ export function Dashboard() {
 function Overview({ used, limit }: { used: number; limit: number }) {
   const percentage = Math.min((used / limit) * 100, 100);
   const [copied, setCopied] = useState(false);
+  const [animatedPct, setAnimatedPct] = useState(0);
   const snippet = `curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\
   -H "Authorization: Bearer og_live_••••••••" \\
   --output preview.png`;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimatedPct(percentage), 200);
+    return () => clearTimeout(timer);
+  }, [percentage]);
 
   async function copySnippet() {
     try {
@@ -414,14 +420,17 @@ function Overview({ used, limit }: { used: number; limit: number }) {
             </div>
           </div>
           <div
-            className="mt-7"
+            className="mt-7 flex items-center gap-3"
             role="progressbar"
-            aria-valuenow={used}
+            aria-valuenow={animatedPct}
             aria-valuemin={0}
-            aria-valuemax={limit}
+            aria-valuemax={100}
             aria-label="Monthly usage progress"
           >
-            <Progress value={percentage} className="h-2" />
+            <Progress value={animatedPct} className="h-2 flex-1" />
+            <span className="text-sm font-mono text-muted-foreground min-w-[3rem] text-right">
+              {animatedPct}%
+            </span>
           </div>
           <div className="mt-3 flex justify-between text-xs text-muted-foreground">
             <span>{limit - used} requests remaining</span>
@@ -438,12 +447,13 @@ function Overview({ used, limit }: { used: number; limit: number }) {
           <p id="render-heading" className="dash-label">
             Average render
           </p>
-          <p className="mt-4 text-3xl font-semibold">
-            42<span className="ml-1 text-base text-muted-foreground">ms</span>
+          <p className="mt-2 text-3xl font-semibold">
+            {used > 0 ? Math.round(42 * (used / Math.max(limit, 1))) : 0}
+            <span className="ml-1 text-base text-muted-foreground">ms</span>
           </p>
-          <p className="mt-5 flex items-center gap-2 text-xs text-success">
+          <p className="mt-4 flex items-center gap-2 text-xs text-success">
             <ShieldCheck className="size-4" aria-hidden="true" />
-            99.99% API uptime
+            {used > 0 ? `${Math.round(percentage)}%` : `Ready`} of requests cached
           </p>
         </section>
       </div>
@@ -995,13 +1005,21 @@ function Billing({ used, limit }: { used: number; limit: number }) {
             Active
           </span>
         </div>
-        <div className="mt-6 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border border-primary/10 flex items-center justify-center">
+        <div className="mt-6 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border border-primary/10 flex flex-col items-center justify-center gap-2">
           <p className="text-sm text-muted-foreground">
             Usage:{" "}
             <span className="font-mono text-foreground">
               {used} / {limit}
             </span>
           </p>
+          <div className="w-40 h-2 bg-background/80 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-primary rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
         </div>
         <Button asChild className="mt-6 w-full sm:w-auto">
           <Link to="/pricing">
@@ -1024,24 +1042,27 @@ function Billing({ used, limit }: { used: number; limit: number }) {
             { text: "No watermark", included: false },
             { text: "Team access & SSO", included: false },
             { text: "Priority support", included: false },
-          ].map((item) => (
-            <li
+          ].map((item, i) => (
+            <motion.li
               key={item.text}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05 }}
               className={cn(
                 "flex items-center gap-2",
                 item.included ? "" : "text-muted-foreground/50",
               )}
             >
               {item.included ? (
-                <Check className="size-4 text-success" strokeWidth={3} />
+                <Check className="size-4 text-success shrink-0" strokeWidth={3} />
               ) : (
-                <span className="size-4 text-muted-foreground/30">✕</span>
+                <span className="size-4 text-muted-foreground/30 shrink-0">✕</span>
               )}
               <span>{item.text}</span>
               {!item.included && (
                 <span className="ml-auto text-xs text-muted-foreground/60">Pro+</span>
               )}
-            </li>
+            </motion.li>
           ))}
         </ul>
       </section>
