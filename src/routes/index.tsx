@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Suspense, lazy } from "react";
-import { ArrowRight, BookOpen, Check, Image, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   CtaBand,
@@ -41,7 +41,6 @@ function Home() {
       <PublicNav />
       <main>
         <section className="hero-surface">
-          <div className="hero-noise" />
           <div className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-36 sm:pt-44">
             <motion.div
               className="mx-auto max-w-4xl text-center"
@@ -59,7 +58,7 @@ function Home() {
                 variants={staggerItem}
                 className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl"
               >
-                Dynamic OG Images via a <span className="text-gradient">Single API URL</span>
+                Dynamic OG Images via a <span className="text-primary">Single API URL</span>
               </motion.h1>
               <motion.p
                 variants={staggerItem}
@@ -135,10 +134,9 @@ function Home() {
         </section>
         <section className="section-shell">
           <div className="section-heading">
-            <p className="eyebrow">
-              <Zap /> How it works
-            </p>
-            <h2>Three steps between you and perfect cards.</h2>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              Three steps between you and perfect cards.
+            </h2>
             <p>
               Compose, render, ship. No build step, no CDN config, no image pipeline to maintain.
             </p>
@@ -147,10 +145,9 @@ function Home() {
         </section>
         <section className="section-shell border-t border-border/70">
           <div className="section-heading">
-            <p className="eyebrow">
-              <Zap /> Built for shipping
-            </p>
-            <h2>The missing image layer for your stack.</h2>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              The missing image layer for your stack.
+            </h2>
             <p>
               Designed for developers who care about speed, consistency, and details that convert.
             </p>
@@ -159,10 +156,9 @@ function Home() {
         </section>
         <section className="section-shell border-t border-border/70">
           <div className="section-heading">
-            <p className="eyebrow">
-              <Image /> Predictable pricing
-            </p>
-            <h2>Start free. Scale without surprises.</h2>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              Start free. Scale without surprises.
+            </h2>
             <p>
               Every plan includes our global API, starter templates, and instant cache invalidation.
             </p>
