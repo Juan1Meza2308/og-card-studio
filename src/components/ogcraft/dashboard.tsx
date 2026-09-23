@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import {
   Activity,
   BarChart3,
@@ -12,7 +12,6 @@ import {
   KeyRound,
   LayoutTemplate,
   LogOut,
-  MoreHorizontal,
   Plus,
   ShieldCheck,
   Sparkles,
@@ -87,31 +86,42 @@ export function Dashboard() {
   const [open, setOpen] = useState(false);
   const [revealed, setRevealed] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [generating, setGenerating] = useState(false);
 
   async function loadData() {
     setLoading(true);
+    setLoadError(false);
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (userData.user?.email) setEmail(userData.user.email);
-      const [{ data: keyRows }, { data: usageRows }] = await Promise.all([
-        supabase
-          .from("api_keys")
-          .select("id,name,key_prefix,last_four,created_at,last_used_at,status")
-          .eq("status", "active")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("usage_stats")
-          .select("requests_used,request_limit")
-          .order("period_start", { ascending: false })
-          .limit(1),
-      ]);
+      const [{ data: keyRows, error: keyError }, { data: usageRows, error: usageError }] =
+        await Promise.all([
+          supabase
+            .from("api_keys")
+            .select("id,name,key_prefix,last_four,created_at,last_used_at,status")
+            .eq("status", "active")
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("usage_stats")
+            .select("requests_used,request_limit")
+            .order("period_start", { ascending: false })
+            .limit(1),
+        ]);
+      if (keyError || usageError) {
+        console.error("[Dashboard] Failed to load workspace data", { keyError, usageError });
+        setLoadError(true);
+        return;
+      }
       if (keyRows) setKeys(keyRows);
       const current = usageRows?.[0];
       if (current) {
         setUsed(current.requests_used);
         setLimit(current.request_limit);
       }
+    } catch (err) {
+      console.error("[Dashboard] Unexpected error loading workspace data", err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -128,8 +138,19 @@ export function Dashboard() {
     setGenerating(true);
     try {
       const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      // Rejection sampling: 256 % 62 !== 0, so modulo mapping alone would bias
+      // the character distribution. Re-roll bytes >= 248 (62 * 4) for uniformity.
       const bytes = crypto.getRandomValues(new Uint8Array(32));
-      const secret = `og_live_${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("")}`;
+      let secret = "";
+      for (const byte of bytes) {
+        let b = byte;
+        while (b >= 248) {
+          const roll = crypto.getRandomValues(new Uint8Array(1));
+          b = roll[0] ?? 0;
+        }
+        secret += alphabet[b % alphabet.length];
+      }
+      secret = `og_live_${secret}`;
       const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
       const keyHash = Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join(
         "",
@@ -143,19 +164,29 @@ export function Dashboard() {
         key_hash: keyHash,
       });
 
-      if (!error) {
-        setRevealed(secret);
-        setNewName("Production");
-        await loadData();
+      if (error) {
+        console.error("[Dashboard] Failed to create API key", error);
+        return;
       }
+      setRevealed(secret);
+      setNewName("Production");
+      await loadData();
     } finally {
       setGenerating(false);
     }
   }
 
   async function revoke(id: string) {
-    await supabase.from("api_keys").update({ status: "revoked" }).eq("id", id);
-    await loadData();
+    try {
+      const { error } = await supabase.from("api_keys").update({ status: "revoked" }).eq("id", id);
+      if (error) {
+        console.error("[Dashboard] Failed to revoke API key", error);
+        return;
+      }
+      await loadData();
+    } catch (err) {
+      console.error("[Dashboard] Unexpected error revoking API key", err);
+    }
   }
 
   async function signOut() {
@@ -286,12 +317,20 @@ export function Dashboard() {
               Systems operational
             </span>
             <ThemeToggle />
-            <Button variant="ghost" size="icon" aria-label="More options">
-              <MoreHorizontal />
-            </Button>
           </div>
         </header>
         <div className="mx-auto max-w-7xl p-4 sm:p-8 animate-fade-up">
+          {loadError && (
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+              <p className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="size-4" aria-hidden="true" />
+                Couldn't load your workspace data. Check your connection and try again.
+              </p>
+              <Button variant="outline" size="sm" onClick={() => void loadData()}>
+                Retry
+              </Button>
+            </div>
+          )}
           <div
             className="mb-6 flex gap-2 overflow-x-auto md:hidden"
             role="tablist"
@@ -338,6 +377,20 @@ export function Dashboard() {
 
 function Overview({ used, limit }: { used: number; limit: number }) {
   const percentage = Math.min((used / limit) * 100, 100);
+  const [copied, setCopied] = useState(false);
+  const snippet = `curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\
+  -H "Authorization: Bearer og_live_••••••••" \\
+  --output preview.png`;
+
+  async function copySnippet() {
+    try {
+      await navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (err) {
+      console.error("[Dashboard] Failed to copy snippet", err);
+    }
+  }
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -405,17 +458,19 @@ function Overview({ used, limit }: { used: number; limit: number }) {
             </p>
           </div>
         </div>
-        <div className="relative">
+        <div className="group relative">
           <pre className="overflow-x-auto rounded-lg bg-code p-5 font-mono text-xs leading-6 text-code-foreground">
-            <code>{`curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\\n  -H "Authorization: Bearer og_live_••••••••" \\\n  --output preview.png`}</code>
+            <code>{snippet}</code>
           </pre>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute top-3 right-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+            onClick={() => void copySnippet()}
             aria-label="Copy code snippet"
+            aria-live="polite"
           >
-            <Copy className="size-4" />
+            {copied ? <Check className="size-4 text-success" /> : <Copy className="size-4" />}
           </Button>
         </div>
       </section>
@@ -664,6 +719,48 @@ function Keys({
 
 function Templates() {
   const [selected, setSelected] = useState(0);
+  const [brandTitle, setBrandTitle] = useState(() => {
+    try {
+      return localStorage.getItem("ogcraft-default-brand-title") ?? "Build what comes next.";
+    } catch {
+      return "Build what comes next.";
+    }
+  });
+  const [category, setCategory] = useState(() => {
+    try {
+      return localStorage.getItem("ogcraft-default-category") ?? "ENGINEERING / PRODUCT";
+    } catch {
+      return "ENGINEERING / PRODUCT";
+    }
+  });
+  const [saved, setSaved] = useState(false);
+
+  const DEFAULT_BRAND_TITLE = "Build what comes next.";
+  const DEFAULT_CATEGORY = "ENGINEERING / PRODUCT";
+
+  function saveDefault() {
+    try {
+      localStorage.setItem("ogcraft-default-brand-title", brandTitle);
+      localStorage.setItem("ogcraft-default-category", category);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1600);
+    } catch (err) {
+      console.error("[Dashboard] Failed to save default style", err);
+    }
+  }
+
+  function resetDefault() {
+    setBrandTitle(DEFAULT_BRAND_TITLE);
+    setCategory(DEFAULT_CATEGORY);
+    try {
+      localStorage.removeItem("ogcraft-default-brand-title");
+      localStorage.removeItem("ogcraft-default-category");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1600);
+    } catch (err) {
+      console.error("[Dashboard] Failed to reset default style", err);
+    }
+  }
 
   return (
     <div className="animate-fade-up">
@@ -724,19 +821,43 @@ function Templates() {
       </div>
       <section className="dash-card">
         <p className="dash-label">Default style</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Text used in new cards. Saved locally on this device.
+        </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="space-y-2">
-            <Label>Brand title</Label>
-            <Input defaultValue="Build what comes next." />
+            <Label htmlFor="default-brand-title">Brand title</Label>
+            <Input
+              id="default-brand-title"
+              value={brandTitle}
+              onChange={(e) => setBrandTitle(e.target.value)}
+              maxLength={40}
+            />
           </label>
           <label className="space-y-2">
-            <Label>Category</Label>
-            <Input defaultValue="ENGINEERING / PRODUCT" />
+            <Label htmlFor="default-category">Category</Label>
+            <Input
+              id="default-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              maxLength={40}
+            />
           </label>
         </div>
         <div className="mt-5 flex gap-3">
-          <Button>Save as default</Button>
-          <Button variant="outline">Reset to preset</Button>
+          <Button onClick={saveDefault}>
+            {saved ? (
+              <>
+                <CheckCircle className="size-4 mr-2" />
+                Saved
+              </>
+            ) : (
+              "Save as default"
+            )}
+          </Button>
+          <Button variant="outline" onClick={resetDefault}>
+            Reset to preset
+          </Button>
         </div>
       </section>
     </div>
@@ -834,9 +955,11 @@ function Billing({ used, limit }: { used: number; limit: number }) {
             </span>
           </p>
         </div>
-        <Button className="mt-6 w-full sm:w-auto">
-          <ExternalLink className="size-4 mr-2" />
-          Upgrade to Pro
+        <Button asChild className="mt-6 w-full sm:w-auto">
+          <Link to="/pricing">
+            <ExternalLink className="size-4 mr-2" />
+            Upgrade to Pro
+          </Link>
         </Button>
       </section>
       <section className="dash-card" aria-labelledby="included-heading">
