@@ -66,36 +66,36 @@
 
 :root {
   --radius: 0.625rem;
-  /* Light mode (fallback) */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  /* Light mode — brand-tinted (violet/indigo hue 270°) not neutral "AI cream" */
+  --background: oklch(0.99 0.003 270);
+  --foreground: oklch(0.12 0.02 270);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.12 0.02 270);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.55 0.22 265);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.55 0.22 265);
-  --success: oklch(0.65 0.18 145);
+  --popover-foreground: oklch(0.12 0.02 270);
+  --primary: oklch(0.52 0.22 270);
+  --primary-foreground: oklch(0.99 0.002 270);
+  --secondary: oklch(0.96 0.008 270);
+  --secondary-foreground: oklch(0.15 0.02 270);
+  --muted: oklch(0.96 0.008 270);
+  --muted-foreground: oklch(0.45 0.015 270);
+  --accent: oklch(0.96 0.008 270);
+  --accent-foreground: oklch(0.15 0.02 270);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.9 0.01 270);
+  --input: oklch(0.9 0.01 270);
+  --ring: oklch(0.52 0.22 270);
+  --success: oklch(0.62 0.18 145);
   --success-foreground: oklch(0.98 0.01 145);
-  --warning: oklch(0.75 0.18 85);
+  --warning: oklch(0.72 0.18 85);
   --warning-foreground: oklch(0.15 0.02 85);
-  --code: oklch(0.15 0.02 265);
-  --code-foreground: oklch(0.9 0.02 265);
-  --dashboard: oklch(0.97 0.002 265);
+  --code: oklch(0.12 0.02 270);
+  --code-foreground: oklch(0.92 0.02 270);
+  --dashboard: oklch(0.98 0.003 270);
   --workspace: oklch(1 0 0);
-  --preview-ink: oklch(0.15 0.02 265);
-  --preview-accent: oklch(0.55 0.22 265);
+  --preview-ink: oklch(0.12 0.02 270);
+  --preview-accent: oklch(0.52 0.22 270);
 }
 
 .dark {

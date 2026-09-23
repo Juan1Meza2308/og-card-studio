@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 
 type View = "overview" | "keys" | "templates" | "analytics" | "billing";
@@ -265,6 +266,7 @@ export function Dashboard() {
               <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
               Systems operational
             </span>
+            <ThemeToggle />
             <Button variant="ghost" size="icon" aria-label="More options">
               <MoreHorizontal />
             </Button>

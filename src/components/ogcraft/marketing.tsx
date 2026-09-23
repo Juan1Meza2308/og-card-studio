@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 
 const links = [
   { label: "Features", to: "/features" },
@@ -65,6 +66,7 @@ export function PublicNav() {
             </Link>
           </Button>
         </div>
+        <ThemeToggle />
         <Button
           size="icon"
           variant="ghost"
@@ -92,6 +94,10 @@ export function PublicNav() {
               </Button>
             ))}
             <div className="border-t border-border/50 my-1" />
+            <div className="flex items-center justify-between px-2 py-2">
+              <span className="text-sm font-medium">Appearance</span>
+              <ThemeToggle />
+            </div>
             <Button
               className="mt-1 w-full justify-center px-4 py-3 text-sm font-medium rounded-lg"
               asChild
