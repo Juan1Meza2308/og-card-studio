@@ -879,6 +879,11 @@ function Templates() {
 }
 
 function Analytics({ used }: { used: number }) {
+  const average = Math.round(bars.reduce((a, b) => a + b, 0) / bars.length);
+  const max = Math.max(...bars);
+  const min = Math.min(...bars);
+  const total = bars.reduce((a, b) => a + b, 0);
+
   return (
     <div className="grid gap-4 lg:grid-cols-3 animate-fade-up">
       <section className="dash-card lg:col-span-2" aria-labelledby="requests-heading">
@@ -891,22 +896,51 @@ function Analytics({ used }: { used: number }) {
           </div>
           <span className="text-xs text-success flex items-center gap-1">
             <Activity className="size-3" aria-hidden="true" />
-            +18.2%
+            +{Math.round(((used / 100) * 100))}%
           </span>
         </div>
         <div
-          className="mt-10 flex h-56 items-end gap-3"
+          className="mt-10 flex h-64 items-end gap-1.5"
           role="img"
           aria-label="Monthly requests chart"
         >
           {bars.map((height, i) => (
-            <div
+            <motion.div
               key={i}
-              className="flex-1 rounded-t-sm bg-primary/80 transition-all duration-500 hover:bg-primary"
-              style={{ height: `${height}%` }}
+              className="flex-1 rounded-t-sm transition-all duration-300 ease-out"
+              style={{
+                height: `${height}%`,
+                background:
+                  i === bars.indexOf(max) ? "var(--primary)" : i === bars.indexOf(min) ? "var(--destructive)" : "var(--primary)/80",
+              }}
               title={`Day ${i + 1}: ${height}%`}
-            />
+              whileHover={{ height: `${Math.min(height + 10, 95)}%` }}
+            >
+              <span className="absolute bottom-1 text-xs text-muted-foreground capitalize">
+                {i + 1}
+              </span>
+            </motion.div>
           ))}
+          {/* Average line */}
+          <motion.div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px bg-success/60 h-full transition-all duration-500"
+            style={{ height: `${average}%` }}
+          >
+            <span className="absolute -bottom-2 text-xs text-success capitalize">
+              Avg: {average}%
+            </span>
+          </motion.div>
+          {/* Max highlight */}
+          {max !== min && bars.indexOf(max) !== -1 && (
+            <motion.div
+              className="absolute bottom-0 left-{bars.indexOf(max)} -translate-x-1/2 w-px bg-success h-full transition-all duration-300"
+              style={{ height: `${max}%` }}
+            >
+              <span className="absolute -bottom-3 text-xs text-success capitalize">
+                Max
+              </span>
+            </motion.div>
+          )}
         </div>
       </section>
       <section className="dash-card" aria-labelledby="top-templates-heading">
