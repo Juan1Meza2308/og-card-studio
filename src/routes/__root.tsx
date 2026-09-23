@@ -14,6 +14,8 @@ import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
 
 import appCss from "../styles.css?url";
+import { siteUrl } from "@/lib/site";
+
 
 // Inline script to prevent theme flash - runs before React hydrates
 const themeScript = `
@@ -110,14 +112,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Generate beautiful social share cards through one fast API URL.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "OGCraft" },
+      { property: "og:url", content: `${siteUrl}/` },
+      { property: "og:image", content: `${siteUrl}/og-card.png` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@juan1meza2308" },
+      { name: "twitter:image", content: `${siteUrl}/og-card.png` },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "canonical", href: `${siteUrl}/` },
       { rel: "icon", href: "/favicon.svg?v=2", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon.ico?v=2", type: "image/x-icon" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2" },
