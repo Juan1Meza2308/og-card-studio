@@ -426,6 +426,52 @@
     animation-delay: 480ms;
   }
 
+  /* ===== Landing Page Utilities ===== */
+  .hero-surface {
+    @apply relative min-h-[90vh] flex items-center;
+    background:
+      radial-gradient(ellipse at 50% -10%, var(--color-primary) 0%, transparent 55%),
+      var(--color-background);
+    overflow: hidden;
+  }
+
+  .hero-noise {
+    @apply absolute inset-0 opacity-[0.03] pointer-events-none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  .section-shell {
+    @apply py-20 sm:py-28 lg:py-32 px-5;
+  }
+
+  .section-heading {
+    @apply mx-auto max-w-3xl text-center mb-16;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-3 py-1.5 font-mono text-[10px] uppercase text-primary mb-6;
+  }
+
+  .dash-label {
+    @apply font-mono text-[10px] uppercase text-primary tracking-wider;
+  }
+
+  .icon-box {
+    @apply inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary;
+  }
+
+  .shadow-panel {
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .shadow-glow {
+    box-shadow:
+      0 0 0 1px oklch(0.62 0.24 270 / 0.15),
+      0 8px 32px -8px oklch(0.62 0.24 270 / 0.25);
+  }
+
   /* ===== Auth Pages ===== */
   .auth-shell {
     @apply relative min-h-screen flex items-center justify-center px-4 py-12;
