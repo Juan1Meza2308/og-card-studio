@@ -287,7 +287,7 @@ export function Playground() {
       <div className="grid lg:grid-cols-[330px_1fr]">
         <div className="space-y-5 border-b border-border/70 p-5 lg:border-b-0 lg:border-r">
           <div>
-            <p className="font-mono text-[11px] uppercase text-primary">01 / Content</p>
+            <p className="font-mono text-[11px] uppercase text-muted-foreground">Content</p>
             <h3 className="mt-1 text-sm font-medium">Customize your card</h3>
           </div>
           <label className="block space-y-2">

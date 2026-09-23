@@ -41,7 +41,7 @@ function Home() {
   return (
     <div className="min-h-screen overflow-hidden">
       <PublicNav />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="hero-surface">
           <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-20 pt-28 sm:gap-14 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <motion.div
@@ -168,7 +168,10 @@ function Home() {
         </section>
         <section className="section-shell border-t border-border/70">
           <div className="section-heading">
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2
+              id="features-heading"
+              className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
+            >
               The missing image layer for your stack.
             </h2>
             <p>
@@ -179,7 +182,10 @@ function Home() {
         </section>
         <section className="section-shell border-t border-border/70">
           <div className="section-heading">
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2
+              id="pricing-heading"
+              className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
+            >
               Start free. Scale without surprises.
             </h2>
             <p>

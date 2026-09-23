@@ -21,7 +21,7 @@ function Docs() {
   return (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Documentation"
           title="From zero to your first image."

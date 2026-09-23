@@ -413,7 +413,7 @@ export function PageIntro({
       </motion.span>
       <motion.h1
         variants={staggerItem}
-        className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl text-wrap-balance"
+        className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl text-balance"
       >
         {title}
       </motion.h1>

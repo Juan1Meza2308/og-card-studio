@@ -133,7 +133,11 @@ function AuthPage() {
   const clearMessage = () => setMessage(null);
 
   return (
-    <main className="auth-shell min-h-screen flex items-center justify-center px-4 py-12">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="auth-shell min-h-screen flex items-center justify-center px-4 py-12"
+    >
       <Link
         to="/"
         className="absolute left-5 top-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"

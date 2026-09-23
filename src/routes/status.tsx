@@ -15,7 +15,7 @@ export const Route = createFileRoute("/status")({
   component: () => (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Status"
           title="All systems operational."

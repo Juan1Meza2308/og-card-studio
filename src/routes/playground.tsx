@@ -21,7 +21,7 @@ function PlaygroundPage() {
   return (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Live editor"
           title="Craft your next social preview."

@@ -57,7 +57,11 @@ function ResetPassword() {
   }
 
   return (
-    <main className="auth-shell min-h-screen flex items-center justify-center px-4 py-12">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="auth-shell min-h-screen flex items-center justify-center px-4 py-12"
+    >
       <div className="auth-panel w-full max-w-md animate-fade-up">
         <div className="text-center mb-10">
           <Logo className="mx-auto mb-6" />

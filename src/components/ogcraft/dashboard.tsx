@@ -186,7 +186,7 @@ export function Dashboard() {
             <div className="h-8 animate-pulse rounded-md bg-muted/60" />
           </div>
         </aside>
-        <main className="min-w-0 flex-1">
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
           <header className="flex h-16 items-center justify-between border-b border-border/60 px-4 sm:px-8">
             <div className="space-y-2">
               <div className="h-3 w-32 animate-pulse rounded bg-muted/60" />
@@ -270,7 +270,7 @@ export function Dashboard() {
           </Button>
         </div>
       </aside>
-      <main className="min-w-0 flex-1">
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border/60 bg-dashboard/80 px-4 backdrop-blur-xl sm:px-8">
           <div>
             <p className="font-mono text-[10px] uppercase text-primary">

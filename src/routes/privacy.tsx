@@ -14,7 +14,7 @@ export const Route = createFileRoute("/privacy")({
   component: () => (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Privacy"
           title="Your data stays yours."

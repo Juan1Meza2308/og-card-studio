@@ -23,7 +23,7 @@ function Pricing() {
   return (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Simple plans"
           title="Pricing that scales with your reach."

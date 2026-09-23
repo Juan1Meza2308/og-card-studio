@@ -30,7 +30,7 @@ function Features() {
   return (
     <>
       <PublicNav />
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PageIntro
           eyebrow="Platform"
           title="A focused API for every social image."

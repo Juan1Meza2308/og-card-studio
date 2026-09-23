@@ -95,8 +95,22 @@
   --code-foreground: oklch(0.92 0.02 270);
   --dashboard: oklch(0.97 0.004 270);
   --workspace: oklch(0.985 0.003 270);
+  --sidebar: oklch(0.95 0.005 270);
+  --sidebar-foreground: oklch(0.15 0.02 270);
+  --sidebar-primary: oklch(0.52 0.22 270);
+  --sidebar-primary-foreground: oklch(0.99 0.002 270);
+  --sidebar-accent: oklch(0.955 0.007 270);
+  --sidebar-accent-foreground: oklch(0.15 0.02 270);
+  --sidebar-border: oklch(0.88 0.012 270);
+  --sidebar-ring: oklch(0.52 0.22 270);
   --preview-ink: oklch(0.12 0.02 270);
   --preview-accent: oklch(0.52 0.22 270);
+
+  --chart-1: oklch(0.52 0.22 270);
+  --chart-2: oklch(0.52 0.14 195);
+  --chart-3: oklch(0.62 0.16 320);
+  --chart-4: oklch(0.66 0.16 45);
+  --chart-5: oklch(0.6 0.18 340);
 }
 
 .dark {
