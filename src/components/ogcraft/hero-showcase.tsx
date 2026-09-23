@@ -17,7 +17,7 @@ function OgCard({
 }) {
   return (
     <div
-      className={`og-preview ${theme} ${template} rounded-xl shadow-[0_2px_8px_-2px_rgb(0,0,0,0.3)] ${className}`}
+      className={`og-preview ${theme} ${template} rounded-xl ring-1 ring-white/10 shadow-[0_2px_8px_-2px_rgb(0,0,0,0.35)] ${className}`}
     >
       <div className="og-grid" aria-hidden="true" />
       <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">
@@ -62,7 +62,7 @@ export function HeroShowcase() {
       {/* Back card — ocean, rotated left */}
       <motion.div
         initial={{ opacity: 0, x: -36, rotate: 0 }}
-        animate={{ opacity: 1, x: 0, rotate: -7 }}
+        animate={{ opacity: 1, x: 0, rotate: -6 }}
         transition={{ ...spring.gentle, delay: 0.35 }}
         className="absolute inset-0"
       >
@@ -71,13 +71,13 @@ export function HeroShowcase() {
           template="og-dark-gradient"
           title="Launch from the edge."
           category="API · EDGE · CACHE"
-          className="translate-x-[-8%] translate-y-[6%] scale-[0.94]"
+          className="-translate-x-2 translate-y-1.5 scale-[0.97] sm:-translate-x-[10%] sm:translate-y-[5%] sm:scale-[0.94]"
         />
       </motion.div>
       {/* Back card — ember, rotated right */}
       <motion.div
         initial={{ opacity: 0, x: 36, rotate: 0 }}
-        animate={{ opacity: 1, x: 0, rotate: 7 }}
+        animate={{ opacity: 1, x: 0, rotate: 6 }}
         transition={{ ...spring.gentle, delay: 0.42 }}
         className="absolute inset-0"
       >
@@ -86,7 +86,7 @@ export function HeroShowcase() {
           template="og-minimalist"
           title="Made for the open web."
           category="ONE URL · EVERY CARD"
-          className="translate-x-[8%] translate-y-[-4%] scale-[0.94]"
+          className="translate-x-2 -translate-y-1 scale-[0.97] sm:translate-x-[10%] sm:-translate-y-[4%] sm:scale-[0.94]"
         />
       </motion.div>
       {/* Front card — violet, on top */}
@@ -111,7 +111,7 @@ export function HeroShowcase() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring.snappy, delay: 0.75 + i * 0.1 }}
-          className={`absolute inline-flex items-center gap-1 rounded-full border border-border/80 bg-card/85 px-2.5 py-1 font-mono text-[10px] text-muted-foreground shadow-[0_1px_3px_rgb(0,0,0,0.15)] backdrop-blur-sm ${chip.className}`}
+          className={`absolute inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 font-mono text-[10px] text-muted-foreground shadow-[0_2px_4px_-1px_rgb(0,0,0,0.2)] ${chip.className}`}
         >
           <chip.icon className="size-3 text-primary" />
           {chip.label}

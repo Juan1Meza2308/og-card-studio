@@ -106,7 +106,7 @@ function Home() {
             <p className="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               Works wherever you already build
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm font-medium text-foreground/60">
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm font-medium text-foreground/80">
               {["Next.js", "Astro", "Vite", "Shopify", "Remix", "Plain HTML"].map((item) => (
                 <span key={item}>{item}</span>
               ))}
