@@ -16,6 +16,45 @@ import { staggerContainer, staggerItem } from "@/lib/motion";
 const Playground = lazy(() =>
   import("@/components/ogcraft/playground").then((m) => ({ default: m.Playground })),
 );
+
+function HeroBackdrop() {
+  const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
+  const blades = Array.from({ length: 6 }, (_, i) => i * 60);
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <svg
+        viewBox="0 0 400 400"
+        fill="none"
+        stroke="currentColor"
+        className="absolute left-1/2 top-1/2 h-[130%] w-auto -translate-x-1/2 -translate-y-1/2 text-foreground opacity-[0.04] dark:opacity-[0.055]"
+      >
+        <circle cx="200" cy="200" r="190" strokeWidth="0.75" />
+        <circle cx="200" cy="200" r="120" strokeWidth="0.75" />
+        <circle cx="200" cy="200" r="60" strokeWidth="0.5" />
+        {ticks.map((deg) => (
+          <line
+            key={deg}
+            x1={200 + 182 * Math.cos((deg * Math.PI) / 180)}
+            y1={200 + 182 * Math.sin((deg * Math.PI) / 180)}
+            x2={200 + 192 * Math.cos((deg * Math.PI) / 180)}
+            y2={200 + 192 * Math.sin((deg * Math.PI) / 180)}
+            strokeWidth="0.5"
+          />
+        ))}
+        {blades.map((deg) => (
+          <line
+            key={`b-${deg}`}
+            x1={200 + 120 * Math.cos((deg * Math.PI) / 180)}
+            y1={200 + 120 * Math.sin((deg * Math.PI) / 180)}
+            x2={200 + 190 * Math.cos(((deg + 60) * Math.PI) / 180)}
+            y2={200 + 190 * Math.sin(((deg + 60) * Math.PI) / 180)}
+            strokeWidth="0.5"
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -41,6 +80,7 @@ function Home() {
       <PublicNav />
       <main>
         <section className="hero-surface">
+          <HeroBackdrop />
           <div className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-36 sm:pt-44">
             <motion.div
               className="mx-auto max-w-4xl text-center"
