@@ -145,7 +145,8 @@ og-card-studio/
 | `VITE_SUPABASE_URL`             | ✅       | Same as above, for client bundle                     |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Same as above, for client bundle                     |
 | `VITE_SUPABASE_PROJECT_ID`      | ✅       | Same as above, for client bundle                     |
-| `SUPABASE_SECRET_KEY`           | ❌       | Service role key (server-only, never in client)      |
+| `SUPABASE_SERVICE_ROLE_KEY`     | ❌       | Service role key (server-only, never in client)      |
+| `SUPABASE_SECRET_KEY`           | ❌       | Legacy alias for the service role key                 |
 
 > **Never commit `.env`**. Use `.env.example` as template.
 
