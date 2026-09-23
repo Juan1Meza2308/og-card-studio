@@ -225,7 +225,8 @@ export function FeatureGrid() {
 const plans = [
   {
     name: "Free",
-    price: "$0",
+    monthly: "$0",
+    yearly: "$0",
     period: "/mo",
     text: "For personal projects and prototypes.",
     features: [
@@ -239,7 +240,8 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$12",
+    monthly: "$12",
+    yearly: "$9",
     period: "/mo",
     text: "For products ready to grow.",
     features: [
@@ -254,7 +256,8 @@ const plans = [
   },
   {
     name: "Agency",
-    price: "$39",
+    monthly: "$39",
+    yearly: "$32",
     period: "/mo",
     text: "For teams shipping at scale.",
     features: [
@@ -270,8 +273,43 @@ const plans = [
 ];
 
 export function PricingGrid() {
+  const [yearly, setYearly] = useState(true);
   return (
     <section className="relative" aria-labelledby="pricing-heading">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        className="mb-10 flex items-center justify-center gap-3"
+      >
+        <span
+          className={`text-sm transition-colors ${yearly ? "text-muted-foreground" : "text-foreground"}`}
+        >
+          Monthly
+        </span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={yearly}
+          aria-label="Toggle yearly billing"
+          onClick={() => setYearly((v) => !v)}
+          className="relative inline-flex h-6 w-11 items-center rounded-full bg-border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          <span
+            className={`inline-block size-4 transform rounded-full bg-primary shadow-sm transition-transform duration-300 ${
+              yearly ? "translate-x-6" : "translate-x-1"
+            }`}
+          />
+        </button>
+        <span
+          className={`flex items-center gap-2 text-sm transition-colors ${yearly ? "text-foreground" : "text-muted-foreground"}`}
+        >
+          Yearly
+          <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-success">
+            Save 25%
+          </span>
+        </span>
+      </motion.div>
       <motion.div
         className="grid gap-6 lg:grid-cols-3"
         variants={staggerContainer}
@@ -303,9 +341,31 @@ export function PricingGrid() {
                 {plan.name}
               </p>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
+                <motion.span
+                  key={yearly ? "y" : "m"}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                  className="text-4xl font-bold tracking-tight"
+                >
+                  {yearly ? plan.yearly : plan.monthly}
+                </motion.span>
                 <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>
               </div>
+              {plan.monthly !== plan.yearly && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {yearly ? (
+                    <>
+                      Billed annually — save $
+                      {(parseInt(plan.monthly.slice(1), 10) - parseInt(plan.yearly.slice(1), 10)) *
+                        12}
+                      /yr
+                    </>
+                  ) : (
+                    <>Switch to yearly and save 25%</>
+                  )}
+                </p>
+              )}
             </div>
             <p className="text-sm text-muted-foreground mb-6">{plan.text}</p>
             <ul className="mb-8 space-y-3" role="list">
@@ -421,5 +481,137 @@ export function CtaBand() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+const storyRows = [
+  {
+    index: "01",
+    eyebrow: "Compose",
+    title: "Tune content right from the URL.",
+    text: "Title, subtitle, theme, and template are plain query parameters. No SDK required — just swap the values and your social card follows.",
+    points: ["Plain URL parameters", "4 curated templates", "Live preview as you type"],
+    visual: (
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-workspace font-mono text-xs shadow-panel">
+        <div className="flex h-10 items-center gap-1.5 border-b border-border/60 px-4">
+          <span className="size-2.5 rounded-full bg-destructive/70" />
+          <span className="size-2.5 rounded-full bg-warning/70" />
+          <span className="size-2.5 rounded-full bg-success/70" />
+          <span className="ml-3 text-muted-foreground">api.ogcraft.dev</span>
+        </div>
+        <div className="p-5">
+          <p className="text-primary">GET</p>
+          <p className="mt-2 break-all leading-6 text-muted-foreground">
+            /v1/og?title=<span className="text-foreground">Ship fast</span>&amp;theme=
+            <span className="text-foreground">violet</span>&amp;template=
+            <span className="text-foreground">tech</span>
+          </p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    index: "02",
+    eyebrow: "Render",
+    title: "Rendered at the edge, cached for the world.",
+    text: "Every card is drawn close to your audience on a global edge network and cached automatically. The first hit is fast; every hit after is instant.",
+    points: ["42ms median render time", "Global edge network", "Automatic cache headers"],
+    visual: (
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-workspace shadow-panel">
+        <div className="flex h-10 items-center gap-1.5 border-b border-border/60 px-4">
+          <span className="size-2.5 rounded-full bg-destructive/70" />
+          <span className="size-2.5 rounded-full bg-warning/70" />
+          <span className="size-2.5 rounded-full bg-success/70" />
+          <span className="ml-3 text-muted-foreground">edge.ogcraft.dev</span>
+        </div>
+        <div className="p-5">
+          <div className="grid grid-cols-2 gap-2">
+            {["fRA", "IAD", "SIN", "GRU"].map((region, i) => (
+              <div
+                key={region}
+                className="flex items-center justify-between rounded-lg border border-border/50 bg-card/60 px-3 py-2.5 text-xs"
+                style={{ opacity: 0.55 + i * 0.15 }}
+              >
+                <span className="font-semibold">{region}</span>
+                <span className="text-muted-foreground">12–38ms</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    index: "03",
+    eyebrow: "Ship",
+    title: "Drop one meta tag and go live.",
+    text: "Point your og:image at the generated URL and your link previews upgrade everywhere — Slack, X, LinkedIn, WhatsApp. Zero redeploys.",
+    points: ["og:image meta tag", "Works in any stack", "Invalidate when you need"],
+    visual: (
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-workspace font-mono text-xs shadow-panel">
+        <div className="flex h-10 items-center gap-1.5 border-b border-border/60 px-4">
+          <span className="size-2.5 rounded-full bg-destructive/70" />
+          <span className="size-2.5 rounded-full bg-warning/70" />
+          <span className="size-2.5 rounded-full bg-success/70" />
+          <span className="ml-3 text-muted-foreground">index.html</span>
+        </div>
+        <div className="p-5 leading-6">
+          <p className="text-muted-foreground">
+            <span className="text-warning">&lt;meta</span> property=
+            <span className="text-foreground">&quot;og:image&quot;</span> content=
+            <span className="text-foreground">&quot;…&#47;v1&#47;og?title=…&quot;</span>
+            <span className="text-warning"> /&gt;</span>
+          </p>
+        </div>
+      </div>
+    ),
+  },
+];
+
+export function StoryRows() {
+  return (
+    <div className="space-y-20">
+      {storyRows.map((row) => (
+        <motion.div
+          key={row.index}
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="group grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
+        >
+          <motion.div
+            variants={staggerItem}
+            className={row.index === "02" ? "lg:order-2" : undefined}
+          >
+            <div className="icon-box">
+              <span className="font-mono text-sm text-primary">{row.index}</span>
+            </div>
+            <p className="eyebrow mt-6">{row.eyebrow}</p>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+              {row.title}
+            </h3>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">{row.text}</p>
+            <ul className="mt-6 space-y-3" role="list">
+              {row.points.map((point) => (
+                <li key={point} className="flex items-start gap-3 text-sm">
+                  <Check className="size-5 text-success flex-shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className="text-muted-foreground/90">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+          <motion.div
+            variants={staggerItem}
+            className="transform transition-transform duration-300 group-hover:scale-[1.02]"
+          >
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-60 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative">{row.visual}</div>
+            </div>
+          </motion.div>
+        </motion.div>
+      ))}
+    </div>
   );
 }
