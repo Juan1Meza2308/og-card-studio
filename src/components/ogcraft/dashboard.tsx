@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import {
   Activity,
   BarChart3,
@@ -40,7 +40,7 @@ import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 
-type View = "overview" | "keys" | "templates" | "analytics" | "billing";
+export type View = "overview" | "keys" | "templates" | "analytics" | "billing";
 
 type ApiKey = {
   id: string;
@@ -71,7 +71,13 @@ const templateData = [
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const [view, setView] = useState<View>("overview");
+  const search = useSearch({ from: "/_authenticated/dashboard" });
+  const [view, setView] = useState<View>(search.view ?? "overview");
+
+  function changeView(next: View) {
+    setView(next);
+    navigate({ to: "/dashboard", search: { view: next }, replace: true });
+  }
   const [collapsed, setCollapsed] = useState(false);
   const [email, setEmail] = useState("Developer");
   const [keys, setKeys] = useState<ApiKey[]>([]);
@@ -235,7 +241,7 @@ export function Dashboard() {
                 "w-full transition-all duration-200",
                 collapsed ? "px-0" : "justify-start gap-3",
               )}
-              onClick={() => setView(item.id)}
+              onClick={() => changeView(item.id)}
               title={collapsed ? item.label : undefined}
               aria-current={view === item.id ? "page" : undefined}
             >
@@ -296,7 +302,7 @@ export function Dashboard() {
                 key={item.id}
                 size="sm"
                 variant={view === item.id ? "default" : "outline"}
-                onClick={() => setView(item.id)}
+                onClick={() => changeView(item.id)}
                 role="tab"
                 aria-selected={view === item.id}
               >

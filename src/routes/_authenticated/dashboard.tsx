@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { Dashboard } from "@/components/ogcraft/dashboard";
+import type { View } from "@/components/ogcraft/dashboard";
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  validateSearch: z.object({
+    view: z.enum(["overview", "keys", "templates", "analytics", "billing"]).catch("overview"),
+  }),
   head: () => ({
     meta: [
       { title: "Dashboard — OGCraft" },
@@ -16,3 +21,5 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   }),
   component: Dashboard,
 });
+
+export type DashboardSearch = { view?: View };
