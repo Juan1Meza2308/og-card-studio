@@ -1,20 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Braces, Terminal } from "lucide-react";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
+import { breadcrumbJsonLd, buildSeo } from "@/lib/seo";
+
 export const Route = createFileRoute("/docs")({
-  head: () => ({
-    meta: [
-      { title: "API Documentation — OGCraft" },
-      {
-        name: "description",
-        content: "Integrate OGCraft dynamic social images with HTML, Next.js, or any HTTP client.",
-      },
-      { property: "og:title", content: "API Documentation — OGCraft" },
-      { property: "og:description", content: "Your quick-start guide to the OGCraft image API." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "API Documentation — OGCraft",
+      description:
+        "Integrate OGCraft dynamic social images with HTML, Next.js, or any HTTP client.",
+      path: "/docs",
+      imageAlt: "OGCraft API documentation — your quick-start guide to the image API",
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Docs", path: "/docs" },
+        ]),
+      ],
+    }),
   component: Docs,
 });
 function Docs() {

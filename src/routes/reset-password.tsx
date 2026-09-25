@@ -7,19 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ogcraft/logo";
 import { Loader2, AlertCircle, CheckCircle, Lock, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({
-    meta: [
-      { title: "Reset password — OGCraft" },
-      { name: "description", content: "Choose a new password for your OGCraft account." },
-      { property: "og:title", content: "Reset password — OGCraft" },
-      { property: "og:description", content: "Securely reset your OGCraft account password." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Reset password — OGCraft",
+      description: "Choose a new password for your OGCraft account.",
+      path: "/reset-password",
+      noindex: true,
+    }),
   component: ResetPassword,
 });
 

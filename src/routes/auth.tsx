@@ -17,22 +17,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ogcraft/logo";
 import { cn } from "@/lib/utils";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Log in — OGCraft" },
-      { name: "description", content: "Sign in or create your OGCraft account." },
-      { property: "og:title", content: "Log in — OGCraft" },
-      {
-        property: "og:description",
-        content: "Sign in to build and manage dynamic social preview images.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Log in — OGCraft",
+      description: "Sign in to build and manage dynamic social preview images.",
+      path: "/auth",
+      noindex: true,
+    }),
   component: AuthPage,
 });
 

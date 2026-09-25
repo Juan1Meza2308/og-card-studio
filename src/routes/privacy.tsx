@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
+import { breadcrumbJsonLd, buildSeo } from "@/lib/seo";
+
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy — OGCraft" },
-      { name: "description", content: "How OGCraft handles account and API usage data." },
-      { property: "og:title", content: "Privacy — OGCraft" },
-      { property: "og:description", content: "OGCraft privacy principles." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Privacy — OGCraft",
+      description: "How OGCraft handles account and API usage data.",
+      path: "/privacy",
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Privacy", path: "/privacy" },
+        ]),
+      ],
+    }),
   component: () => (
     <>
       <PublicNav />

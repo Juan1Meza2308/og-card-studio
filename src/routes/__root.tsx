@@ -14,8 +14,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
 
 import appCss from "../styles.css?url";
-import { siteUrl } from "@/lib/site";
-
+import { organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
 
 // Inline script to prevent theme flash - runs before React hydrates
 const themeScript = `
@@ -96,37 +95,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Only genuinely global metadata lives here. Title, description, canonical and
+  // og:url are set per route via buildSeo — a root-level canonical silently marks
+  // every subpage as a duplicate of the home page.
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "OGCraft — Dynamic OG Images via API" },
-      {
-        name: "description",
-        content: "Generate beautiful, customizable social share cards through one fast API URL.",
-      },
       { name: "author", content: "Juan1Meza2308" },
-      { property: "og:title", content: "OGCraft — Dynamic OG Images via API" },
-      {
-        property: "og:description",
-        content: "Generate beautiful social share cards through one fast API URL.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OGCraft" },
-      { property: "og:url", content: `${siteUrl}/` },
-      { property: "og:image", content: `${siteUrl}/og-card.png` },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@juan1meza2308" },
-      { name: "twitter:image", content: `${siteUrl}/og-card.png` },
+      { name: "robots", content: "index, follow" },
+      { "script:ld+json": organizationJsonLd },
+      { "script:ld+json": webSiteJsonLd },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "canonical", href: `${siteUrl}/` },
       { rel: "icon", href: "/favicon.svg?v=2", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon.ico?v=2", type: "image/x-icon" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2" },

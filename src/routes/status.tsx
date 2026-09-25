@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
+import { breadcrumbJsonLd, buildSeo } from "@/lib/seo";
+
 export const Route = createFileRoute("/status")({
-  head: () => ({
-    meta: [
-      { title: "System Status — OGCraft" },
-      { name: "description", content: "Current availability of OGCraft services." },
-      { property: "og:title", content: "System Status — OGCraft" },
-      { property: "og:description", content: "Current OGCraft service availability." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "System Status — OGCraft",
+      description: "Current availability of OGCraft services.",
+      path: "/status",
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Status", path: "/status" },
+        ]),
+      ],
+    }),
   component: () => (
     <>
       <PublicNav />

@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Playground } from "@/components/ogcraft/playground";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
+import { breadcrumbJsonLd, buildSeo } from "@/lib/seo";
+
 export const Route = createFileRoute("/playground")({
-  head: () => ({
-    meta: [
-      { title: "Playground — OGCraft" },
-      {
-        name: "description",
-        content: "Design and download an Open Graph preview image instantly.",
-      },
-      { property: "og:title", content: "OGCraft Playground" },
-      { property: "og:description", content: "Build a social card and copy its API URL." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Playground — OGCraft",
+      description: "Design and download an Open Graph preview image instantly.",
+      path: "/playground",
+      imageAlt: "OGCraft playground — build a social card and copy its API URL",
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Playground", path: "/playground" },
+        ]),
+      ],
+    }),
   component: PlaygroundPage,
 });
 function PlaygroundPage() {
@@ -27,7 +29,10 @@ function PlaygroundPage() {
           title="Craft your next social preview."
           text="Tune the content and style, then copy a production-ready URL."
         />
-        <section className="mx-auto max-w-6xl px-5 pb-24 pt-12">
+        <section className="mx-auto max-w-6xl px-5 pb-24 pt-12" aria-labelledby="editor-heading">
+          <h2 id="editor-heading" className="sr-only">
+            Open Graph image editor
+          </h2>
           <Playground />
         </section>
       </main>

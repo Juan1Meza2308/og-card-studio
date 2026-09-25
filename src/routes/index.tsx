@@ -14,27 +14,18 @@ import {
   StoryRows,
 } from "@/components/ogcraft/marketing";
 import { staggerContainer, staggerItem } from "@/lib/motion";
+import { buildSeo } from "@/lib/seo";
 
 const Playground = lazy(() =>
   import("@/components/ogcraft/playground").then((m) => ({ default: m.Playground })),
 );
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "OGCraft — Dynamic OG Images via API" },
-      {
-        name: "description",
-        content: "Generate beautiful, customizable social share cards through one fast API URL.",
-      },
-      { property: "og:title", content: "OGCraft — Dynamic OG Images via API" },
-      {
-        property: "og:description",
-        content: "Generate beautiful social share cards through one fast API URL.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "OGCraft — Dynamic OG Images via API",
+      description: "Generate beautiful, customizable social share cards through one fast API URL.",
+      path: "/",
+    }),
   component: Home,
 });
 function Home() {

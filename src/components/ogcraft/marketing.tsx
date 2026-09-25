@@ -115,6 +115,39 @@ export function PublicNav() {
   );
 }
 
+export const PRICING_FAQ = [
+  {
+    question: "Do I need a credit card to start?",
+    answer:
+      "No. The free plan includes 100 images per month with no card on file. You only add billing when you move to Pro or Agency.",
+  },
+  {
+    question: "What counts as one image request?",
+    answer:
+      "One image request is one rendered PNG, identified by the full set of URL parameters. Repeat requests for the same URL are served from the edge cache and do not count against your quota.",
+  },
+  {
+    question: "What happens when I hit my monthly limit?",
+    answer:
+      "The API returns a 402 with a clear error and your quota resets on the first of the month. You can upgrade at any time and the new limit applies immediately.",
+  },
+  {
+    question: "Is there a watermark on paid plans?",
+    answer:
+      "The free plan includes an OGCraft watermark. Pro and Agency render clean images with your own logo and no branding.",
+  },
+  {
+    question: "Can I rotate an API key without downtime?",
+    answer:
+      "Yes. Create the new key first, deploy it, then revoke the old one from the dashboard. Revocation is immediate and keys can only be hashed and compared, never recovered.",
+  },
+  {
+    question: "Do you offer refunds?",
+    answer:
+      "Plans are month to month and can be cancelled any time. We do not issue refunds for partial months once images have been rendered on a paid plan.",
+  },
+] as const;
+
 export function PublicFooter() {
   return (
     <footer className="border-t border-border/40 bg-background/50 backdrop-blur-xl">
@@ -332,7 +365,9 @@ export function PricingGrid() {
               </div>
             )}
             <div className="mb-6">
-              <p className="text-sm font-medium text-muted-foreground">{plan.name}</p>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                {plan.name} plan — {plan.features[0]}
+              </h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <motion.span
                   key={yearly ? "y" : "m"}
