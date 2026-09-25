@@ -82,14 +82,14 @@ function jsonError(status: number, body: ApiErrorBody, extraHeaders: HeadersInit
 /**
  * Checks and increments the usage counter for a user.
  *
- * Returns { allowed: true } if under limit, or { allowed: false, limit, used }
- * if the limit would be exceeded.
+ * Returns { allowed: true, plan, limit, used } if under limit,
+ * or { allowed: false, limit, used } if the limit would be exceeded.
  */
-async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolean; limit: number; used: number }> {
+async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolean; plan: "free" | "pro" | "agency"; limit: number; used: number }> {
   const client = getServiceClient();
   if (!client) {
     // Service role not configured — allow but don't track
-    return { allowed: true, limit: 0, used: 0 };
+    return { allowed: true, plan: "free" as const, limit: 0, used: 0 };
   }
 
   const periodStart = new Date();
@@ -113,7 +113,7 @@ async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolea
   const used = usage?.requests_used ?? 0;
 
   if (used >= limit) {
-    return { allowed: false, limit, used };
+    return { allowed: false, plan, limit, used };
   }
 
   // Increment counter
@@ -132,7 +132,14 @@ async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolea
     });
   }
 
-  return { allowed: true, limit, used: used + 1 };
+  // Record daily usage
+  const todayKey = new Date().toISOString().split("T")[0];
+  await (client as any).from("daily_usage_stats").upsert(
+    { user_id: userId, date: todayKey, requests_count: 1 },
+    { onConflict: "user_id,date", ignoreDuplicates: false }
+  );
+
+  return { allowed: true, plan, limit, used: used + 1 };
 }
 
 /**
@@ -177,6 +184,8 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
   // Try to authenticate via API key.
   let templateOverrides: TemplateOverrides | undefined;
   let userId: string | null = null;
+  let templateName: string | null = null;
+  let templateType: "builtin" | "custom" = "builtin";
 
   const authHeader = request.headers.get("authorization");
   if (authHeader?.startsWith("Bearer ")) {
@@ -189,20 +198,31 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
           if (template) {
             const ref = parseTemplateRef(parsed.value.templateId);
             templateOverrides = resolveTemplateOverrides(ref!, template);
+            templateName = template.name;
+            templateType = "custom";
           }
+        } else if (userId && parsed.value.template) {
+          // Built-in template with auth
+          templateName = parsed.value.template;
+          templateType = "builtin";
         }
       } catch (error) {
-        // Service role not configured or DB error — log and continue unauthenticated.
-        // The endpoint remains functional for public use.
         console.warn("[og] auth unavailable, continuing without custom template", error);
       }
     }
+  } else if (parsed.value.template) {
+    // Unauthenticated built-in template
+    templateName = parsed.value.template;
+    templateType = "builtin";
   }
 
   // Rate limit check
   let usageInfo: { allowed: boolean; limit: number; used: number };
+  let userPlan: "free" | "pro" | "agency" = "free";
   if (userId) {
-    usageInfo = await checkAndIncrementUsage(userId);
+    const checkResult = await checkAndIncrementUsage(userId);
+    usageInfo = checkResult;
+    userPlan = checkResult.plan;
     if (!usageInfo.allowed) {
       return jsonError(429, {
         error: "rate_limited",
@@ -222,7 +242,28 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
       origin: url.origin,
       host: siteHost,
       templateOverrides,
+      watermark: userPlan === "free",
     });
+
+    // Record template usage (fire and forget)
+    if (userId && templateName) {
+      const templateId = (templateType === "custom" && parsed.value.templateId)
+        ? parsed.value.templateId
+        : null;
+      const serviceClient = getServiceClient();
+      if (serviceClient) {
+        (serviceClient as any).from("template_usage").upsert(
+          {
+            user_id: userId,
+            template_id: templateId,
+            template_name: templateName,
+            template_type: templateType,
+            requests_count: 1,
+          },
+          { onConflict: "user_id,template_id,template_name", ignoreDuplicates: false }
+        ).catch((err: Error) => console.warn("[og] template usage upsert failed", err));
+      }
+    }
 
     return new Response(new Uint8Array(png), {
       status: 200,

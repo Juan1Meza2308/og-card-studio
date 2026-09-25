@@ -28,6 +28,8 @@ export type OgCardProps = {
   brand?: string;
   /** Optional: overrides from a custom template (theme, title, subtitle, logo). */
   templateOverrides: TemplateOverrides | undefined;
+  /** Optional: show OGCraft watermark for free plan users. */
+  watermark: boolean;
 };
 
 /**
@@ -49,6 +51,7 @@ export function OgCard({
   host,
   brand = BRAND_NAME,
   templateOverrides,
+  watermark = false,
 }: OgCardProps): ReactElement {
   const layout = CARD_LAYOUTS[template];
 
@@ -181,6 +184,39 @@ export function OgCard({
     flexGrow: 1,
   };
 
+  // Watermark overlay for free plan
+  const watermarkOverlay = watermark ? (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        overflow: "hidden",
+        zIndex: 10,
+      }}
+    >
+      <div
+        style={{
+          transform: "rotate(-25deg)",
+          whiteSpace: "nowrap",
+          fontSize: 72,
+          fontWeight: 700,
+          letterSpacing: 4,
+          color: palette.isLight
+            ? "rgba(0, 0, 0, 0.04)"
+            : "rgba(255, 255, 255, 0.04)",
+          fontFamily: FONT_FAMILY,
+          textTransform: "uppercase",
+        }}
+      >
+        OGCRAFT
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div style={root}>
       <div style={padded}>
@@ -188,6 +224,7 @@ export function OgCard({
         {body}
         {layout.brandPlacement === "bottom" ? brandRow : null}
       </div>
+      {watermarkOverlay}
     </div>
   );
 }
