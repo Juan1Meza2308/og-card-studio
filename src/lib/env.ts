@@ -10,6 +10,15 @@ const envSchema = z.object({
     .string()
     .min(10, "SUPABASE_SERVICE_ROLE_KEY looks too short")
     .optional(),
+  /** Optional: Stripe secret key for server-side billing operations. */
+  STRIPE_SECRET_KEY: z.string().min(10, "STRIPE_SECRET_KEY looks too short").optional(),
+  /** Optional: Stripe webhook secret for verifying webhook events. */
+  STRIPE_WEBHOOK_SECRET: z.string().min(10, "STRIPE_WEBHOOK_SECRET looks too short").optional(),
+  /** Optional: Stripe price IDs for each plan. */
+  STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_PRO_YEARLY: z.string().optional(),
+  STRIPE_PRICE_AGENCY_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_AGENCY_YEARLY: z.string().optional(),
 });
 
 type ParsedEnv = z.infer<typeof envSchema>;

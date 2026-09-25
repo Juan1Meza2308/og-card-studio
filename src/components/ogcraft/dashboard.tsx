@@ -27,6 +27,7 @@ import {
   X,
   Edit,
   Trash2 as Trash2Icon,
+  RefreshCw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OgPreview } from "@/components/ogcraft/og-preview";
@@ -1299,58 +1300,115 @@ function Analytics({ used }: { used: number }) {
 }
 
 function Billing({ used, limit }: { used: number; limit: number }) {
+  const [plan, setPlan] = useState<"free" | "pro" | "agency">("free");
+  const [loadingPlan, setLoadingPlan] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadPlan() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("plan").eq("id", user.id).single();
+      if (data) setPlan(data.plan as "free" | "pro" | "agency");
+      setLoadingPlan(false);
+    }
+    void loadPlan();
+  }, []);
+
+  async function openPortal() {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      if (res.ok) {
+        const { url } = await res.json();
+        window.location.href = url;
+      } else {
+        console.error("Failed to open billing portal");
+      }
+    } catch (err) {
+      console.error("[Billing] Portal error", err);
+    } finally {
+      setPortalLoading(false);
+    }
+  }
+
+  const planConfig = {
+    free: { name: "Free", limit: 100, color: "text-muted-foreground", bg: "bg-muted/30" },
+    pro: { name: "Pro", limit: 10_000, color: "text-primary", bg: "bg-primary/10" },
+    agency: { name: "Agency", limit: 100_000, color: "text-success", bg: "bg-success/10" },
+  } as const;
+
+  const current = planConfig[plan];
+
   return (
     <div className="grid gap-4 lg:grid-cols-2 animate-fade-up">
       <section className="dash-card" aria-labelledby="current-plan-heading">
         <p id="current-plan-heading" className="dash-label">
           Current plan
         </p>
-        <div className="mt-5 flex items-end justify-between">
-          <div>
-            <p className="text-3xl font-semibold">Free</p>
-            <p className="mt-1 text-sm text-muted-foreground">100 images each month</p>
+        {loadingPlan ? (
+          <div className="mt-5 flex items-center justify-center h-32">
+            <RefreshCw className="size-6 animate-spin text-muted-foreground" />
           </div>
-          <span className="rounded-full bg-primary/15 px-3 py-1 text-xs text-primary font-medium">
-            Active
-          </span>
-        </div>
-        <div className="mt-6 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border border-primary/10 flex flex-col items-center justify-center gap-2">
-          <p className="text-sm text-muted-foreground">
-            Usage:{" "}
-            <span className="font-mono text-foreground">
-              {used} / {limit}
-            </span>
-          </p>
-          <div className="w-40 h-2 bg-background/80 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-        <Button asChild className="mt-6 w-full sm:w-auto">
-          <Link to="/pricing">
-            <ExternalLink className="size-4 mr-2" />
-            Upgrade to Pro
-          </Link>
-        </Button>
+        ) : (
+          <>
+            <div className="mt-5 flex items-end justify-between">
+              <div>
+                <p className="text-3xl font-semibold">{current.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {current.limit.toLocaleString()} images each month
+                </p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-xs font-medium ${current.bg} ${current.color}`}>
+                Active
+              </span>
+            </div>
+            <div className="mt-6 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border border-primary/10 flex flex-col items-center justify-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                Usage:{" "}
+                <span className="font-mono text-foreground">
+                  {used} / {limit}
+                </span>
+              </p>
+              <div className="w-40 h-2 bg-background/80 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {plan !== "agency" && (
+                <Button asChild variant="outline" onClick={() => window.location.href = "/pricing"}>
+                  <ExternalLink className="size-4 mr-2" />
+                  Upgrade plan
+                </Button>
+              )}
+              {plan !== "free" && (
+                <Button variant="outline" onClick={openPortal} disabled={portalLoading}>
+                  {portalLoading ? <RefreshCw className="size-4 mr-2 animate-spin" /> : <CreditCard className="size-4 mr-2" />}
+                  Manage subscription
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </section>
       <section className="dash-card" aria-labelledby="included-heading">
         <p id="included-heading" className="dash-label">
-          Included in Free plan
+          Included in {current.name} plan
         </p>
         <ul className="mt-5 space-y-3 text-sm" role="list">
           {[
-            { text: "100 image requests per month", included: true },
+            { text: `${current.limit.toLocaleString()} image requests per month`, included: true },
             { text: "4 starter templates", included: true },
             { text: "Community support", included: true },
-            { text: "OGCraft watermark on images", included: true },
-            { text: "Custom templates", included: false },
-            { text: "No watermark", included: false },
-            { text: "Team access & SSO", included: false },
-            { text: "Priority support", included: false },
+            { text: plan === "free" ? "OGCraft watermark on images" : "No watermark", included: plan !== "free" },
+            { text: "Custom templates", included: plan !== "free" },
+            { text: "Team access & SSO", included: plan === "agency" },
+            { text: "Priority support", included: plan !== "free" },
           ].map((item, i) => (
             <motion.li
               key={item.text}
@@ -1369,7 +1427,9 @@ function Billing({ used, limit }: { used: number; limit: number }) {
               )}
               <span>{item.text}</span>
               {!item.included && (
-                <span className="ml-auto text-xs text-muted-foreground/60">Pro+</span>
+                <span className="ml-auto text-xs text-muted-foreground/60">
+                  {item.text.includes("watermark") ? "Pro+" : item.text.includes("Custom") ? "Pro+" : "Agency"}
+                </span>
               )}
             </motion.li>
           ))}
