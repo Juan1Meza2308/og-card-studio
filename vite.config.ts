@@ -89,7 +89,17 @@ export default defineConfig({
   // "tanstack-start" preset has no output to serve.
   plugins: [
     tanstackStart(),
-    nitro(),
+    // satori reaches text shaping through harfbuzzjs and lays text out through
+    // yoga. Both are wasm, and both are loaded by a path computed at runtime
+    // (`__dirname + "/hb.wasm"`) rather than by an import, so dependency
+    // tracing sees no reference and leaves the files out of the build. Tracing
+    // each package whole puts the wasm next to the code that opens it, which
+    // is also what lets the renderer resolve that directory at request time
+    // instead of hardcoding a layout.
+    nitro({
+      // The trailing * asks for a full package trace, wasm included.
+      traceDeps: ["satori*", "harfbuzzjs*", "@resvg/resvg-js*"],
+    }),
     crawlFiles(),
     viteReact(),
     tailwindcss(),

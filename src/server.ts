@@ -1,13 +1,47 @@
 import "./lib/error-capture";
-import "./lib/og/cjs-globals";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { handleOgRequest } from "./lib/og/handler";
+import { installCommonJsGlobals, REQUIRED_GLOBALS } from "./lib/og/cjs-globals";
+
+const installedGlobals = installCommonJsGlobals();
+if (installedGlobals.length < REQUIRED_GLOBALS.length) {
+  console.warn(
+    `[og] renderer sin todos los globales de CommonJS (faltan: ${REQUIRED_GLOBALS.filter(
+      (name) => !installedGlobals.includes(name),
+    ).join(", ")})`,
+  );
+}
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
+
+type OgHandler = (request: Request) => Promise<Response | undefined>;
+
+let ogHandlerPromise: Promise<OgHandler> | undefined;
+
+/**
+ * The image handler is loaded on the first request instead of at the top of
+ * this file, and the ordering is the whole point.
+ *
+ * `@vercel/og` needs the CommonJS globals installed above, but static imports
+ * are evaluated before the body of the importing module runs, so a plain
+ * top-level import would load the library before the globals exist and it would
+ * throw while loading. Rollup makes that worse rather than better: it hoists
+ * external imports to the top of the output chunk, above everything else in the
+ * file, so neither the order of the imports nor a top-level `await import()` can
+ * win. A dynamic import inside `fetch` is the one form that stays lazy, and by
+ * the time it runs this module's body has already executed.
+ *
+ * The cost is one chunk load on the first hit, after which it is cached.
+ */
+function getOgHandler(): Promise<OgHandler> {
+  if (!ogHandlerPromise) {
+    ogHandlerPromise = import("./lib/og/handler").then((m) => m.handleOgRequest);
+  }
+  return ogHandlerPromise;
+}
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
@@ -50,7 +84,7 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     // The OG image endpoint, served before the SSR handler because it never
     // touches the router. Returns undefined for every other path.
-    const ogResponse = await handleOgRequest(request);
+    const ogResponse = await (await getOgHandler())(request);
     if (ogResponse) return ogResponse;
 
     // Health probe for load balancers and uptime monitors.

@@ -1,10 +1,11 @@
+import { Resvg } from "@resvg/resvg-js";
+import satori from "satori";
 import { OgCard } from "./card";
-import { ImageResponse } from "./vercel-og";
 import { CARD_HEIGHT, CARD_WIDTH, FONT_ASSET_BASE, FONT_FAMILY } from "./constants";
 import type { OgRequest } from "./schema";
 
-/** Font descriptor in the shape `ImageResponse` expects. */
-type OgFont = {
+/** Font descriptor in the shape satori expects. */
+type SatoriFont = {
   name: string;
   data: ArrayBuffer;
   weight: 400 | 700;
@@ -24,7 +25,7 @@ const FONT_FETCH_TIMEOUT_MS = 5_000;
  * share a single fetch instead of each starting their own. On a warm instance
  * this is one memory read; on a cold one it costs two parallel static requests.
  */
-let fontsPromise: Promise<OgFont[]> | undefined;
+let fontsPromise: Promise<SatoriFont[]> | undefined;
 
 async function fetchFont(origin: string, file: string): Promise<ArrayBuffer> {
   const controller = new AbortController();
@@ -42,7 +43,7 @@ async function fetchFont(origin: string, file: string): Promise<ArrayBuffer> {
   }
 }
 
-async function loadFonts(origin: string): Promise<OgFont[]> {
+async function loadFonts(origin: string): Promise<SatoriFont[]> {
   if (!fontsPromise) {
     fontsPromise = Promise.all([fetchFont(origin, REGULAR_FILE), fetchFont(origin, BOLD_FILE)])
       .then(([regular, bold]) => [
@@ -68,7 +69,7 @@ async function loadFonts(origin: string): Promise<OgFont[]> {
  * received the request, rather than from a configured host, so a preview
  * deployment renders with its own fonts and never reaches across origins.
  */
-async function getFonts(origin: string): Promise<OgFont[]> {
+async function getFonts(origin: string): Promise<SatoriFont[]> {
   return fontsPromise ?? loadFonts(origin);
 }
 
@@ -78,13 +79,18 @@ export type RenderedCard = {
   height: number;
 };
 
+/**
+ * Card tree to PNG: satori lays the tree out and emits an SVG, resvg
+ * rasterises it. The two are split because satori only understands a small
+ * subset of CSS, which is why `OgCard` is written in plain inline styles.
+ */
 export async function renderOgCard(
   request: OgRequest,
   options: { origin: string; host: string },
 ): Promise<RenderedCard> {
   const fonts = await getFonts(options.origin);
 
-  const response = new ImageResponse(
+  const svg = await satori(
     OgCard({
       title: request.title,
       subtitle: request.subtitle,
@@ -95,9 +101,9 @@ export async function renderOgCard(
     { width: CARD_WIDTH, height: CARD_HEIGHT, fonts },
   );
 
-  const buffer = await response.arrayBuffer();
+  const png = new Resvg(svg, { fitTo: { mode: "width", value: CARD_WIDTH } }).render().asPng();
 
-  return { png: new Uint8Array(buffer), width: CARD_WIDTH, height: CARD_HEIGHT };
+  return { png, width: CARD_WIDTH, height: CARD_HEIGHT };
 }
 
 /** Test seam: drops the cached fonts. */

@@ -36,16 +36,29 @@ function blankToUndefined(value: unknown): unknown {
 
 const titleSchema = z.preprocess(
   (value) => (typeof value === "string" ? collapseWhitespace(value) : value),
-  z.string().max(LIMITS.titleMaxChars),
+  z.string().max(LIMITS.titleMaxChars, {
+    message: `Como maximo ${LIMITS.titleMaxChars} caracteres.`,
+  }),
 );
 
 const subtitleSchema = z.preprocess(
   (value) => (typeof value === "string" ? collapseWhitespace(value) : value),
-  z.string().max(LIMITS.subtitleMaxChars),
+  z.string().max(LIMITS.subtitleMaxChars, {
+    message: `Como maximo ${LIMITS.subtitleMaxChars} caracteres.`,
+  }),
 );
 
-const templateSchema = z.enum(TEMPLATE_IDS);
-const themeSchema = z.enum(THEME_IDS);
+// Zod's default enum message quotes the value it rejected, which would put
+// caller-controlled text into the response body. Spelling the accepted values
+// out is both safer and the more useful error: the caller learns what to use
+// rather than only what they sent.
+const templateSchema = z.enum(TEMPLATE_IDS, {
+  message: `Valores permitidos: ${TEMPLATE_IDS.join(", ")}.`,
+});
+
+const themeSchema = z.enum(THEME_IDS, {
+  message: `Valores permitidos: ${THEME_IDS.join(", ")}.`,
+});
 
 const rawQuerySchema = z.object({
   title: titleSchema.optional(),
@@ -62,6 +75,18 @@ export type OgParseFailure = {
 
 export type OgParseSuccess = { ok: true; value: OgRequest };
 
+/**
+ * Upper bound on a reason, so a schema message that grows long later cannot
+ * turn a 400 into an arbitrary-size response. The messages in this file are
+ * fixed strings well under the cap; this only bounds the failure mode.
+ */
+const MAX_REASON_CHARS = 200;
+
+function describeIssue(issue: { path: (string | number)[]; message: string }) {
+  const reason = issue.message.slice(0, MAX_REASON_CHARS);
+  return { field: issue.path.join(".") || "query", reason };
+}
+
 export function parseOgRequest(search: URLSearchParams): OgParseSuccess | OgParseFailure {
   const raw: Record<string, unknown> = {};
   for (const [key, value] of search) {
@@ -72,13 +97,7 @@ export function parseOgRequest(search: URLSearchParams): OgParseSuccess | OgPars
 
   const result = rawQuerySchema.safeParse(raw);
   if (!result.success) {
-    return {
-      ok: false,
-      issues: result.error.issues.map((issue) => ({
-        field: issue.path.join(".") || "query",
-        reason: issue.message,
-      })),
-    };
+    return { ok: false, issues: result.error.issues.map(describeIssue) };
   }
 
   return {
