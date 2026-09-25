@@ -3,17 +3,21 @@ import { LIMITS } from "./constants";
 import { renderOgCard } from "./render";
 import { parseOgRequest } from "./schema";
 import { OG_IMAGE_PATH } from "./url";
+import { validateApiKey, fetchUserTemplate } from "./server-auth";
+import { resolveTemplateOverrides, parseTemplateRef } from "./template";
 
 /**
  * The image endpoint.
  *
- * Public and unauthenticated by design for now, so everything here assumes the
- * caller is hostile. What that rules out, deliberately:
+ * Public by default. When an Authorization header with a valid API key is
+ * provided, the endpoint can resolve a custom template (by UUID) belonging to
+ * that key's owner. The custom template overrides theme, title, subtitle, and
+ * logo. Built-in templates continue to work without auth.
  *
- * - No `logo` or any other URL parameter. Fetching a caller-supplied URL would
- *   make this an open SSRF proxy: cloud metadata endpoints, private hosts and
- *   request amplification, all reachable without a key. It arrives later,
- *   behind the dashboard's domain allowlist.
+ * What this still rules out (deliberately):
+ * - No `logo` URL parameter. Fetching a caller-supplied URL would make this an
+ *   open SSRF proxy. Custom logos arrive via the dashboard's domain allowlist
+ *   and are stored in the template row.
  * - No POST body. A GET with a bounded query string is the smallest surface
  *   that still lets a crawler and a social scraper both fetch the card.
  * - Bounded strings. Rendering is CPU bound, so a capped input is a capped
@@ -42,10 +46,18 @@ const JSON_HEADERS = {
 } as const;
 
 /** The shape we promise on failure. It names fields and limits, never values. */
-type ApiErrorBody = {
+export type ApiErrorBody = {
   error: string;
   issues?: Array<{ field: string; reason: string }>;
 };
+
+/** Overrides from a custom template (theme, title, subtitle, logo). */
+export interface TemplateOverrides {
+  theme: "violet" | "ocean" | "ember" | "mint";
+  title: string;
+  subtitle: string;
+  logoUrl?: string | null;
+}
 
 function jsonError(status: number, body: ApiErrorBody, extraHeaders: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -83,8 +95,35 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
     });
   }
 
+  // Try to authenticate via API key.
+  let templateOverrides: TemplateOverrides | undefined;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const apiKey = authHeader.slice("Bearer ".length).trim();
+    if (apiKey.startsWith("og_live_")) {
+      try {
+        const userId = await validateApiKey(apiKey);
+        if (userId && parsed.value.templateId) {
+          const template = await fetchUserTemplate(userId, parsed.value.templateId);
+          if (template) {
+            const ref = parseTemplateRef(parsed.value.templateId);
+            templateOverrides = resolveTemplateOverrides(ref!, template);
+          }
+        }
+      } catch (error) {
+        // Service role not configured or DB error — log and continue unauthenticated.
+        // The endpoint remains functional for public use.
+        console.warn("[og] auth unavailable, continuing without custom template", error);
+      }
+    }
+  }
+
   try {
-    const { png } = await renderOgCard(parsed.value, { origin: url.origin, host: siteHost });
+    const { png } = await renderOgCard(parsed.value, {
+      origin: url.origin,
+      host: siteHost,
+      templateOverrides,
+    });
 
     return new Response(new Uint8Array(png), {
       status: 200,
@@ -96,8 +135,6 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
       },
     });
   } catch (error) {
-    // The detail goes to the log; the caller gets a code it can act on. An
-    // exception message from satori can carry fragments of the input.
     console.error("[og] render failed", error);
     return jsonError(500, { error: "render_failed" });
   }

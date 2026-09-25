@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { OgCard } from "@/lib/og/card";
 import { CARD_HEIGHT, CARD_WIDTH, type TemplateId, type ThemeId } from "@/lib/og/constants";
 import { siteHost } from "@/lib/site";
+import type { TemplateOverrides } from "@/lib/og/handler";
 
 export type OgPreviewProps = {
   title: string;
   subtitle: string;
   template: TemplateId;
   theme: ThemeId;
+  templateOverrides?: TemplateOverrides;
 };
 
 /**
@@ -23,7 +25,7 @@ export type OgPreviewProps = {
  * The wrapper reserves the box with `aspect-ratio`, so the height is known
  * before the measurement lands and nothing shifts when the scale resolves.
  */
-export function OgPreview({ title, subtitle, template, theme }: OgPreviewProps) {
+export function OgPreview({ title, subtitle, template, theme, templateOverrides }: OgPreviewProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -60,6 +62,7 @@ export function OgPreview({ title, subtitle, template, theme }: OgPreviewProps) 
           template={template}
           theme={theme}
           host={siteHost}
+          templateOverrides={templateOverrides}
         />
       </div>
     </div>

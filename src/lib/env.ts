@@ -5,6 +5,11 @@ const envSchema = z.object({
   VITE_SUPABASE_PUBLISHABLE_KEY: z
     .string()
     .min(10, "VITE_SUPABASE_PUBLISHABLE_KEY looks too short"),
+  /** Optional: service role key for server-side admin operations (API key validation, etc.). */
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .min(10, "SUPABASE_SERVICE_ROLE_KEY looks too short")
+    .optional(),
 });
 
 type ParsedEnv = z.infer<typeof envSchema>;

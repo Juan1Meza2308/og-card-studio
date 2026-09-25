@@ -3,6 +3,7 @@ import satori from "satori";
 import { OgCard, type OgCardProps } from "./card";
 import { CARD_HEIGHT, CARD_WIDTH, FONT_ASSET_BASE, FONT_FAMILY } from "./constants";
 import type { OgRequest } from "./schema";
+import type { TemplateOverrides } from "./handler";
 
 /** Font descriptor in the shape satori expects. */
 type SatoriFont = {
@@ -106,7 +107,7 @@ export async function rasterizeCard(
 /** Production path: fonts from the deployment's own static assets, then render. */
 export async function renderOgCard(
   request: OgRequest,
-  options: { origin: string; host: string },
+  options: { origin: string; host: string; templateOverrides: TemplateOverrides | undefined },
 ): Promise<RenderedCard> {
   return rasterizeCard(
     {
@@ -115,6 +116,7 @@ export async function renderOgCard(
       template: request.template,
       theme: request.theme,
       host: options.host,
+      templateOverrides: options.templateOverrides,
     },
     await getFonts(options.origin),
   );

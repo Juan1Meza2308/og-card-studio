@@ -8,6 +8,7 @@ import {
   type TemplateId,
   type ThemeId,
 } from "./constants";
+import { parseTemplateRef } from "./template";
 
 /** Everything the renderer needs, with every field already resolved. */
 export type OgRequest = {
@@ -15,6 +16,8 @@ export type OgRequest = {
   subtitle: string;
   template: TemplateId;
   theme: ThemeId;
+  /** Optional: the user's custom template UUID (when authenticated). */
+  templateId: string | undefined;
 };
 
 /**
@@ -65,6 +68,11 @@ const rawQuerySchema = z.object({
   subtitle: subtitleSchema.optional(),
   template: templateSchema.optional(),
   theme: themeSchema.optional(),
+  /** Custom template UUID (when authenticated). Must be a valid UUID v4. */
+  templateId: z
+    .string()
+    .uuid({ message: "El templateId debe ser un UUID valido." })
+    .optional(),
 });
 
 export type OgParseFailure = {
@@ -107,6 +115,7 @@ export function parseOgRequest(search: URLSearchParams): OgParseSuccess | OgPars
       subtitle: result.data.subtitle ?? LIMITS.subtitleFallback,
       template: result.data.template ?? (DEFAULT_TEMPLATE as TemplateId),
       theme: result.data.theme ?? (DEFAULT_THEME as ThemeId),
+      templateId: result.data.templateId,
     },
   };
 }

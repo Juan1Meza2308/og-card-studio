@@ -9,6 +9,7 @@ import {
   type ThemeId,
 } from "./constants";
 import { resolvePalette, withAlpha } from "./palette";
+import type { TemplateOverrides } from "./handler";
 
 /** The public name shown in the card footer. */
 export const BRAND_NAME = "OGCraft";
@@ -25,6 +26,8 @@ export type OgCardProps = {
    */
   host: string;
   brand?: string;
+  /** Optional: overrides from a custom template (theme, title, subtitle, logo). */
+  templateOverrides: TemplateOverrides | undefined;
 };
 
 /**
@@ -45,9 +48,17 @@ export function OgCard({
   theme,
   host,
   brand = BRAND_NAME,
+  templateOverrides,
 }: OgCardProps): ReactElement {
   const layout = CARD_LAYOUTS[template];
-  const palette = resolvePalette(template, theme);
+
+  // Custom templates can override theme, title, subtitle. When present, the
+  // theme override changes the palette; title/subtitle override the content.
+  const effectiveTheme = templateOverrides?.theme ?? theme;
+  const effectiveTitle = templateOverrides?.title ?? title;
+  const effectiveSubtitle = templateOverrides?.subtitle ?? subtitle;
+
+  const palette = resolvePalette(template, effectiveTheme);
 
   // Satori reads the style object verbatim, so a key that is present but
   // undefined makes it throw while parsing the value. The gradient key is
@@ -141,10 +152,10 @@ export function OgCard({
           overflow: "hidden",
         }}
       >
-        {title}
+        {effectiveTitle}
       </div>
 
-      {subtitle.length > 0 ? (
+      {effectiveSubtitle.length > 0 ? (
         <div
           style={{
             fontSize: layout.subtitleFontSize,
@@ -157,7 +168,7 @@ export function OgCard({
             overflow: "hidden",
           }}
         >
-          {subtitle}
+          {effectiveSubtitle}
         </div>
       ) : null}
     </div>

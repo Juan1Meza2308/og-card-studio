@@ -23,8 +23,16 @@ import {
   AlertCircle,
   CheckCircle,
   ExternalLink,
+  Save,
+  X,
+  Edit,
+  Trash2 as Trash2Icon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { OgPreview } from "@/components/ogcraft/og-preview";
+import type { TemplateOverrides } from "@/lib/og/handler";
+import { TEMPLATE_IDS, THEME_IDS, TEMPLATE_LABELS, THEME_LABELS, CARD_LAYOUTS } from "@/lib/og/constants";
+import { siteHost } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,10 +46,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
-import { siteHost, siteUrl } from "@/lib/site";
+import { siteUrl } from "@/lib/site";
 
 export type View = "overview" | "keys" | "templates" | "analytics" | "billing";
 
@@ -53,6 +68,18 @@ type ApiKey = {
   created_at: string;
   last_used_at: string | null;
   status: string;
+};
+
+type CustomTemplate = {
+  id: string;
+  name: string;
+  theme: "violet" | "ocean" | "ember" | "mint";
+  title: string;
+  subtitle: string;
+  logo_url: string | null;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 const nav = [
@@ -92,6 +119,9 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [templates, setTemplates] = useState<CustomTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templateError, setTemplateError] = useState<string | null>(null);
 
   async function loadData() {
     setLoading(true);
@@ -131,9 +161,37 @@ export function Dashboard() {
     }
   }
 
+  async function loadTemplates() {
+    setTemplatesLoading(true);
+    setTemplateError(null);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+      const { data, error } = await supabase
+        .from("templates")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const mapped = (data ?? []).map((t) => ({
+        ...t,
+        theme: t.theme as "violet" | "ocean" | "ember" | "mint",
+      }));
+      setTemplates(mapped);
+    } catch (err) {
+      console.error("[Dashboard] Failed to load templates", err);
+      setTemplateError("No se pudieron cargar las plantillas");
+    } finally {
+      setTemplatesLoading(false);
+    }
+  }
+
   useEffect(() => {
     void loadData();
   }, []);
+
+  useEffect(() => {
+    if (view === "templates") void loadTemplates();
+  }, [view]);
 
   async function generateKey() {
     const { data: userData } = await supabase.auth.getUser();
@@ -367,7 +425,7 @@ export function Dashboard() {
               copyToClipboard={copyToClipboard}
             />
           )}
-          {view === "templates" && <Templates />}
+          {view === "templates" && <Templates templates={templates} onRefresh={loadTemplates} />}
           {view === "analytics" && <Analytics used={used} />}
           {view === "billing" && <Billing used={used} limit={limit} />}
         </div>
@@ -754,154 +812,321 @@ function Keys({
   );
 }
 
-function Templates() {
-  const [selected, setSelected] = useState(0);
-  const [brandTitle, setBrandTitle] = useState(() => {
-    try {
-      return localStorage.getItem("ogcraft-default-brand-title") ?? "Build what comes next.";
-    } catch {
-      return "Build what comes next.";
-    }
+interface TemplatesProps {
+  templates: CustomTemplate[];
+  onRefresh: () => Promise<void>;
+}
+
+function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
+  const [selectedId, setSelectedId] = useState<string>("tech");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<CustomTemplate | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    theme: "violet" as "violet" | "ocean" | "ember" | "mint",
+    title: "Ship your next idea",
+    subtitle: "Built with OGCraft",
   });
-  const [category, setCategory] = useState(() => {
-    try {
-      return localStorage.getItem("ogcraft-default-category") ?? "ENGINEERING / PRODUCT";
-    } catch {
-      return "ENGINEERING / PRODUCT";
-    }
-  });
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const DEFAULT_BRAND_TITLE = "Build what comes next.";
-  const DEFAULT_CATEGORY = "ENGINEERING / PRODUCT";
+  const builtinTemplates = TEMPLATE_IDS.map((id) => ({
+    id,
+    name: TEMPLATE_LABELS[id],
+    template: id,
+    theme: "violet" as "violet" | "ocean" | "ember" | "mint",
+    className: CARD_LAYOUTS[id].brandPlacement === "top" ? "og-tech" : "og-minimalist",
+    isBuiltin: true as const,
+  }));
 
-  function saveDefault() {
+  const allTemplates = [...builtinTemplates, ...userTemplates.map((t) => ({ ...t, isBuiltin: false as const }))];
+
+  function handleSelect(id: string) {
+    setSelectedId(id);
+  }
+
+  function openCreate() {
+    setFormData({ name: "", theme: "violet", title: "Ship your next idea", subtitle: "Built with OGCraft" });
+    setEditingTemplate(null);
+    setShowCreateDialog(true);
+  }
+
+  function openEdit(template: CustomTemplate) {
+    setFormData({
+      name: template.name,
+      theme: template.theme,
+      title: template.title,
+      subtitle: template.subtitle,
+    });
+    setEditingTemplate(template);
+    setShowCreateDialog(true);
+  }
+
+  async function handleSave() {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+    setSaving(true);
     try {
-      localStorage.setItem("ogcraft-default-brand-title", brandTitle);
-      localStorage.setItem("ogcraft-default-category", category);
+      if (editingTemplate) {
+        const { error } = await supabase
+          .from("templates")
+          .update({
+            name: formData.name,
+            theme: formData.theme,
+            title: formData.title,
+            subtitle: formData.subtitle,
+            logo_url: null,
+          })
+          .eq("id", editingTemplate.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("templates").insert({
+          user_id: userData.user.id,
+          name: formData.name,
+          theme: formData.theme,
+          title: formData.title,
+          subtitle: formData.subtitle,
+          logo_url: null,
+        });
+        if (error) throw error;
+      }
       setSaved(true);
+      setShowCreateDialog(false);
+      await onRefresh();
       setTimeout(() => setSaved(false), 1600);
     } catch (err) {
-      console.error("[Dashboard] Failed to save default style", err);
+      console.error("[Dashboard] Failed to save template", err);
+    } finally {
+      setSaving(false);
     }
   }
 
-  function resetDefault() {
-    setBrandTitle(DEFAULT_BRAND_TITLE);
-    setCategory(DEFAULT_CATEGORY);
+  async function handleDelete(id: string) {
+    setDeleting(id);
     try {
-      localStorage.removeItem("ogcraft-default-brand-title");
-      localStorage.removeItem("ogcraft-default-category");
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1600);
+      const { error } = await supabase.from("templates").delete().eq("id", id);
+      if (error) throw error;
+      await onRefresh();
     } catch (err) {
-      console.error("[Dashboard] Failed to reset default style", err);
+      console.error("[Dashboard] Failed to delete template", err);
+    } finally {
+      setDeleting(null);
     }
   }
+
+  const selectedTemplate = allTemplates.find((t) => t.id === selectedId) ?? allTemplates[0];
 
   return (
     <div className="animate-fade-up">
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold">Template builder</h2>
-        <p className="text-sm text-muted-foreground">
-          Choose a foundation, then make it yours. Templates define the visual style of your OG
-          cards.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Template builder</h2>
+          <p className="text-sm text-muted-foreground">
+            Choose a foundation, then make it yours. Templates define the visual style of your OG
+            cards.
+          </p>
+        </div>
+        <Button onClick={openCreate}>
+          <Plus className="size-4 mr-2" />
+          New template
+        </Button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
-        {templateData.map((item, index) => (
+        {allTemplates.map((item) => (
           <motion.button
             type="button"
-            onClick={() => setSelected(index)}
-            key={item.name}
+            onClick={() => handleSelect(item.id)}
+            key={item.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.06, duration: 0.3 }}
+            transition={{ delay: allTemplates.indexOf(item) * 0.06, duration: 0.3 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={cn(
               "relative group overflow-hidden rounded-xl border transition-all duration-200",
               "p-0",
-              selected === index
+              selectedId === item.id
                 ? "border-primary ring-2 ring-primary/20 shadow-glow"
                 : "border-border hover:border-primary/30",
             )}
-            aria-pressed={selected === index}
+            aria-pressed={selectedId === item.id}
             aria-label={item.name}
           >
-            <div className={`og-preview og-${item.theme} ${item.className} aspect-[1200/630]`}>
-              <div className="og-grid" aria-hidden="true" />
-              <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-semibold text-white">
-                    <div className="grid size-6 place-items-center rounded bg-white/10">
-                      <ExternalLink className="size-3" />
-                    </div>
-                    <span className="text-xs sm:text-sm">OGCraft</span>
-                  </div>
-                  <span className="font-mono text-[8px] opacity-60">{siteHost}</span>
-                </div>
-                <div className="flex-1 flex flex-col justify-end">
-                  <p className="font-mono text-[10px] uppercase text-white/70">PREVIEW</p>
-                  <h3 className="text-[clamp(16px,3vw,28px)] font-semibold leading-tight text-white">
-                    Your card title
-                  </h3>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] opacity-70 text-white">
-                  <span>Generated in 42ms</span>
-                </div>
-              </div>
-            </div>
+            <OgPreview
+              title={item.isBuiltin ? "Your card title" : item.title}
+              subtitle={item.isBuiltin ? "Your subtitle here" : item.subtitle}
+              template={item.isBuiltin ? (item.id as "tech" | "minimalist" | "dark-gradient" | "clean-white") : "tech"}
+              theme={item.theme}
+              {...(!item.isBuiltin
+                ? {
+                    templateOverrides: {
+                      theme: item.theme,
+                      title: item.title,
+                      subtitle: item.subtitle,
+                      logoUrl: null,
+                    },
+                  }
+                : {})}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-            {selected === index && (
+            {selectedId === item.id && (
               <div className="absolute top-3 right-3">
                 <Check className="size-5 text-primary" strokeWidth={3} />
+              </div>
+            )}
+            {!item.isBuiltin && (
+              <div className="absolute bottom-3 right-3 flex gap-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={(e) => { e.stopPropagation(); openEdit(item); }}
+                  aria-label="Edit template"
+                >
+                  <Edit className="size-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                  disabled={deleting === item.id}
+                  aria-label="Delete template"
+                >
+                  {deleting === item.id ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2Icon className="size-3.5" />}
+                </Button>
               </div>
             )}
           </motion.button>
         ))}
       </div>
-      <section className="dash-card">
-        <p className="dash-label">Default style</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Text used in new cards. Saved locally on this device.
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <label className="space-y-2">
-            <Label htmlFor="default-brand-title">Brand title</Label>
-            <Input
-              id="default-brand-title"
-              value={brandTitle}
-              onChange={(e) => setBrandTitle(e.target.value)}
-              maxLength={40}
-            />
-          </label>
-          <label className="space-y-2">
-            <Label htmlFor="default-category">Category</Label>
-            <Input
-              id="default-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              maxLength={40}
-            />
-          </label>
+
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingTemplate ? "Edit template" : "Create template"}</DialogTitle>
+            <DialogDescription>
+              {editingTemplate
+                ? "Changes will apply to new cards using this template."
+                : "Give it a name and choose the base style. You can override the text later."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2">
+                <Label htmlFor="template-name">Name</Label>
+                <Input
+                  id="template-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="My launch template"
+                  maxLength={80}
+                  required
+                />
+              </label>
+              <label className="space-y-2">
+                <Label htmlFor="template-theme">Theme</Label>
+                <Select value={formData.theme} onValueChange={(v) => setFormData({ ...formData, theme: v as "violet" | "ocean" | "ember" | "mint" })}>
+                  <SelectTrigger id="template-theme">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {THEME_IDS.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {THEME_LABELS[t]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </label>
+            </div>
+            <label className="space-y-2">
+              <Label htmlFor="template-title">Title (used as default)</Label>
+              <Input
+                id="template-title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                maxLength={90}
+              />
+            </label>
+            <label className="space-y-2">
+              <Label htmlFor="template-subtitle">Subtitle (used as default)</Label>
+              <Input
+                id="template-subtitle"
+                value={formData.subtitle}
+                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                maxLength={140}
+              />
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving || !formData.name.trim()}>
+              {saving ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Save className="size-4 mr-2" />}
+              {editingTemplate ? "Save changes" : "Create template"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {userTemplates.length > 0 && (
+        <section className="dash-card mt-8">
+          <p className="dash-label">Your templates</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            These are stored in your account and available via the API with your key.
+          </p>
+          <div className="mt-4 rounded-lg border border-border/50 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border/50 bg-muted/50">
+                  <th className="p-3 text-left font-medium">Name</th>
+                  <th className="p-3 text-left font-medium">Theme</th>
+                  <th className="p-3 text-left font-medium">Title</th>
+                  <th className="p-3 text-right font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userTemplates.map((t) => (
+                  <tr key={t.id} className="border-b border-border/30 hover:bg-muted/30">
+                    <td className="p-3 font-mono">{t.name}</td>
+                    <td className="p-3 capitalize">{t.theme}</td>
+                    <td className="p-3 max-w-xs truncate">{t.title}</td>
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(t)} aria-label="Edit">
+                          <Edit className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => handleDelete(t.id)}
+                          disabled={deleting === t.id}
+                          aria-label="Delete"
+                        >
+                          {deleting === t.id ? <Loader2 className="size-4 animate-spin" /> : <Trash2Icon className="size-4" />}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {saved && (
+        <div className="fixed bottom-6 right-6 z-50 animate-fade-up">
+          <div className="flex items-center gap-2 rounded-xl bg-success/10 border border-success/30 px-4 py-3 text-sm text-success">
+            <CheckCircle className="size-4" />
+            Template saved
+          </div>
         </div>
-        <div className="mt-5 flex gap-3">
-          <Button onClick={saveDefault}>
-            {saved ? (
-              <>
-                <CheckCircle className="size-4 mr-2" />
-                Saved
-              </>
-            ) : (
-              "Save as default"
-            )}
-          </Button>
-          <Button variant="outline" onClick={resetDefault}>
-            Reset to preset
-          </Button>
-        </div>
-      </section>
+      )}
     </div>
   );
 }
