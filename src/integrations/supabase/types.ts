@@ -143,6 +143,69 @@ export type Database = {
         };
         Relationships: [];
       };
+      daily_usage_stats: {
+        Row: {
+          created_at: string;
+          id: string;
+          date: string;
+          requests_count: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          date: string;
+          requests_count?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          date?: string;
+          requests_count?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      template_usage: {
+        Row: {
+          created_at: string;
+          id: string;
+          template_id: string | null;
+          template_name: string;
+          template_type: string;
+          requests_count: number;
+          last_used_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          template_id?: string | null;
+          template_name: string;
+          template_type: string;
+          requests_count?: number;
+          last_used_at?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          template_id?: string | null;
+          template_name?: string;
+          template_type?: string;
+          requests_count?: number;
+          last_used_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
