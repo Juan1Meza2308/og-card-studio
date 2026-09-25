@@ -1,7 +1,9 @@
 import "./lib/error-capture";
+import "./lib/og/cjs-globals";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleOgRequest } from "./lib/og/handler";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -46,6 +48,11 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // The OG image endpoint, served before the SSR handler because it never
+    // touches the router. Returns undefined for every other path.
+    const ogResponse = await handleOgRequest(request);
+    if (ogResponse) return ogResponse;
+
     // Health probe for load balancers and uptime monitors.
     if (request.url.endsWith("/api/health")) {
       return new Response(JSON.stringify({ ok: true, service: "ogcraft", ts: Date.now() }), {
