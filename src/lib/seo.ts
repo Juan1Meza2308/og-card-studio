@@ -1,3 +1,4 @@
+import { brandCardUrl } from "@/lib/og/url";
 import { siteUrl } from "@/lib/site";
 import type { DetailedHTMLProps, MetaHTMLAttributes } from "react";
 
@@ -13,7 +14,16 @@ type HeadMeta = DetailedHTMLProps<MetaHTMLAttributes<HTMLMetaElement>, HTMLMetaE
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 
-const DEFAULT_OG_IMAGE = `${siteUrl}/og-card.png`;
+/**
+ * The site's own share image is served by the site's own endpoint.
+ *
+ * Shipping a hand-made static PNG here would mean the product's homepage
+ * advertises a renderer it does not use, and the one place a broken endpoint
+ * would go unnoticed is the one place everyone looks first. The `/v1` prefix
+ * keeps it cacheable forever, and the endpoint is derived from `siteUrl` so it
+ * points at whichever deployment is answering.
+ */
+const DEFAULT_OG_IMAGE = brandCardUrl(siteUrl);
 const TWITTER_SITE = "@juan1meza2308";
 
 export type SeoInput = {
@@ -22,7 +32,7 @@ export type SeoInput = {
   description: string;
   /** Absolute path on this site. Used for both canonical and og:url. */
   path: string;
-  /** Absolute URL of the share image. Defaults to the static brand card. */
+  /** Absolute URL of the share image. Defaults to the site's own rendered card. */
   image?: string;
   imageAlt?: string;
   /** Keeps private routes out of the index and out of link equity. */

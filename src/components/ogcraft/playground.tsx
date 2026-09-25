@@ -24,6 +24,7 @@ import {
   type ThemeId,
 } from "@/lib/og/constants";
 import { themeSwatch } from "@/lib/og/palette";
+import { ogCardUrl } from "@/lib/og/url";
 import { siteUrl } from "@/lib/site";
 
 /**
@@ -42,10 +43,10 @@ export function Playground() {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  const url = useMemo(() => {
-    const params = new URLSearchParams({ title, subtitle, theme, template });
-    return `${siteUrl}/v1/og?${params.toString()}`;
-  }, [title, subtitle, theme, template]);
+  const url = useMemo(
+    () => ogCardUrl(siteUrl, { title, subtitle, theme, template }),
+    [title, subtitle, theme, template],
+  );
 
   async function copy(value: string) {
     await navigator.clipboard.writeText(value);

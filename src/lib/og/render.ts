@@ -1,6 +1,6 @@
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
-import { OgCard } from "./card";
+import { OgCard, type OgCardProps } from "./card";
 import { CARD_HEIGHT, CARD_WIDTH, FONT_ASSET_BASE, FONT_FAMILY } from "./constants";
 import type { OgRequest } from "./schema";
 
@@ -83,27 +83,41 @@ export type RenderedCard = {
  * Card tree to PNG: satori lays the tree out and emits an SVG, resvg
  * rasterises it. The two are split because satori only understands a small
  * subset of CSS, which is why `OgCard` is written in plain inline styles.
+ *
+ * Fonts are a parameter rather than loaded here, so the same code path renders
+ * from the CDN in production and from disk in the verification script. There is
+ * only one renderer either way, which is the point.
  */
+export async function rasterizeCard(
+  props: OgCardProps,
+  fonts: SatoriFont[],
+): Promise<RenderedCard> {
+  const svg = await satori(OgCard(props), {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    fonts,
+  });
+
+  const png = new Resvg(svg, { fitTo: { mode: "width", value: CARD_WIDTH } }).render().asPng();
+
+  return { png, width: CARD_WIDTH, height: CARD_HEIGHT };
+}
+
+/** Production path: fonts from the deployment's own static assets, then render. */
 export async function renderOgCard(
   request: OgRequest,
   options: { origin: string; host: string },
 ): Promise<RenderedCard> {
-  const fonts = await getFonts(options.origin);
-
-  const svg = await satori(
-    OgCard({
+  return rasterizeCard(
+    {
       title: request.title,
       subtitle: request.subtitle,
       template: request.template,
       theme: request.theme,
       host: options.host,
-    }),
-    { width: CARD_WIDTH, height: CARD_HEIGHT, fonts },
+    },
+    await getFonts(options.origin),
   );
-
-  const png = new Resvg(svg, { fitTo: { mode: "width", value: CARD_WIDTH } }).render().asPng();
-
-  return { png, width: CARD_WIDTH, height: CARD_HEIGHT };
 }
 
 /** Test seam: drops the cached fonts. */

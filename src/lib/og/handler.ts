@@ -2,6 +2,7 @@ import { siteHost } from "@/lib/site";
 import { LIMITS } from "./constants";
 import { renderOgCard } from "./render";
 import { parseOgRequest } from "./schema";
+import { OG_IMAGE_PATH } from "./url";
 
 /**
  * The image endpoint.
@@ -29,9 +30,6 @@ import { parseOgRequest } from "./schema";
  * change ships as `/v2/og` rather than silently invalidating a year of cache.
  */
 
-/** Bumping this is what makes a new card design deployable without a cache purge. */
-export const OG_ROUTE_PREFIX = "/v1/og";
-
 const ALLOWED_METHODS = ["GET", "HEAD"] as const;
 
 /** One year, in seconds. Safe because the URL pins the design version. */
@@ -58,7 +56,7 @@ function jsonError(status: number, body: ApiErrorBody, extraHeaders: HeadersInit
 
 export async function handleOgRequest(request: Request): Promise<Response | undefined> {
   const url = new URL(request.url);
-  if (url.pathname !== OG_ROUTE_PREFIX) return undefined;
+  if (url.pathname !== OG_IMAGE_PATH) return undefined;
 
   if (!(ALLOWED_METHODS as readonly string[]).includes(request.method)) {
     return jsonError(405, { error: "method_not_allowed" }, { allow: ALLOWED_METHODS.join(", ") });
