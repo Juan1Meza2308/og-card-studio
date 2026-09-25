@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
+import { RendererStatusBadge } from "@/components/ogcraft/renderer-status-badge";
 import { OnboardingBanner } from "@/components/ogcraft/onboarding-banner";
 import {
   Activity,
@@ -315,10 +316,7 @@ export function Dashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground sm:flex">
-              <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-              Systems operational
-            </span>
+            <RendererStatusBadge />
             <ThemeToggle />
           </div>
         </header>
