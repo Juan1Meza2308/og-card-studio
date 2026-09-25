@@ -1,11 +1,9 @@
 import { createRequire } from "node:module";
 import { dirname } from "node:path";
+import { WASM_HOST_PACKAGE } from "./wasm-packages";
 
 /** The globals the wasm loaders assume but cannot have under ESM. */
 export const REQUIRED_GLOBALS = ["require", "__dirname"] as const;
-
-/** The package whose directory holds the wasm the loaders look for. */
-const WASM_HOST_PACKAGE = "harfbuzzjs";
 
 /**
  * Installs the two globals that satori's wasm loaders assume but cannot have.

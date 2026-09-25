@@ -87,12 +87,28 @@ export default {
     const ogResponse = await (await getOgHandler())(request);
     if (ogResponse) return ogResponse;
 
-    // Health probe for load balancers and uptime monitors.
+    // Readiness probe for load balancers and uptime monitors. It reports the
+    // renderer's real dependencies, and answers 503 when they are not there,
+    // because a monitor that is told "ok" by a broken renderer is worse than
+    // no monitor.
     if (request.url.endsWith("/api/health")) {
-      return new Response(JSON.stringify({ ok: true, service: "ogcraft", ts: Date.now() }), {
-        status: 200,
-        headers: { "content-type": "application/json; charset=utf-8" },
-      });
+      const { checkRendererReadiness } = await import("./lib/og/readiness");
+      const readiness = await checkRendererReadiness();
+      return new Response(
+        JSON.stringify({
+          ok: readiness.ok,
+          service: "ogcraft",
+          ts: Date.now(),
+          checks: readiness.checks,
+        }),
+        {
+          status: readiness.ok ? 200 : 503,
+          headers: {
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "no-store",
+          },
+        },
+      );
     }
 
     try {
