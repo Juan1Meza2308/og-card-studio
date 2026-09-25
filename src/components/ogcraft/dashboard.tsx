@@ -111,6 +111,7 @@ export function Dashboard() {
   }
   const [collapsed, setCollapsed] = useState(false);
   const [email, setEmail] = useState("Developer");
+  const [plan, setPlan] = useState<"free" | "pro" | "agency">("free");
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [used, setUsed] = useState(42);
   const [limit, setLimit] = useState(100);
@@ -130,7 +131,7 @@ export function Dashboard() {
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (userData.user?.email) setEmail(userData.user.email);
-      const [{ data: keyRows, error: keyError }, { data: usageRows, error: usageError }] =
+      const [{ data: keyRows, error: keyError }, { data: usageRows, error: usageError }, { data: profile }] =
         await Promise.all([
           supabase
             .from("api_keys")
@@ -142,12 +143,18 @@ export function Dashboard() {
             .select("requests_used,request_limit")
             .order("period_start", { ascending: false })
             .limit(1),
+          supabase
+            .from("profiles")
+            .select("plan")
+            .eq("id", userData.user!.id)
+            .single(),
         ]);
       if (keyError || usageError) {
         console.error("[Dashboard] Failed to load workspace data", { keyError, usageError });
         setLoadError(true);
         return;
       }
+      if (profile?.plan) setPlan(profile.plan as "free" | "pro" | "agency");
       if (keyRows) setKeys(keyRows);
       const current = usageRows?.[0];
       if (current) {
@@ -348,7 +355,23 @@ export function Dashboard() {
           {!collapsed && (
             <div className="mb-3 min-w-0 animate-fade-in">
               <p className="truncate text-xs font-medium">{email}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Free workspace</p>
+              <p className="mt-1 text-[11px] text-muted-foreground capitalize">{plan} workspace</p>
+            </div>
+          )}
+          {!collapsed && (
+            <div className="mb-4 animate-fade-in">
+              <p className="text-[11px] text-muted-foreground mb-2">Monthly usage</p>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+              </div>
+              <p className="mt-1 text-[11px] font-mono text-muted-foreground">
+                {used} / {limit}
+              </p>
             </div>
           )}
           <Button
@@ -410,7 +433,7 @@ export function Dashboard() {
               </Button>
             ))}
           </div>
-          {view === "overview" && <Overview used={used} limit={limit} />}
+          {view === "overview" && <Overview used={used} limit={limit} onNavigate={changeView} />}
           {view === "keys" && (
             <Keys
               keys={keys}
@@ -435,18 +458,19 @@ export function Dashboard() {
   );
 }
 
-function Overview({ used, limit }: { used: number; limit: number }) {
-  const percentage = Math.min((used / limit) * 100, 100);
+function Overview({ used, limit, onNavigate }: { used: number; limit: number; onNavigate: (view: View) => void }) {
   const [copied, setCopied] = useState(false);
-  const [animatedPct, setAnimatedPct] = useState(0);
+  const [recentActivity, setRecentActivity] = useState<
+    Array<{ date: string; requests_count: number }>
+  >([]);
+  const [recentTemplates, setRecentTemplates] = useState<
+    Array<{ template_name: string; requests_count: number; template_type: string }>
+  >([]);
+  const [loadingActivity, setLoadingActivity] = useState(true);
+
   const snippet = `curl "${siteUrl}/v1/og?title=Hello%20World&theme=violet" \\
   -H "Authorization: Bearer og_live_••••••••" \\
   --output preview.png`;
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimatedPct(percentage), 200);
-    return () => clearTimeout(timer);
-  }, [percentage]);
 
   async function copySnippet() {
     try {
@@ -458,6 +482,63 @@ function Overview({ used, limit }: { used: number; limit: number }) {
     }
   }
 
+  // Quick actions - unique to Overview
+  const quickActions = [
+    {
+      label: "Generate API Key",
+      description: "Create a new key for your app",
+      icon: KeyRound,
+      onClick: () => onNavigate("keys"),
+      shortcut: "⌘K",
+    },
+    {
+      label: "Create Template",
+      description: "Design a custom card style",
+      icon: LayoutTemplate,
+      onClick: () => onNavigate("templates"),
+      shortcut: "⌘T",
+    },
+    {
+      label: "Copy Snippet",
+      description: "Copy ready-to-use curl command",
+      icon: Copy,
+      onClick: () => void copySnippet(),
+      shortcut: "⌘C",
+    },
+  ];
+
+  // Load recent activity for the activity feed
+  useEffect(() => {
+    async function loadRecentActivity() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      try {
+        const [{ data: daily }, { data: templates }] = await Promise.all([
+          supabase
+            .from("daily_usage_stats")
+            .select("date, requests_count")
+            .eq("user_id", user.id)
+            .gte("date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0])
+            .order("date", { ascending: false })
+            .limit(7),
+          supabase
+            .from("template_usage")
+            .select("template_name, requests_count, template_type")
+            .eq("user_id", user.id)
+            .order("last_used_at", { ascending: false })
+            .limit(5),
+        ]);
+        if (daily) setRecentActivity(daily ?? []);
+        if (templates) setRecentTemplates(templates ?? []);
+      } catch (err) {
+        console.error("[Overview] Failed to load recent activity", err);
+      } finally {
+        setLoadingActivity(false);
+      }
+    }
+    void loadRecentActivity();
+  }, []);
+
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
@@ -465,7 +546,7 @@ function Overview({ used, limit }: { used: number; limit: number }) {
   return (
     <div className="space-y-6 animate-fade-up">
       <OnboardingBanner />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">{greeting}, 👋</p>
           <h1 className="text-2xl font-semibold">Resumen de tu proyecto</h1>
@@ -477,60 +558,124 @@ function Overview({ used, limit }: { used: number; limit: number }) {
           </span>
         </div>
       </div>
-      <div className="grid gap-4 lg:grid-cols-3">
-        <section className="dash-card lg:col-span-2" aria-labelledby="usage-heading">
-          <div className="flex items-start justify-between">
-            <div>
-              <p id="usage-heading" className="dash-label">
-                Monthly usage
-              </p>
-              <p className="mt-3 text-3xl font-semibold">
-                {used}{" "}
-                <span className="text-base font-normal text-muted-foreground">/ {limit}</span>
-              </p>
-            </div>
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Activity className="size-5" aria-hidden="true" />
-            </div>
-          </div>
-          <div
-            className="mt-7 flex items-center gap-3"
-            role="progressbar"
-            aria-valuenow={animatedPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Monthly usage progress"
-          >
-            <Progress value={animatedPct} className="h-2 flex-1" />
-            <span className="text-sm font-mono text-muted-foreground min-w-[3rem] text-right">
-              {animatedPct}%
-            </span>
-          </div>
-          <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-            <span>{limit - used} requests remaining</span>
-            <span>
-              Resets{" "}
-              {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString(
-                "en-US",
-                { month: "long", day: "numeric" },
+
+      {/* Quick Actions - unique to Overview */}
+      <section className="dash-card" aria-labelledby="quick-actions-heading">
+        <p id="quick-actions-heading" className="dash-label">Quick actions</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {quickActions.map((action) => (
+            <Button
+              key={action.label}
+              variant="outline"
+              className={cn(
+                "gap-3 text-left py-4 transition-all hover:shadow-md",
+                "flex items-center",
               )}
-            </span>
+              onClick={action.onClick}
+            >
+              <span className="icon-box bg-primary/10 text-primary">
+                <action.icon className="size-5" />
+              </span>
+              <div className="flex-1 text-left">
+                <p className="font-medium">{action.label}</p>
+                <p className="text-xs text-muted-foreground">{action.description}</p>
+              </div>
+              <kbd className="px-2 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground">
+                {action.shortcut}
+              </kbd>
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      {/* Recent Activity Feed - unique to Overview */}
+      <section className="dash-card" aria-labelledby="activity-heading">
+        <div className="flex items-center justify-between">
+          <p id="activity-heading" className="dash-label">Recent activity</p>
+          <Button variant="ghost" size="sm" onClick={() => onNavigate("analytics")}>
+            View all
+            <ChevronRight className="size-3.5 ml-1" />
+          </Button>
+        </div>
+        {loadingActivity ? (
+          <div className="mt-8 text-center py-8">
+            <Loader2 className="size-8 animate-spin text-muted-foreground mx-auto" />
           </div>
-        </section>
-        <section className="dash-card" aria-labelledby="render-heading">
-          <p id="render-heading" className="dash-label">
-            Average render
-          </p>
-          <p className="mt-2 text-3xl font-semibold">
-            {used > 0 ? Math.round(42 * (used / Math.max(limit, 1))) : 0}
-            <span className="ml-1 text-base text-muted-foreground">ms</span>
-          </p>
-          <p className="mt-4 flex items-center gap-2 text-xs text-success">
-            <ShieldCheck className="size-4" aria-hidden="true" />
-            {used > 0 ? `${Math.round(percentage)}%` : `Ready`} of requests cached
-          </p>
-        </section>
-      </div>
+        ) : recentActivity.length > 0 ? (
+          <div className="mt-4 space-y-3">
+            {recentActivity.map((day) => (
+              <div
+                key={day.date}
+                className="flex items-center justify-between py-3 border-b border-border/50 last:border-0"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary text-xs font-mono">
+                    {new Date(day.date).getDate()}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">
+                      {new Date(day.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{day.requests_count} requests</p>
+                  </div>
+                </div>
+                <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full"
+                    style={{ width: `${Math.min((day.requests_count / Math.max(1, ...recentActivity.map(d => d.requests_count))) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 text-center py-8">
+            <Activity className="size-12 text-muted-foreground/50 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No activity yet</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Make your first request to see activity here</p>
+          </div>
+        )}
+      </section>
+
+      {/* Recently Used Templates - unique to Overview */}
+      <section className="dash-card" aria-labelledby="recent-templates-heading">
+        <div className="flex items-center justify-between">
+          <p id="recent-templates-heading" className="dash-label">Recently used templates</p>
+          <Button variant="ghost" size="sm" onClick={() => onNavigate("templates")}>
+            View all
+            <ChevronRight className="size-3.5 ml-1" />
+          </Button>
+        </div>
+        {recentTemplates.length > 0 ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {recentTemplates.slice(0, 4).map((tpl) => (
+              <Button
+                key={tpl.template_name}
+                variant="outline"
+                className="gap-3 p-3 text-left transition-all hover:shadow-md"
+                onClick={() => onNavigate("templates")}
+              >
+                <span className="icon-box bg-primary/10 text-primary">
+                  <LayoutTemplate className="size-5" />
+                </span>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="font-medium truncate">{tpl.template_name}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{tpl.template_type} · {tpl.requests_count} uses</p>
+                </div>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 text-center py-8">
+            <LayoutTemplate className="size-12 text-muted-foreground/50 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No templates used yet</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Create a template or make a request to see it here</p>
+          </div>
+        )}
+      </section>
+
+      {/* Code snippet for quick copy - unique to Overview */}
       <section className="dash-card" aria-labelledby="quickstart-heading">
         <div className="mb-5 flex items-center gap-3">
           <span className="icon-box">
