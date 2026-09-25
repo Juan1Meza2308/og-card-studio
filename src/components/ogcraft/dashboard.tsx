@@ -40,6 +40,7 @@ import { Progress } from "@/components/ui/progress";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
+import { siteHost, siteUrl } from "@/lib/site";
 
 export type View = "overview" | "keys" | "templates" | "analytics" | "billing";
 
@@ -381,7 +382,7 @@ function Overview({ used, limit }: { used: number; limit: number }) {
   const percentage = Math.min((used / limit) * 100, 100);
   const [copied, setCopied] = useState(false);
   const [animatedPct, setAnimatedPct] = useState(0);
-  const snippet = `curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\
+  const snippet = `curl "${siteUrl}/v1/og?title=Hello%20World&theme=violet" \\
   -H "Authorization: Bearer og_live_••••••••" \\
   --output preview.png`;
 
@@ -682,14 +683,12 @@ function Keys({
             </thead>
             <tbody className="divide-y divide-border/50">
               {keys.map((key) => (
-                <AnimatePresence key={key.id} >
+                <AnimatePresence key={key.id}>
                   <tr
                     key={key.id}
-                    className={cn(
-                      "transition-colors hover:bg-card/50",
-                      "animate-fade-up",
-                      { "in-view": key.id === keys[keys.length - 1]?.id }
-                    )}
+                    className={cn("transition-colors hover:bg-card/50", "animate-fade-up", {
+                      "in-view": key.id === keys[keys.length - 1]?.id,
+                    })}
                   >
                     <td className="py-4 font-medium">{key.name}</td>
                     <td>
@@ -842,7 +841,7 @@ function Templates() {
                     </div>
                     <span className="text-xs sm:text-sm">OGCraft</span>
                   </div>
-                  <span className="font-mono text-[8px] opacity-60">ogcraft.dev</span>
+                  <span className="font-mono text-[8px] opacity-60">{siteHost}</span>
                 </div>
                 <div className="flex-1 flex flex-col justify-end">
                   <p className="font-mono text-[10px] uppercase text-white/70">PREVIEW</p>
@@ -936,12 +935,18 @@ function Analytics({ used }: { used: number }) {
         {/* Chart */}
         <div className="mt-8 relative">
           {/* Y-axis labels + Grid */}
-          <div className="flex h-48 items-end gap-[3px] px-1 pb-8" role="img" aria-label="Monthly requests chart">
+          <div
+            className="flex h-48 items-end gap-[3px] px-1 pb-8"
+            role="img"
+            aria-label="Monthly requests chart"
+          >
             {/* Grid lines */}
             <div className="absolute inset-x-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
               {[0, 25, 50, 75, 100].map((val) => (
                 <div key={val} className="flex items-center gap-2">
-                  <span className="w-8 text-[10px] text-muted-foreground text-right font-mono">{val}%</span>
+                  <span className="w-8 text-[10px] text-muted-foreground text-right font-mono">
+                    {val}%
+                  </span>
                   <div className="flex-1 border-t border-border/30" />
                 </div>
               ))}
@@ -972,12 +977,8 @@ function Analytics({ used }: { used: number }) {
                   <div className="rounded-lg bg-card border border-border px-3 py-1.5 shadow-lg text-xs font-mono whitespace-nowrap">
                     <span className="text-foreground font-semibold">Day {i + 1}</span>
                     <span className="text-muted-foreground ml-1">{height}%</span>
-                    {i === maxIndex && (
-                      <span className="text-success ml-1">Peak</span>
-                    )}
-                    {i === minIndex && (
-                      <span className="text-destructive ml-1">Low</span>
-                    )}
+                    {i === maxIndex && <span className="text-success ml-1">Peak</span>}
+                    {i === minIndex && <span className="text-destructive ml-1">Low</span>}
                   </div>
                 </div>
               </motion.div>
@@ -1073,7 +1074,6 @@ function Analytics({ used }: { used: number }) {
     </div>
   );
 }
-
 
 function Billing({ used, limit }: { used: number; limit: number }) {
   return (

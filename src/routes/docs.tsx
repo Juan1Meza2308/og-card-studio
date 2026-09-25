@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Braces, Terminal } from "lucide-react";
 import { PageIntro, PublicFooter, PublicNav } from "@/components/ogcraft/marketing";
 import { breadcrumbJsonLd, buildSeo } from "@/lib/seo";
+import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/docs")({
   head: () =>
@@ -54,7 +55,7 @@ function Docs() {
                 Send a GET request to the image endpoint. The response is a production-ready PNG.
               </p>
               <pre className="mt-5 overflow-x-auto rounded-lg border border-border bg-code p-5 font-mono text-xs leading-6 text-code-foreground">
-                <code>{`curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \\\n  -H "Authorization: Bearer og_live_your_key" \\\n  --output og.png`}</code>
+                <code>{`curl "${siteUrl}/v1/og?title=Hello%20World&theme=violet" \\\n  -H "Authorization: Bearer og_live_your_key" \\\n  --output og.png`}</code>
               </pre>
             </section>
             <section id="parameters" className="mt-12 border-t border-border pt-10">

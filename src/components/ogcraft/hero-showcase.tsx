@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Globe2, ImageIcon, Timer } from "lucide-react";
 import { spring, staggerItem } from "@/lib/motion";
+import { siteHost } from "@/lib/site";
 
 function OgCard({
   theme,
@@ -28,7 +29,7 @@ function OgCard({
             </span>
             <span className="text-[clamp(9px,1vw,14px)]">OGCraft</span>
           </div>
-          <span className="font-mono text-[clamp(7px,0.7vw,11px)] opacity-60">ogcraft.dev</span>
+          <span className="font-mono text-[clamp(7px,0.7vw,11px)] opacity-60">{siteHost}</span>
         </div>
         <div>
           <p className="mb-2 font-mono text-[clamp(8px,0.9vw,13px)] uppercase text-white/80">
@@ -58,10 +59,7 @@ const chips = [
 function CropMarks() {
   const corner = "absolute size-4";
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute -inset-3 z-0 hidden sm:block"
-    >
+    <div aria-hidden="true" className="pointer-events-none absolute -inset-3 z-0 hidden sm:block">
       <span className={`${corner} left-0 top-0 border-l-2 border-t-2 border-primary/50`} />
       <span className={`${corner} right-0 top-0 border-r-2 border-t-2 border-primary/50`} />
       <span className={`${corner} bottom-0 left-0 border-b-2 border-l-2 border-primary/50`} />

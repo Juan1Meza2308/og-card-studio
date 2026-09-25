@@ -40,3 +40,10 @@ function resolveSiteUrl(): string {
 }
 
 export const siteUrl = resolveSiteUrl();
+
+/**
+ * Host without protocol, for the brand line drawn inside rendered cards.
+ * Derived rather than written out so the mockups can never advertise a domain
+ * this deployment does not actually serve.
+ */
+export const siteHost = new URL(siteUrl).host;

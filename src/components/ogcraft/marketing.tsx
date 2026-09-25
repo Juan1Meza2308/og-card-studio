@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { staggerContainer, staggerItem } from "@/lib/motion";
+import { siteHost } from "@/lib/site";
 
 const links = [
   { label: "Features", to: "/features" },
@@ -594,7 +595,7 @@ const storyRows = [
           <span className="size-2.5 rounded-full bg-destructive/70" />
           <span className="size-2.5 rounded-full bg-warning/70" />
           <span className="size-2.5 rounded-full bg-success/70" />
-          <span className="ml-3 text-muted-foreground">api.ogcraft.dev</span>
+          <span className="ml-3 text-muted-foreground">api.{siteHost}</span>
         </div>
         <div className="p-5">
           <p className="text-primary">GET</p>
@@ -618,7 +619,7 @@ const storyRows = [
           <span className="size-2.5 rounded-full bg-destructive/70" />
           <span className="size-2.5 rounded-full bg-warning/70" />
           <span className="size-2.5 rounded-full bg-success/70" />
-          <span className="ml-3 text-muted-foreground">edge.ogcraft.dev</span>
+          <span className="ml-3 text-muted-foreground">edge.{siteHost}</span>
         </div>
         <div className="p-5">
           <div className="grid grid-cols-2 gap-2">

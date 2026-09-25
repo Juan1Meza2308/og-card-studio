@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { siteHost, siteUrl } from "@/lib/site";
 
 const themes = {
   violet: { label: "Violet pulse", colors: ["#6d28d9", "#312e81", "#09090b"] },
@@ -80,7 +81,7 @@ function TemplatePreview({
         <div className="mt-10 flex items-center gap-3">
           <span className="h-px w-10 bg-white/30" />
           <LogoMark logoUrl={logoUrl} className="size-5" />
-          <span className="text-sm font-semibold text-white/80">ogcraft.dev</span>
+          <span className="text-sm font-semibold text-white/80">{siteHost}</span>
           <span className="h-px w-10 bg-white/30" />
         </div>
       </div>
@@ -94,7 +95,7 @@ function TemplatePreview({
         <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">
           <div className="flex items-center justify-between">
             <TwLogo logoUrl={logoUrl} />
-            <span className="font-mono text-[10px] opacity-60">ogcraft.dev</span>
+            <span className="font-mono text-[10px] opacity-60">{siteHost}</span>
           </div>
           <div className="text-center">
             <p className={`${mono} ${accent} text-[clamp(10px,1.2vw,16px)]`}>
@@ -122,7 +123,7 @@ function TemplatePreview({
         <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">
           <div className="flex items-center justify-between">
             <TwLogo logoUrl={logoUrl} light />
-            <span className="font-mono text-[10px] opacity-60">ogcraft.dev</span>
+            <span className="font-mono text-[10px] opacity-60">{siteHost}</span>
           </div>
           <div>
             <p className={`${mono} ${accent} text-[clamp(10px,1.2vw,16px)]`}>
@@ -146,7 +147,7 @@ function TemplatePreview({
       <div className="relative z-10 flex h-full flex-col justify-between p-[7%]">
         <div className="flex items-center justify-between">
           <TwLogo logoUrl={logoUrl} />
-          <span className="font-mono text-[10px] opacity-60">ogcraft.dev</span>
+          <span className="font-mono text-[10px] opacity-60">{siteHost}</span>
         </div>
         <div>
           <p className={`${mono} ${accent} text-[clamp(10px,1.2vw,16px)]`}>
@@ -176,7 +177,7 @@ export function Playground() {
   const previewRef = useRef<HTMLDivElement>(null);
   const url = useMemo(
     () =>
-      `https://api.ogcraft.dev/v1/og?title=${encodeURIComponent(title)}&theme=${theme}&template=${encodeURIComponent(template)}`,
+      `${siteUrl}/v1/og?title=${encodeURIComponent(title)}&theme=${theme}&template=${encodeURIComponent(template)}`,
     [title, theme, template],
   );
 
@@ -259,7 +260,7 @@ export function Playground() {
       ctx.fillText(title.slice(0, 32), x, 340);
       ctx.fillStyle = ink + "aa";
       ctx.font = "500 22px monospace";
-      ctx.fillText("● ogcraft.dev · generated on the edge", x, 560);
+      ctx.fillText(`● ${siteHost} · generated on the edge`, x, 560);
     }
 
     const link = document.createElement("a");
