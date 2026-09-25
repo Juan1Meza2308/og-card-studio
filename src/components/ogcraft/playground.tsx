@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Check, Copy, Download, Loader2, Sparkles } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { OgPreview } from "@/components/ogcraft/og-preview";
 import {
   DEFAULT_TEMPLATE,
@@ -28,11 +37,9 @@ import { ogCardUrl } from "@/lib/og/url";
 import { siteUrl } from "@/lib/site";
 
 /**
- * The playground renders the real card and downloads from the real endpoint.
- *
- * The vocabulary of templates, themes and length limits is imported from
- * `lib/og`, so a value that the API rejects cannot be offered here: the
- * inputs carry the same maximum length the schema enforces.
+ * Playground with presets functionality.
+ * Users can save/load named configurations from localStorage.
+ * Built-in example presets are provided for quick testing.
  */
 export function Playground() {
   const [title, setTitle] = useState("Ship ideas people remember.");
@@ -42,6 +49,33 @@ export function Playground() {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  // Presets from localStorage
+  const [presets, setPresets] = useState<UserPreset[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
+
+  // Load presets on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("ogcraft-presets");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setPresets(parsed);
+      }
+    } catch (err) {
+      console.error("[Playground] Failed to load presets", err);
+    }
+  }, []);
+
+  // Save presets to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("ogcraft-presets", JSON.stringify(presets));
+    } catch (err) {
+      console.error("[Playground] Failed to save presets", err);
+    }
+  }, [presets]);
 
   const url = useMemo(
     () => ogCardUrl(siteUrl, { title, subtitle, theme, template }),
@@ -54,11 +88,6 @@ export function Playground() {
     window.setTimeout(() => setCopied(false), 1600);
   }
 
-  /**
-   * Fetches the card from our own endpoint rather than redrawing it on a
-   * canvas. Downloading a different picture than the one on screen was the
-   * whole problem, and the endpoint is the only renderer that matters.
-   */
   async function download() {
     setDownloading(true);
     setDownloadError(null);
@@ -80,6 +109,33 @@ export function Playground() {
     } finally {
       setDownloading(false);
     }
+  }
+
+  function savePreset() {
+    if (!newPresetName.trim()) return;
+    const preset: UserPreset = {
+      id: crypto.randomUUID(),
+      name: newPresetName.trim(),
+      title,
+      subtitle,
+      theme,
+      template,
+      createdAt: Date.now(),
+    };
+    setPresets((prev) => [preset, ...prev]);
+    setShowSaveDialog(false);
+    setNewPresetName("");
+  }
+
+  function loadPreset(preset: UserPreset) {
+    setTitle(preset.title);
+    setSubtitle(preset.subtitle);
+    setTheme(preset.theme);
+    setTemplate(preset.template);
+  }
+
+  function deletePreset(id: string) {
+    setPresets((prev) => prev.filter((p) => p.id !== id));
   }
 
   const snippet = {
@@ -104,6 +160,7 @@ export function Playground() {
             <p className="font-mono text-[11px] uppercase text-muted-foreground">Content</p>
             <h3 className="mt-1 text-sm font-medium">Customize your card</h3>
           </div>
+
           <label className="block space-y-2">
             <Label htmlFor="og-title">Title</Label>
             <Input
@@ -116,6 +173,7 @@ export function Playground() {
               {title.length}/{LIMITS.titleMaxChars}
             </p>
           </label>
+
           <label className="block space-y-2">
             <Label htmlFor="og-subtitle">Subtitle / category</Label>
             <Input
@@ -128,6 +186,7 @@ export function Playground() {
               {subtitle.length}/{LIMITS.subtitleMaxChars}
             </p>
           </label>
+
           <div className="space-y-2">
             <Label>Background gradient</Label>
             <div className="grid grid-cols-4 gap-2">
@@ -144,6 +203,7 @@ export function Playground() {
               ))}
             </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="og-template">Template</Label>
             <Select value={template} onValueChange={(value) => setTemplate(value as TemplateId)}>
@@ -158,6 +218,81 @@ export function Playground() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Presets Panel */}
+          <div className="border-t border-border/50 pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-mono text-[11px] uppercase text-muted-foreground">Presets</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setNewPresetName(""); setShowSaveDialog(true); }}
+              >
+                <FolderPlus className="size-3.5 mr-2" />
+                Save current
+              </Button>
+            </div>
+
+            {/* Built-in examples */}
+            <div className="mb-3">
+              <p className="text-xs text-muted-foreground mb-2">Examples</p>
+              <div className="grid grid-cols-2 gap-2">
+                {BUILTIN_PRESETS.map((bp) => (
+                  <button
+                    key={bp.name}
+                    type="button"
+                    onClick={() => {
+                      setTitle(bp.title);
+                      setSubtitle(bp.subtitle);
+                      setTheme(bp.theme);
+                      setTemplate(bp.template);
+                    }}
+                    className="text-left p-2 rounded border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition text-xs"
+                    title={bp.description}
+                  >
+                    <p className="font-medium truncate">{bp.name}</p>
+                    <p className="text-muted-foreground/70 truncate">{bp.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* User presets */}
+            {presets.length > 0 ? (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Your presets</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {presets.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between p-2 rounded border border-border/50 hover:border-primary/50"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => loadPreset(p)}
+                        className="flex-1 text-left text-sm truncate font-medium"
+                      >
+                        {p.name}
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-destructive hover:text-destructive"
+                        onClick={() => deletePreset(p.id)}
+                        aria-label={`Delete preset ${p.name}`}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-4">
+                No saved presets yet. Click "Save current" to create one.
+              </p>
+            )}
           </div>
         </div>
         <div className="min-w-0 p-4 sm:p-6">
@@ -203,3 +338,50 @@ export function Playground() {
     </div>
   );
 }
+
+/** Shape of a user-saved preset in localStorage. */
+interface UserPreset {
+  id: string;
+  name: string;
+  title: string;
+  subtitle: string;
+  theme: ThemeId;
+  template: TemplateId;
+  createdAt: number;
+}
+
+/** Built-in example presets for quick testing. */
+const BUILTIN_PRESETS = [
+  {
+    name: "Launch Day",
+    description: "Bold tech theme for product launches",
+    title: "We're live! 🚀",
+    subtitle: "The future of developer tools starts today",
+    theme: "violet" as ThemeId,
+    template: "tech" as TemplateId,
+  },
+  {
+    name: "Blog Post",
+    description: "Clean white template for articles",
+    title: "How we built OGCraft",
+    subtitle: "Engineering · Behind the scenes",
+    theme: "mint" as ThemeId,
+    template: "clean-white" as TemplateId,
+  },
+  {
+    name: "Changelog",
+    description: "Dark gradient for version updates",
+    title: "v2.0 — Faster renders",
+    subtitle: "Now with custom templates & Stripe billing",
+    theme: "ember" as ThemeId,
+    template: "dark-gradient" as TemplateId,
+  },
+  {
+    name: "Minimal",
+    description: "Minimalist for subtle announcements",
+    title: "Small update, big impact",
+    subtitle: "Performance improvements across the board",
+    theme: "ocean" as ThemeId,
+    template: "minimalist" as TemplateId,
+  },
+];
