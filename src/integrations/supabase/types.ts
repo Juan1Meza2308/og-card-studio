@@ -206,6 +206,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_presets: {
+        Row: {
+          user_id: string;
+          data: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          data: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          data?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

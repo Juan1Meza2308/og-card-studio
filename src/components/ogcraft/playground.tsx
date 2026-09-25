@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from "react";
-import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus } from "lucide-react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus, Upload, Download as DownloadIcon, FileJson, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { OgPreview } from "@/components/ogcraft/og-preview";
 import {
   DEFAULT_TEMPLATE,
@@ -35,6 +36,7 @@ import {
 import { themeSwatch } from "@/lib/og/palette";
 import { ogCardUrl } from "@/lib/og/url";
 import { siteUrl } from "@/lib/site";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Playground with presets functionality.
@@ -54,6 +56,13 @@ export function Playground() {
   const [presets, setPresets] = useState<UserPreset[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auth state for cloud sync
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success" | "error">("idle");
+  const [syncMessage, setSyncMessage] = useState<string>("");
 
   // Load presets on mount
   useEffect(() => {
@@ -76,6 +85,25 @@ export function Playground() {
       console.error("[Playground] Failed to save presets", err);
     }
   }, [presets]);
+
+  // Check auth state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? { id: session.user.id, email: session.user.email ?? "" } : null);
+    });
+    // Initial check
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u ? { id: u.id, email: u.email ?? "" } : null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load cloud presets when user signs in
+  useEffect(() => {
+    if (user) {
+      loadCloudPresets();
+    }
+  }, [user]);
 
   const url = useMemo(
     () => ogCardUrl(siteUrl, { title, subtitle, theme, template }),
@@ -136,6 +164,108 @@ export function Playground() {
 
   function deletePreset(id: string) {
     setPresets((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  // Export presets to JSON file
+  function exportPresets() {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      presets: presets.map(({ id, ...rest }) => rest), // Don't export IDs
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `ogcraft-presets-${new Date().toISOString().split("T")[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Import presets from JSON file
+  function handleImport(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const data = JSON.parse(text);
+        if (!data.presets || !Array.isArray(data.presets)) {
+          throw new Error("Invalid format: missing presets array");
+        }
+        // Validate each preset
+        const validPresets = data.presets.filter((p: unknown) => {
+          const preset = p as Partial<UserPreset>;
+          return (
+            typeof preset.name === "string" &&
+            typeof preset.title === "string" &&
+            typeof preset.subtitle === "string" &&
+            THEME_IDS.includes(preset.theme as ThemeId) &&
+            TEMPLATE_IDS.includes(preset.template as TemplateId)
+          );
+        }).map((p: unknown) => ({
+          ...(p as Omit<UserPreset, "id">),
+          id: crypto.randomUUID(),
+          createdAt: Date.now(),
+        }));
+        if (validPresets.length === 0) {
+          throw new Error("No valid presets found in file");
+        }
+        setPresets((prev) => [...validPresets, ...prev]);
+        setImportError(null);
+      } catch (err) {
+        setImportError(err instanceof Error ? err.message : "Failed to import presets");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Load presets from cloud (Supabase)
+  async function loadCloudPresets() {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from("user_presets")
+        .select("data")
+        .eq("user_id", user.id)
+        .single();
+      if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows
+      if (data?.data) {
+        const cloudPresets = data.data as Omit<UserPreset, "id">[];
+        // Merge with local, avoiding duplicates by name
+        setPresets((local) => {
+          const merged = [...local];
+          for (const cp of cloudPresets) {
+            if (!local.some((lp) => lp.name === cp.name)) {
+              merged.unshift({ ...cp, id: crypto.randomUUID(), createdAt: Date.now() });
+            }
+          }
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.error("[Playground] Failed to load cloud presets", err);
+    }
+  }
+
+  // Save presets to cloud (Supabase)
+  async function saveCloudPresets() {
+    if (!user) return;
+    setSyncStatus("syncing");
+    setSyncMessage("Guardando en la nube...");
+    try {
+      const data = presets.map(({ id, ...rest }) => rest); // Don't store local IDs
+      const { error } = await supabase
+        .from("user_presets")
+        .upsert({ user_id: user.id, data, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      if (error) throw error;
+      setSyncStatus("success");
+      setSyncMessage("Presets guardados en la nube");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    } catch (err) {
+      setSyncStatus("error");
+      setSyncMessage(err instanceof Error ? err.message : "Error al guardar");
+      setTimeout(() => setSyncStatus("idle"), 5000);
+    }
   }
 
   const snippet = {
@@ -232,6 +362,62 @@ export function Playground() {
                 <FolderPlus className="size-3.5 mr-2" />
                 Save current
               </Button>
+            </div>
+
+            {/* Export / Import / Cloud sync */}
+            <div className="border-t border-border/50 pt-3 mb-3">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportPresets}
+                  disabled={presets.length === 0}
+                >
+                  <DownloadIcon className="size-3.5 mr-2" />
+                  Export
+                </Button>
+                <div className="relative">
+                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="size-3.5 mr-2" />
+                    Import
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
+                    aria-label="Import presets JSON"
+                  />
+                </div>
+                {user && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={saveCloudPresets}
+                    disabled={syncStatus === "syncing"}
+                  >
+                    {syncStatus === "syncing" ? (
+                      <Loader2 className="size-3.5 mr-2 animate-spin" />
+                    ) : (
+                      <FileJson className="size-3.5 mr-2" />
+                    )}
+                    Sync to cloud
+                  </Button>
+                )}
+              </div>
+              {importError && (
+                <Alert variant="destructive" className="mt-2 text-xs">
+                  <AlertCircle className="size-3.5" />
+                  <AlertDescription>{importError}</AlertDescription>
+                </Alert>
+              )}
+              {syncStatus !== "idle" && (
+                <Alert className={`mt-2 text-xs ${syncStatus === "success" ? "" : "variant-destructive"}`}>
+                  <AlertCircle className="size-3.5" />
+                  <AlertDescription>{syncMessage}</AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {/* Built-in examples */}
