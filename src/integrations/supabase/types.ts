@@ -210,28 +210,93 @@ export type Database = {
         Row: {
           user_id: string;
           data: Json;
+          is_public: boolean;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           user_id: string;
           data: Json;
+          is_public?: boolean;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           data?: Json;
+          is_public?: boolean;
           updated_at?: string;
         };
         Relationships: [];
       };
+      preset_forks: {
+        Row: {
+          id: string;
+          original_user_id: string;
+          original_preset_name: string;
+          forked_by: string;
+          forked_preset_name: string;
+          created_at: string;
+        };
+        Insert: {
+          original_user_id: string;
+          original_preset_name: string;
+          forked_by: string;
+          forked_preset_name: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          original_user_id?: string;
+          original_preset_name?: string;
+          forked_by?: string;
+          forked_preset_name?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "preset_forks_original_user_id_fkey",
+            columns: ["original_user_id"],
+            isOneToMany: true,
+            referencedRelation: "users",
+            referencedColumns: ["id"],
+          },
+          {
+            foreignKeyName: "preset_forks_forked_by_fkey",
+            columns: ["forked_by"],
+            isOneToMany: true,
+            referencedRelation: "users",
+            referencedColumns: ["id"],
+          },
+        ];
+      };
     };
     Views: {
-      [_ in never]: never;
-    };
+      public_presets: {
+        Row: {
+          user_id: string;
+          preset_id: string;
+          name: string;
+          title: string;
+          subtitle: string;
+          theme: string;
+          template: string;
+          created_at: string;
+          author_email: string;
+          author_name: string | null;
+          author_avatar: string | null;
+        };
+      };
+    },
     Functions: {
-      [_ in never]: never;
-    };
+      fork_preset: {
+        Args: {
+          original_user_id: string;
+          original_name: string;
+          new_name: string;
+        };
+        Returns: void;
+      };
+    },
     Enums: {
       [_ in never]: never;
     };

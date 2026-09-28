@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -43,6 +44,11 @@ const DocsRoute = DocsRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlaygroundRoute = PlaygroundRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
+  '/gallery': typeof GalleryRoute
   '/playground': typeof PlaygroundRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
+  '/gallery': typeof GalleryRoute
   '/playground': typeof PlaygroundRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
+  '/gallery': typeof GalleryRoute
   '/playground': typeof PlaygroundRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/docs'
     | '/features'
+    | '/gallery'
     | '/playground'
     | '/pricing'
     | '/privacy'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/docs'
     | '/features'
+    | '/gallery'
     | '/playground'
     | '/pricing'
     | '/privacy'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/docs'
     | '/features'
+    | '/gallery'
     | '/playground'
     | '/pricing'
     | '/privacy'
@@ -160,6 +172,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DocsRoute: typeof DocsRoute
   FeaturesRoute: typeof FeaturesRoute
+  GalleryRoute: typeof GalleryRoute
   PlaygroundRoute: typeof PlaygroundRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/playground': {
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DocsRoute: DocsRoute,
   FeaturesRoute: FeaturesRoute,
+  GalleryRoute: GalleryRoute,
   PlaygroundRoute: PlaygroundRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,

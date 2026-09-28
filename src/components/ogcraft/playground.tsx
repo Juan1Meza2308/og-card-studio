@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus, Upload, Download as DownloadIcon, FileJson, AlertCircle } from "lucide-react";
+import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus, Upload, Download as DownloadIcon, FileJson, AlertCircle, Globe, GitFork } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -149,6 +149,7 @@ export function Playground() {
       theme,
       template,
       createdAt: Date.now(),
+      is_public: false,
     };
     setPresets((prev) => [preset, ...prev]);
     setShowSaveDialog(false);
@@ -164,6 +165,44 @@ export function Playground() {
 
   function deletePreset(id: string) {
     setPresets((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  async function togglePublic(id: string, currentlyPublic: boolean) {
+    try {
+      setPresets((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, is_public: !currentlyPublic } : p))
+      );
+      const { error } = await supabase
+        .from("user_presets")
+        .update({ is_public: !currentlyPublic })
+        .eq("user_id", user!.id);
+      if (error) throw error;
+    } catch (err) {
+      console.error("[Playground] Toggle public failed", err);
+      setPresets((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, is_public: currentlyPublic } : p))
+      );
+      alert("Failed to update visibility");
+    }
+  }
+
+  async function forkPreset(id: string, name: string) {
+    const newName = window.prompt(`Fork "${name}" as:`, `${name} (fork)`);
+    if (!newName) return;
+    try {
+      const { error } = await supabase.rpc("fork_preset", {
+        original_user_id: user!.id,
+        original_name: name,
+        new_name: newName,
+      });
+      if (error) throw error;
+      // Reload presets from cloud to get the new fork
+      await loadCloudPresets();
+      alert(`Preset forked as "${newName}"`);
+    } catch (err) {
+      console.error("[Playground] Fork failed", err);
+      alert(err instanceof Error ? err.message : "Failed to fork preset");
+    }
   }
 
   // Export presets to JSON file
@@ -206,6 +245,7 @@ export function Playground() {
           ...(p as Omit<UserPreset, "id">),
           id: crypto.randomUUID(),
           createdAt: Date.now(),
+          is_public: false,
         }));
         if (validPresets.length === 0) {
           throw new Error("No valid presets found in file");
@@ -236,7 +276,7 @@ export function Playground() {
           const merged = [...local];
           for (const cp of cloudPresets) {
             if (!local.some((lp) => lp.name === cp.name)) {
-              merged.unshift({ ...cp, id: crypto.randomUUID(), createdAt: Date.now() });
+              merged.unshift({ ...cp, id: crypto.randomUUID(), createdAt: Date.now(), is_public: false });
             }
           }
           return merged;
@@ -461,15 +501,41 @@ export function Playground() {
                       >
                         {p.name}
                       </button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive hover:text-destructive"
-                        onClick={() => deletePreset(p.id)}
-                        aria-label={`Delete preset ${p.name}`}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {user && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => togglePublic(p.id, p.is_public)}
+                              aria-label={p.is_public ? "Make private" : "Make public"}
+                              title={p.is_public ? "Make private" : "Make public"}
+                            >
+                              {p.is_public ? <Globe className="size-3.5 text-primary" /> : <Globe className="size-3.5 text-muted-foreground" />}
+                            </Button>
+                          </>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => forkPreset(p.id, p.name)}
+                          aria-label={`Fork ${p.name}`}
+                          title="Fork preset"
+                        >
+                          <GitFork className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-destructive hover:text-destructive"
+                          onClick={() => deletePreset(p.id)}
+                          aria-label={`Delete preset ${p.name}`}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -534,6 +600,7 @@ interface UserPreset {
   theme: ThemeId;
   template: TemplateId;
   createdAt: number;
+  is_public: boolean;
 }
 
 /** Built-in example presets for quick testing. */
