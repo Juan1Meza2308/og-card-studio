@@ -10,7 +10,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,32 +162,36 @@ function RootComponent() {
   const navigate = useNavigate();
   const supabase = useSupabase();
 
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith("#access_token=") || hash.startsWith("#type=recovery")) {
-      const params = new URLSearchParams(hash.slice(1));
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
-      const expiresIn = params.get("expires_in");
-      const type = params.get("type");
+  // Synchronous hash handling - runs during render, before paint
+  const hash = typeof window !== "undefined" ? window.location.hash : "";
+  const [handled, setHandled] = useState(false);
 
-      if (accessToken && refreshToken) {
-        supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          expires_in: expiresIn ? Number(expiresIn) : 3600,
-        }).then(({ error }) => {
-          if (!error) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            navigate({ to: "/dashboard", replace: true });
-          }
-        });
-      } else if (type === "recovery") {
-        // Password recovery flow - let reset-password page handle it
-        window.history.replaceState({}, document.title, window.location.pathname + hash);
-      }
+  if (!handled && (hash.startsWith("#access_token=") || hash.startsWith("#type=recovery"))) {
+    const params = new URLSearchParams(hash.slice(1));
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const expiresIn = params.get("expires_in");
+    const type = params.get("type");
+
+    if (accessToken && refreshToken) {
+      // Fire and forget - set session and redirect
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: expiresIn ? Number(expiresIn) : 3600,
+      }).then(({ error }) => {
+        if (!error) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          navigate({ to: "/dashboard", replace: true });
+        }
+      });
+    } else if (type === "recovery") {
+      window.history.replaceState({}, document.title, window.location.pathname + hash);
     }
-  }, [location.pathname, navigate, supabase]);
+    setHandled(true);
+    // Don't render anything this frame - wait for redirect
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
