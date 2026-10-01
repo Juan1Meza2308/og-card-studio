@@ -11,25 +11,48 @@
 
 ---
 
-## ✨ Features
+## What is OGCraft?
 
-| Feature                          | Description                                                                  |
-| -------------------------------- | ---------------------------------------------------------------------------- |
-| **Interactive Playground**       | Live 1200×630 preview with editable content, template & gradient controls    |
-| **Instant API URL**              | Copy production-ready URLs with all parameters encoded                       |
-| **PNG Download**                 | Export high-resolution OG images directly from the browser                   |
-| **Code Integration Tabs**        | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL        |
-| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation     |
-| **Secure API Keys**              | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
-| **Row-Level Security**           | Every table protected by RLS policies — users only access their own data     |
-| **Dashboard**                    | Overview, API Keys management, Template Builder, Analytics, Billing          |
-| **Usage Tracking**               | Monthly quotas, per-key last-used timestamps, plan limits                    |
-| **Dark, High-Contrast UI**       | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons                         |
-| **Responsive & Accessible**      | Mobile-first, keyboard navigable, focus-visible, ARIA labels                 |
+OGCraft is a **self-hosted Open Graph image generation service**. Instead of manually designing social share cards for every blog post, product page, or marketing campaign, you call a simple API endpoint with your content parameters and get a perfectly sized 1200×630 PNG image ready for social platforms (Twitter, LinkedIn, Facebook, Slack, Discord, etc.).
+
+### The Problem It Solves
+
+| Traditional Approach | OGCraft |
+|---------------------|---------|
+| Design each card manually in Figma/Canva | One API call generates cards programmatically |
+| Upload images to CDN, manage storage | Images generated on-demand or cached at edge |
+| Hard to keep branding consistent | Templates enforce brand consistency |
+| No dynamic content (prices, dates, user names) | Template variables inject real-time data |
+
+### Use Cases
+
+- **Blogs & CMS**: Auto-generate OG images for every article from title + category
+- **E-commerce**: Product cards with live price, discount badge, stock status
+- **SaaS Dashboards**: Personalized share cards for user achievements, reports
+- **Marketing Campaigns**: Hundreds of variant cards from a single template
+- **Documentation**: Version-specific cards with release badges
 
 ---
 
-## 🚀 Quick Start
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **Interactive Playground** | Live 1200×630 preview with editable content, template & gradient controls |
+| **Instant API URL** | Copy production-ready URLs with all parameters encoded |
+| **PNG Download** | Export high-resolution OG images directly from the browser |
+| **Code Integration Tabs** | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL |
+| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation |
+| **Secure API Keys** | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
+| **Row-Level Security** | Every table protected by RLS policies — users only access their own data |
+| **Dashboard** | Overview, API Keys management, Template Builder, Analytics, Billing |
+| **Usage Tracking** | Monthly quotas, per-key last-used timestamps, plan limits |
+| **Dark, High-Contrast UI** | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons |
+| **Responsive & Accessible** | Mobile-first, keyboard navigable, focus-visible, ARIA labels |
+
+---
+
+## Quick Start
 
 ### Prerequisites
 
@@ -54,46 +77,49 @@ cp .env.example .env
 npm run dev
 ```
 
-Open http://localhost:3000 — you should see the OGCraft landing page with the interactive playground.
+Open http://localhost:3000 — you'll see the OGCraft landing page with the interactive playground.
 
 ---
 
-## 🏗️ Tech Stack
+## Tech Stack (Actual)
 
-| Layer                     | Technology                                              |
-| ------------------------- | ------------------------------------------------------- |
-| **Framework**             | TanStack Start (React 19, SSR, File-based routing)      |
-| **Styling**               | Tailwind CSS v4 (semantic tokens), shadcn/ui components |
-| **Auth & Database**       | Supabase (PostgreSQL + Row Level Security)              |
-| **Forms & Validation**    | React Hook Form + Zod                                   |
-| **State & Data Fetching** | TanStack Query (React Query v5)                         |
-| **Charts**                | Recharts                                                |
-| **Icons**                 | Lucide React                                            |
-| **Date Handling**         | date-fns                                                |
-| **Build Tool**            | Vite 8 + Rolldown                                       |
-| **Deployment Target**     | Vercel (configurable)                                   |
+| Layer | Technology |
+|-------|------------|
+| **Framework** | TanStack Start (React 19, SSR, File-based routing) |
+| **Styling** | Tailwind CSS v4 (semantic tokens), shadcn/ui primitives |
+| **Auth & Database** | Supabase (PostgreSQL + Row Level Security) |
+| **Forms & Validation** | React Hook Form + Zod |
+| **State & Data Fetching** | TanStack Query (React Query v5) |
+| **Charts & Visualization** | Recharts + custom motion-based charts |
+| **Icons** | Lucide React |
+| **Date Handling** | date-fns |
+| **Animation** | Motion (framer-motion) |
+| **Build Tool** | Vite 8 + Rolldown |
+| **Deployment Target** | Vercel (configurable) |
+| **Image Generation** | Satori + @resvg/resvg-js (SVG → PNG) |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 og-card-studio/
-├── public/                    # Static assets
+├── public/                    # Static assets (og-card.svg, og-card.png, robots.txt, sitemap.xml)
 ├── src/
 │   ├── components/
 │   │   ├── ogcraft/           # OGCraft-specific components
-│   │   │   ├── dashboard.tsx  # Protected dashboard (5 views)
+│   │   │   ├── dashboard.tsx  # Protected dashboard (5 views: Overview, Keys, Templates, Analytics, Billing)
 │   │   │   ├── logo.tsx       # Brand logo component
 │   │   │   ├── marketing.tsx  # Landing page sections (nav, hero, features, pricing, footer)
+│   │   │   ├── onboarding-banner.tsx # Dismissable first-run banner
 │   │   │   └── playground.tsx # Interactive OG card editor
-│   │   └── ui/                # shadcn/ui primitives (40+ components)
+│   │   └── ui/                # shadcn/ui primitives (Button, Card, Dialog, Input, etc.)
 │   ├── hooks/
 │   │   └── use-mobile.tsx     # Responsive breakpoint hook
 │   ├── integrations/
 │   │   └── supabase/          # Supabase clients & auth middleware
 │   │       ├── client.ts      # Browser client
-│   │       ├── client.server.ts # SSR client
+│   │       ├── client.server.ts # SSR client with service role fallback
 │   │       ├── auth-middleware.ts
 │   │       ├── cron-auth.ts
 │   │       ├── previewAuthStorage.ts
@@ -115,12 +141,12 @@ og-card-studio/
 │   │   ├── reset-password.tsx # Password reset flow
 │   │   ├── privacy.tsx        # Privacy policy
 │   │   ├── status.tsx         # System status
-│   │   ├── __root.tsx         # Root layout + metadata
+│   │   ├── __root.tsx         # Root layout + metadata (SEO, OG, favicon)
 │   │   └── routeTree.gen.ts   # Auto-generated route tree
 │   ├── router.tsx             # Router configuration
 │   ├── start.ts               # TanStack Start entry
 │   ├── server.ts              # SSR server entry
-│   ├── styles.css             # Global styles + Tailwind v4 tokens
+│   ├── styles.css             # Global styles + Tailwind v4 tokens (OKLCH)
 │   └── routeTree.gen.ts
 ├── supabase/
 │   └── migrations/            # Database schema + RLS policies
@@ -135,35 +161,35 @@ og-card-studio/
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
-| Variable                        | Required | Description                                          |
-| ------------------------------- | -------- | ---------------------------------------------------- |
-| `SUPABASE_URL`                  | ✅       | Project URL from Supabase Dashboard → Settings → API |
-| `SUPABASE_PUBLISHABLE_KEY`      | ✅       | Anon/public key (safe for client)                    |
-| `SUPABASE_PROJECT_ID`           | ✅       | Project reference ID                                 |
-| `VITE_SUPABASE_URL`             | ✅       | Same as above, for client bundle                     |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Same as above, for client bundle                     |
-| `VITE_SUPABASE_PROJECT_ID`      | ✅       | Same as above, for client bundle                     |
-| `SUPABASE_SERVICE_ROLE_KEY`     | ❌       | Service role key (server-only, never in client)      |
-| `SUPABASE_SECRET_KEY`           | ❌       | Legacy alias for the service role key                 |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SUPABASE_URL` | ✅ | Project URL from Supabase Dashboard → Settings → API |
+| `SUPABASE_PUBLISHABLE_KEY` | ✅ | Anon/public key (safe for client) |
+| `SUPABASE_PROJECT_ID` | ✅ | Project reference ID |
+| `VITE_SUPABASE_URL` | ✅ | Same as above, for client bundle |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Same as above, for client bundle |
+| `VITE_SUPABASE_PROJECT_ID` | ✅ | Same as above, for client bundle |
+| `SUPABASE_SERVICE_ROLE_KEY` | ❌ | Service role key (server-only, never in client) |
+| `SUPABASE_SECRET_KEY` | ❌ | Legacy alias for the service role key |
 
 > **Never commit `.env`**. Use `.env.example` as template.
 
 ---
 
-## 🗄️ Database Schema (Supabase)
+## Database Schema (Supabase)
 
 All tables have **Row Level Security (RLS) enabled** with policies restricting access to `auth.uid() = user_id`.
 
 ### Tables
 
-| Table         | Purpose                   | Key Columns                                                                                        |
-| ------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
-| `profiles`    | User profile & plan       | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency)                   |
-| `api_keys`    | Hashed API keys           | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
-| `usage_stats` | Monthly quota tracking    | `id`, `user_id`, `period_start`, `requests_used`, `request_limit`                                  |
-| `templates`   | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default`                    |
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `profiles` | User profile & plan | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency) |
+| `api_keys` | Hashed API keys | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
+| `usage_stats` | Monthly quota tracking | `id`, `user_id`, `period_start`, `requests_used`, `request_limit` |
+| `templates` | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default` |
 
 ### Security Highlights
 
@@ -184,7 +210,55 @@ supabase db push
 
 ---
 
-## 📦 Deployment
+## API Usage
+
+### Generate an OG Image
+
+```bash
+curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \
+  -H "Authorization: Bearer og_live_••••••••" \
+  --output preview.png
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `title` | string | ✅ | Main headline text |
+| `subtitle` | string | ❌ | Supporting text |
+| `theme` | string | ❌ | Visual theme: `violet`, `ocean`, `light`, `ember`, `minimalist` |
+| `logo` | string | ❌ | Logo URL (SVG/PNG) |
+| `category` | string | ❌ | Category badge text |
+
+### HTML Meta Tags
+
+```html
+<meta property="og:image" content="https://api.ogcraft.dev/v1/og?title=My%20Article&theme=violet" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+```
+
+### Next.js Metadata API
+
+```typescript
+export const metadata: Metadata = {
+  openGraph: {
+    images: [
+      {
+        url: 'https://api.ogcraft.dev/v1/og?title=My%20Article&theme=violet',
+        width: 1200,
+        height: 630,
+        alt: 'My Article',
+      },
+    ],
+  },
+};
+```
+
+---
+
+## Deployment
 
 ### Vercel (Recommended)
 
@@ -211,10 +285,11 @@ CMD ["node", "build/server/index.js"]
 - **SSR**: TanStack Start renders HTML on the server for SEO-critical pages
 - **Auth**: Supabase cookies work cross-subdomain; configure `Site URL` in Supabase Auth settings
 - **Google OAuth**: Add `https://your-domain.com/auth/callback` to Authorized Redirect URIs in Google Cloud Console
+- **Edge Caching**: Configure CDN caching for `/v1/og` responses (immutable per parameter set)
 
 ---
 
-## 🧪 Development
+## Development
 
 ```bash
 # Development server with HMR
@@ -242,7 +317,7 @@ npm run preview
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 See [roadmap.md](roadmap.md) for current status.
 
@@ -258,7 +333,7 @@ See [roadmap.md](roadmap.md) for current status.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/amazing-feature`
@@ -270,7 +345,7 @@ Please follow the code standards in [AGENTS.md](AGENTS.md).
 
 ---
 
-## 📄 License
+## License
 
 MIT License — Copyright (c) 2025 **Juan1Meza2308**
 
@@ -278,7 +353,7 @@ See [LICENSE](LICENSE) for details (or create one — MIT by default).
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [TanStack](https://tanstack.com/) for the incredible Start framework
 - [Supabase](https://supabase.com/) for auth + database + RLS
@@ -286,6 +361,7 @@ See [LICENSE](LICENSE) for details (or create one — MIT by default).
 - [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - [Lucide](https://lucide.dev/) for beautiful icons
 - [Vercel](https://vercel.com/) for deployment platform
+- [Satori](https://github.com/vercel/satori) + [resvg](https://github.com/RazrFalcon/resvg) for SVG→PNG rendering
 
 ---
 
