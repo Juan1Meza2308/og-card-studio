@@ -82,15 +82,11 @@ CREATE TRIGGER templates_updated_at BEFORE UPDATE ON public.templates FOR EACH R
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE raw_key text;
 BEGIN
   INSERT INTO public.profiles (id, display_name, avatar_url)
   VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)), NEW.raw_user_meta_data->>'avatar_url');
   INSERT INTO public.usage_stats (user_id, period_start, requests_used, request_limit)
-  VALUES (NEW.id, date_trunc('month', now())::date, 42, 100);
-  raw_key := 'og_live_' || encode(gen_random_bytes(18), 'hex');
-  INSERT INTO public.api_keys (user_id, name, key_prefix, key_hash, last_four, last_used_at)
-  VALUES (NEW.id, 'Default key', 'og_live_', encode(digest(raw_key, 'sha256'), 'hex'), right(raw_key, 4), now() - interval '2 hours');
+  VALUES (NEW.id, date_trunc('month', now())::date, 0, 100);
   RETURN NEW;
 END;
 $$;

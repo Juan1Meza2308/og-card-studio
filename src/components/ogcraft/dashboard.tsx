@@ -91,15 +91,6 @@ const nav = [
   { id: "billing", label: "Billing", icon: CreditCard },
 ] as const;
 
-const bars = [28, 44, 35, 66, 51, 82, 63, 91, 58, 72, 47, 60];
-
-const templateData = [
-  { name: "Dark Gradient", theme: "violet", className: "og-dark-gradient" },
-  { name: "Launch Signal", theme: "ocean", className: "og-tech" },
-  { name: "Editorial Clean", theme: "light", className: "og-clean-white og-light" },
-  { name: "Ember Release", theme: "ember", className: "og-minimalist" },
-] as const;
-
 export function Dashboard() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/_authenticated/dashboard" });
@@ -113,7 +104,7 @@ export function Dashboard() {
   const [email, setEmail] = useState("Developer");
   const [plan, setPlan] = useState<"free" | "pro" | "agency">("free");
   const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [used, setUsed] = useState(42);
+  const [used, setUsed] = useState(0);
   const [limit, setLimit] = useState(100);
   const [newName, setNewName] = useState("Production");
   const [open, setOpen] = useState(false);
