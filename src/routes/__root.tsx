@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
   useRouter,
   useLocation,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,6 +13,11 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
+import { supabase } from "@/integrations/supabase/client";
+
+function useSupabase() {
+  return supabase;
+}
 
 import appCss from "../styles.css?url";
 import { organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
@@ -153,6 +159,35 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useLocation();
+  const navigate = useNavigate();
+  const supabase = useSupabase();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#access_token=") || hash.startsWith("#type=recovery")) {
+      const params = new URLSearchParams(hash.slice(1));
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+      const expiresIn = params.get("expires_in");
+      const type = params.get("type");
+
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_in: expiresIn ? Number(expiresIn) : 3600,
+        }).then(({ error }) => {
+          if (!error) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            navigate({ to: "/dashboard", replace: true });
+          }
+        });
+      } else if (type === "recovery") {
+        // Password recovery flow - let reset-password page handle it
+        window.history.replaceState({}, document.title, window.location.pathname + hash);
+      }
+    }
+  }, [location.pathname, navigate, supabase]);
 
   return (
     <QueryClientProvider client={queryClient}>
