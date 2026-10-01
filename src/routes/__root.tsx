@@ -5,12 +5,11 @@ import {
   createRootRouteWithContext,
   useRouter,
   useLocation,
-  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +35,44 @@ const themeScript = `
       root.classList.add('dark');
     }
   } catch (e) {}
+})();
+`;
+
+// Inline script to handle OAuth redirect BEFORE React hydrates
+const oauthRedirectScript = `
+(function() {
+  try {
+    var hash = window.location.hash;
+    if (hash.startsWith('#access_token=') || hash.startsWith('#type=recovery')) {
+      var params = new URLSearchParams(hash.slice(1));
+      var accessToken = params.get('access_token');
+      var refreshToken = params.get('refresh_token');
+      var expiresIn = params.get('expires_in');
+      var type = params.get('type');
+
+      if (accessToken && refreshToken) {
+        // Store session for Supabase client to pick up
+        var sessionData = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_in: expiresIn ? parseInt(expiresIn, 10) : 3600,
+          token_type: 'bearer'
+        };
+        sessionStorage.setItem('sb-oauth-session', JSON.stringify(sessionData));
+        
+        // Clean URL and redirect to dashboard
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.replace('/dashboard');
+        return; // Stop execution, redirecting
+      } else if (type === 'recovery') {
+        // Password recovery - keep hash for reset-password page
+        sessionStorage.setItem('sb-recovery-hash', hash);
+        window.history.replaceState({}, document.title, window.location.pathname + hash);
+      }
+    }
+  } catch (e) {
+    console.error('OAuth redirect error:', e);
+  }
 })();
 `;
 
@@ -128,6 +165,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: themeScript,
         strategy: "beforeInteractive",
       },
+      {
+        type: "inline",
+        children: oauthRedirectScript,
+        strategy: "beforeInteractive",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -159,39 +201,24 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useLocation();
-  const navigate = useNavigate();
   const supabase = useSupabase();
 
-  // Synchronous hash handling - runs during render, before paint
-  const hash = typeof window !== "undefined" ? window.location.hash : "";
-  const [handled, setHandled] = useState(false);
-
-  if (!handled && (hash.startsWith("#access_token=") || hash.startsWith("#type=recovery"))) {
-    const params = new URLSearchParams(hash.slice(1));
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    const expiresIn = params.get("expires_in");
-    const type = params.get("type");
-
-    if (accessToken && refreshToken) {
-      // Fire and forget - set session and redirect
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: expiresIn ? Number(expiresIn) : 3600,
-      }).then(({ error }) => {
-        if (!error) {
-          window.history.replaceState({}, document.title, window.location.pathname);
-          navigate({ to: "/dashboard", replace: true });
-        }
-      });
-    } else if (type === "recovery") {
-      window.history.replaceState({}, document.title, window.location.pathname + hash);
+  useEffect(() => {
+    const stored = sessionStorage.getItem("sb-oauth-session");
+    if (stored) {
+      sessionStorage.removeItem("sb-oauth-session");
+      try {
+        const session = JSON.parse(stored);
+        supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_in: session.expires_in,
+        });
+      } catch (e) {
+        console.error("Failed to hydrate OAuth session", e);
+      }
     }
-    setHandled(true);
-    // Don't render anything this frame - wait for redirect
-    return null;
-  }
+  }, [supabase]);
 
   return (
     <QueryClientProvider client={queryClient}>
