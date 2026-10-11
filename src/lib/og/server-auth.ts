@@ -2,6 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { getValidatedEnv } from "@/lib/env";
 
+/** The only template columns the image endpoint ever reads. */
+export type RenderableTemplate = Pick<
+  Database["public"]["Tables"]["templates"]["Row"],
+  "name" | "theme" | "title" | "subtitle" | "logo_url"
+>;
+
 /**
  * Server-only Supabase client with the service role key.
  *
@@ -79,7 +85,7 @@ export async function validateApiKey(key: string): Promise<string | null> {
 export async function fetchUserTemplate(
   userId: string,
   templateId: string,
-): Promise<Database["public"]["Tables"]["templates"]["Row"] | null> {
+): Promise<RenderableTemplate | null> {
   const client = getServiceClient();
   if (!client) {
     throw new Error("Service role key not configured");
@@ -87,7 +93,7 @@ export async function fetchUserTemplate(
 
   const { data: templateData, error: templateError } = await client
     .from("templates")
-    .select("*")
+    .select("name, theme, title, subtitle, logo_url")
     .eq("id", templateId)
     .eq("user_id", userId)
     .maybeSingle();

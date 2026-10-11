@@ -48,6 +48,19 @@ const JSON_HEADERS = {
   "x-content-type-options": "nosniff",
 } as const;
 
+/**
+ * Derives a stable weak ETag from the inputs that determine the rendered bytes.
+ * Weak on purpose: two encodings of the same card are interchangeable, so a
+ * byte-for-byte comparison would buy nothing.
+ */
+async function weakEtag(input: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  const bytes = new Uint8Array(digest).subarray(0, 12);
+  let hex = "";
+  for (const byte of bytes) hex += byte.toString(16).padStart(2, "0");
+  return `W/"${hex}"`;
+}
+
 /** The shape we promise on failure. It names fields and limits, never values. */
 export type ApiErrorBody = {
   error: string;
@@ -260,6 +273,16 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
     usageInfo = await checkUnauthenticatedUsage();
   }
 
+  // The bytes are a pure function of the resolved request and the watermark, so
+  // a conditional request can be answered without a rasterisation pass.
+  const etag = await weakEtag(`${url.pathname}${url.search}|w:${userPlan === "free" ? "1" : "0"}`);
+  if (request.headers.get("if-none-match") === etag) {
+    return new Response(null, {
+      status: 304,
+      headers: { etag, "cache-control": cacheControl, "x-content-type-options": "nosniff" },
+    });
+  }
+
   try {
     const { png } = await renderOgCard(parsed.value, {
       origin: url.origin,
@@ -296,6 +319,7 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
         "content-type": "image/png",
         "content-length": String(png.byteLength),
         "cache-control": cacheControl,
+        etag,
         "x-content-type-options": "nosniff",
         "x-ratelimit-limit": String(usageInfo.limit),
         "x-ratelimit-remaining": String(Math.max(0, usageInfo.limit - usageInfo.used)),
