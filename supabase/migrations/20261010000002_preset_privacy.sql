@@ -69,8 +69,10 @@ BEGIN
   -- Update the name in the forked copy
   new_data := jsonb_set(original_data, '{name}', to_jsonb(new_name));
 
-  -- Insert or update the current user's presets
-  INSERT INTO public.user_presets (user_id, data, is_public)
+  -- Insert or update the current user's presets. The target table is aliased
+  -- `up` so the conflict branch can append to the existing payload: without the
+  -- alias, `up.data` would look for a column on an out-of-scope table.
+  INSERT INTO public.user_presets AS up (user_id, data, is_public)
   VALUES (auth.uid(), jsonb_build_array(new_data), false)
   ON CONFLICT (user_id) DO UPDATE SET
     data = up.data || jsonb_build_array(new_data),
@@ -81,3 +83,5 @@ BEGIN
   VALUES (original_user_id, original_name, auth.uid(), new_name);
 END;
 $$;
+
+GRANT EXECUTE ON FUNCTION public.fork_preset TO authenticated;
