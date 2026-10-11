@@ -9,7 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { ThemeProvider } from "@/lib/theme";
 import { pageTransition } from "@/lib/motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,7 +101,15 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const attemptRef = useRef(0);
   useEffect(() => {
+    // Auto-recover only once. TanStack does not memoise `reset`, so depending
+    // on it here re-fires the effect on every render and, while the underlying
+    // error persists, turns into an infinite invalidate→throw→reset loop that
+    // freezes the page and floods the console. One attempt is enough: if it
+    // fails again, the user gets the manual "Try again" button below.
+    if (attemptRef.current >= 1) return;
+    attemptRef.current += 1;
     router.invalidate();
     reset();
   }, [error, reset, router]);
@@ -115,6 +123,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
+        {import.meta.env.DEV ? (
+          <details className="mt-4 rounded-md border border-dashed border-border bg-muted/40 p-3 text-left">
+            <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+              Diagnostic info
+            </summary>
+            <pre className="mt-2 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-muted-foreground">
+              {error?.message || "(no message)"}
+              {"\n\n"}
+              {error?.stack || "(no stack)"}
+            </pre>
+          </details>
+        ) : null}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
