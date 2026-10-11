@@ -185,7 +185,7 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
   }
 
   return (
-    <article className="dash-card group overflow-hidden transition-shadow hover:shadow-lg">
+    <article className="dash-card group overflow-hidden p-0 transition-shadow hover:shadow-lg">
       <OgPreview
         title={preset.title}
         subtitle={preset.subtitle}
@@ -254,7 +254,7 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
 
 function PresetCardSkeleton() {
   return (
-    <article className="dash-card overflow-hidden animate-pulse">
+    <article className="dash-card overflow-hidden animate-pulse p-0">
       <div className="aspect-[1200/630] bg-muted/40" />
       <div className="p-4 space-y-3">
         <div className="h-5 bg-muted/50 rounded w-3/4" />

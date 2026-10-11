@@ -489,6 +489,20 @@
     @apply font-mono text-[10px] uppercase text-primary tracking-wider;
   }
 
+  .dash-card {
+    @apply rounded-2xl border border-border/60 bg-card p-5 sm:p-6;
+    box-shadow:
+      0 1px 2px -1px rgb(0 0 0 / 0.08),
+      0 16px 40px -32px rgb(0 0 0 / 0.5);
+  }
+
+  .dash-stat {
+    @apply flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-card p-4 sm:p-5;
+    box-shadow:
+      0 1px 2px -1px rgb(0 0 0 / 0.08),
+      0 16px 40px -32px rgb(0 0 0 / 0.5);
+  }
+
   .icon-box {
     @apply inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary;
   }

@@ -28,6 +28,7 @@ import {
   Edit,
   Trash2 as Trash2Icon,
   RefreshCw,
+  type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OgPreview } from "@/components/ogcraft/og-preview";
@@ -183,7 +184,7 @@ export function Dashboard() {
       setTemplates(mapped);
     } catch (err) {
       console.error("[Dashboard] Failed to load templates", err);
-      setTemplateError("No se pudieron cargar las plantillas");
+      setTemplateError("Couldn't load your templates");
     } finally {
       setTemplatesLoading(false);
     }
@@ -429,7 +430,15 @@ export function Dashboard() {
               </Button>
             ))}
           </div>
-          {view === "overview" && <Overview used={used} limit={limit} onNavigate={changeView} />}
+          {view === "overview" && (
+            <Overview
+              used={used}
+              limit={limit}
+              keys={keys.length}
+              plan={plan}
+              onNavigate={changeView}
+            />
+          )}
           {view === "keys" && (
             <Keys
               keys={keys}
@@ -457,10 +466,14 @@ export function Dashboard() {
 function Overview({
   used,
   limit,
+  keys: keysCount,
+  plan,
   onNavigate,
 }: {
   used: number;
   limit: number;
+  keys: number;
+  plan: "free" | "pro" | "agency";
   onNavigate: (view: View) => void;
 }) {
   const [copied, setCopied] = useState(false);
@@ -493,21 +506,18 @@ function Overview({
       description: "Create a new key for your app",
       icon: KeyRound,
       onClick: () => onNavigate("keys"),
-      shortcut: "⌘K",
     },
     {
       label: "Create Template",
       description: "Design a custom card style",
       icon: LayoutTemplate,
       onClick: () => onNavigate("templates"),
-      shortcut: "⌘T",
     },
     {
       label: "Copy Snippet",
       description: "Copy ready-to-use curl command",
       icon: Copy,
       onClick: () => void copySnippet(),
-      shortcut: "⌘C",
     },
   ];
 
@@ -547,23 +557,50 @@ function Overview({
 
   const now = new Date();
   const hour = now.getHours();
-  const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  const usageRatio = limit > 0 ? used / limit : 0;
+  const remaining = Math.max(0, limit - used);
+  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
 
   return (
     <div className="space-y-6 animate-fade-up">
       <OnboardingBanner />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <p className="text-sm text-muted-foreground">{greeting}, 👋</p>
-          <h1 className="text-2xl font-semibold">Resumen de tu proyecto</h1>
+          <p className="text-sm text-muted-foreground">{greeting}, welcome back.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Your workspace at a glance</h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs text-success">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
             <span className="size-1.5 rounded-full bg-success" />
-            Conectado
+            Connected
           </span>
         </div>
       </div>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Key metrics">
+        <StatCard
+          label="Requests used"
+          value={used}
+          hint={`of ${limit} this month`}
+          icon={Activity}
+          tone={usageRatio >= 1 ? "destructive" : usageRatio >= 0.8 ? "warning" : "default"}
+        />
+        <StatCard label="Remaining" value={remaining} hint="until the quota resets" icon={Gauge} />
+        <StatCard
+          label="Active keys"
+          value={keysCount}
+          hint={keysCount === 0 ? "none yet" : "used from your servers"}
+          icon={KeyRound}
+        />
+        <StatCard
+          label="Current plan"
+          value={planLabel}
+          hint={`${limit} requests / month`}
+          icon={CreditCard}
+        />
+      </section>
 
       {/* Quick Actions - unique to Overview */}
       <section className="dash-card" aria-labelledby="quick-actions-heading">
@@ -588,9 +625,7 @@ function Overview({
                 <p className="font-medium">{action.label}</p>
                 <p className="text-xs text-muted-foreground">{action.description}</p>
               </div>
-              <kbd className="px-2 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground">
-                {action.shortcut}
-              </kbd>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             </Button>
           ))}
         </div>
@@ -608,8 +643,22 @@ function Overview({
           </Button>
         </div>
         {loadingActivity ? (
-          <div className="mt-8 text-center py-8">
-            <Loader2 className="size-8 animate-spin text-muted-foreground mx-auto" />
+          <div className="mt-4 space-y-3" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between border-b border-border/50 py-3 last:border-0"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="size-8 animate-pulse rounded-lg bg-muted/60" />
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-28 animate-pulse rounded bg-muted/60" />
+                    <div className="h-3 w-16 animate-pulse rounded bg-muted/50" />
+                  </div>
+                </div>
+                <div className="h-2 w-20 animate-pulse rounded-full bg-muted/60" />
+              </div>
+            ))}
           </div>
         ) : recentActivity.length > 0 ? (
           <div className="mt-4 space-y-3">
@@ -647,10 +696,14 @@ function Overview({
         ) : (
           <div className="mt-8 text-center py-8">
             <Activity className="size-12 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No activity yet</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
-              Make your first request to see activity here
+            <p className="text-sm font-medium">No activity yet</p>
+            <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
+              Generate an API key and make your first request to see usage here.
             </p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={() => onNavigate("keys")}>
+              <KeyRound className="size-3.5 mr-1.5" />
+              Generate a key
+            </Button>
           </div>
         )}
       </section>
@@ -691,10 +744,19 @@ function Overview({
         ) : (
           <div className="mt-8 text-center py-8">
             <LayoutTemplate className="size-12 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No templates used yet</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
-              Create a template or make a request to see it here
+            <p className="text-sm font-medium">No templates used yet</p>
+            <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
+              Build a custom card style or make a request to see it here.
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => onNavigate("templates")}
+            >
+              <LayoutTemplate className="size-3.5 mr-1.5" />
+              Open Template Builder
+            </Button>
           </div>
         )}
       </section>
@@ -730,6 +792,39 @@ function Overview({
           </Button>
         </div>
       </section>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  tone = "default",
+}: {
+  label: string;
+  value: number | string;
+  hint?: string;
+  icon: LucideIcon;
+  tone?: "default" | "warning" | "destructive";
+}) {
+  return (
+    <div className="dash-stat">
+      <div className="flex items-center justify-between">
+        <span className="dash-label">{label}</span>
+        <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+      </div>
+      <span
+        className={cn(
+          "mt-1 text-2xl font-semibold tracking-tight",
+          tone === "warning" && "text-warning",
+          tone === "destructive" && "text-destructive",
+        )}
+      >
+        {value}
+      </span>
+      {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
     </div>
   );
 }
@@ -1389,21 +1484,29 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
 
   if (loading) {
     return (
-      <div className="grid gap-4 lg:grid-cols-3 animate-fade-up">
+      <div className="grid gap-4 lg:grid-cols-3 animate-fade-up" aria-hidden="true">
         <section className="dash-card lg:col-span-2" aria-labelledby="requests-heading">
           <p id="requests-heading" className="dash-label">
             Requests this month
           </p>
-          <div className="mt-8 h-48 flex items-center justify-center">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          <div className="mt-8 flex h-48 items-end gap-[3px] px-1 pb-8">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 animate-pulse rounded-t-md bg-muted/50"
+                style={{ height: `${30 + ((i * 37) % 65)}%` }}
+              />
+            ))}
           </div>
         </section>
         <section className="dash-card" aria-labelledby="top-templates-heading">
           <p id="top-templates-heading" className="dash-label">
             Top templates
           </p>
-          <div className="mt-4 h-32 flex items-center justify-center">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          <div className="mt-4 space-y-3">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-10 animate-pulse rounded-lg bg-muted/50" />
+            ))}
           </div>
         </section>
       </div>
@@ -1417,6 +1520,7 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
   const total = bars.reduce((a, b) => a + b, 0);
   const maxIndex = bars.indexOf(max);
   const minIndex = bars.indexOf(min);
+  const usageRatio = limit > 0 ? used / limit : 0;
 
   return (
     <div className="grid gap-4 lg:grid-cols-3 animate-fade-up">
@@ -1428,11 +1532,18 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
             </p>
             <p className="mt-2 text-3xl font-semibold">{used}</p>
           </div>
-          <span className="text-xs text-success flex items-center gap-1">
+          <span
+            className={cn(
+              "flex items-center gap-1 text-xs font-medium",
+              usageRatio >= 1
+                ? "text-destructive"
+                : usageRatio >= 0.8
+                  ? "text-warning"
+                  : "text-muted-foreground",
+            )}
+          >
             <Activity className="size-3" aria-hidden="true" />
-            {used > 0 && limit > 0
-              ? `+${Math.round(((used - limit * 0.8) / (limit * 0.8)) * 100)}%`
-              : "—"}
+            {limit > 0 ? `${Math.round(usageRatio * 100)}% of limit` : "—"}
           </span>
         </div>
 
@@ -1471,7 +1582,7 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
                           ? "var(--chart-1)"
                           : i === minIndex
                             ? "var(--chart-4)"
-                            : "var(--chart-1)/70",
+                            : "color-mix(in oklab, var(--chart-1) 55%, transparent)",
                     }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1508,7 +1619,7 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
                 }}
               >
                 <motion.div
-                  className="absolute -top-1 left-1/2 -translate-x-1/2 rounded-full bg-success px-2 py-0.5 text-[10px] font-mono text-success"
+                  className="absolute -top-1 left-1/2 -translate-x-1/2 rounded-full bg-success px-2 py-0.5 text-[10px] font-mono text-success-foreground"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8, duration: 0.3 }}
