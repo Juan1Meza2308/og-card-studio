@@ -41,13 +41,35 @@ export function OgPreview({
     const frame = frameRef.current;
     if (!frame) return;
 
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      setScale(entry.contentRect.width / CARD_WIDTH);
+    // Firefox's ResizeObserver can re-fire with sub-pixel width jitter when a
+    // scaled descendant changes its painted overflow. Committing a fresh,
+    // fractional `contentRect.width` to state on every callback made the React
+    // re-render feed back into the next observation, producing an infinite
+    // main-thread loop on the playground and the landing page (Firefox only).
+    // Two guards break that loop: coalesce observations through a single
+    // rAF (a re-render can never land mid-batch), and commit only when the
+    // snapped, whole-pixel width actually changed by at least one CSS pixel.
+    let rafId = 0;
+    let committedWidth = Math.round(frame.getBoundingClientRect().width);
+
+    const update = () => {
+      rafId = 0;
+      const width = Math.round(frame.getBoundingClientRect().width);
+      if (width === committedWidth) return;
+      committedWidth = width;
+      // Never upscale past the card's native size.
+      setScale(Math.min(1, width / CARD_WIDTH));
+    };
+
+    const observer = new ResizeObserver(() => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update);
     });
     observer.observe(frame);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
