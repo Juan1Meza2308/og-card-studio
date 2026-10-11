@@ -26,7 +26,6 @@ interface PublicPreset {
   theme: string;
   template: string;
   created_at: string;
-  author_email: string;
   author_name: string | null;
   author_avatar: string | null;
 }
@@ -61,7 +60,9 @@ function Gallery() {
     try {
       const { data, error } = await supabase
         .from("public_presets")
-        .select("*")
+        .select(
+          "user_id, preset_id, name, title, subtitle, theme, template, created_at, author_name, author_avatar",
+        )
         .order("created_at", { ascending: false })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
@@ -99,7 +100,6 @@ function Gallery() {
 
   return (
     <>
-      <PublicNav />
       <main id="main-content" tabIndex={-1} className="min-h-screen">
         <PublicNav />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -219,9 +219,7 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
               <User className="size-3 text-primary" />
             </div>
           )}
-          <span className="truncate max-w-[120px]">
-            {preset.author_name ?? preset.author_email.split("@")[0]}
-          </span>
+          <span className="truncate max-w-[120px]">{preset.author_name ?? "Anonymous"}</span>
         </div>
 
         <div className="flex items-center gap-2 pt-2 border-t border-border/50">

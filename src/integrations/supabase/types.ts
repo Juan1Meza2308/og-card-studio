@@ -281,7 +281,6 @@ export type Database = {
           theme: string;
           template: string;
           created_at: string;
-          author_email: string;
           author_name: string | null;
           author_avatar: string | null;
         };
