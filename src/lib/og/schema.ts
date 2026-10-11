@@ -69,10 +69,7 @@ const rawQuerySchema = z.object({
   template: templateSchema.optional(),
   theme: themeSchema.optional(),
   /** Custom template UUID (when authenticated). Must be a valid UUID v4. */
-  templateId: z
-    .string()
-    .uuid({ message: "El templateId debe ser un UUID valido." })
-    .optional(),
+  templateId: z.string().uuid({ message: "El templateId debe ser un UUID valido." }).optional(),
 });
 
 export type OgParseFailure = {

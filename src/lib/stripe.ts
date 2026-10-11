@@ -108,9 +108,8 @@ export async function createPortalSession(
     return null;
   }
 
-  const customerId = typeof subscription.customer === "string"
-    ? subscription.customer
-    : subscription.customer.id;
+  const customerId =
+    typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
@@ -125,7 +124,9 @@ export async function createPortalSession(
  *
  * Returns the plan tier ("free", "pro", "agency") or null if not found.
  */
-export async function getUserPlanFromStripe(userId: string): Promise<"free" | "pro" | "agency" | null> {
+export async function getUserPlanFromStripe(
+  userId: string,
+): Promise<"free" | "pro" | "agency" | null> {
   const stripe = getStripe();
   if (!stripe) return null;
 

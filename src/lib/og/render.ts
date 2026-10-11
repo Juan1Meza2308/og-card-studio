@@ -107,7 +107,12 @@ export async function rasterizeCard(
 /** Production path: fonts from the deployment's own static assets, then render. */
 export async function renderOgCard(
   request: OgRequest,
-  options: { origin: string; host: string; templateOverrides: TemplateOverrides | undefined; watermark?: boolean },
+  options: {
+    origin: string;
+    host: string;
+    templateOverrides: TemplateOverrides | undefined;
+    watermark?: boolean;
+  },
 ): Promise<RenderedCard> {
   return rasterizeCard(
     {

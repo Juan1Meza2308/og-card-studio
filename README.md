@@ -17,12 +17,12 @@ OGCraft is a **self-hosted Open Graph image generation service**. Instead of man
 
 ### The Problem It Solves
 
-| Traditional Approach | OGCraft |
-|---------------------|---------|
-| Design each card manually in Figma/Canva | One API call generates cards programmatically |
-| Upload images to CDN, manage storage | Images generated on-demand or cached at edge |
-| Hard to keep branding consistent | Templates enforce brand consistency |
-| No dynamic content (prices, dates, user names) | Template variables inject real-time data |
+| Traditional Approach                           | OGCraft                                       |
+| ---------------------------------------------- | --------------------------------------------- |
+| Design each card manually in Figma/Canva       | One API call generates cards programmatically |
+| Upload images to CDN, manage storage           | Images generated on-demand or cached at edge  |
+| Hard to keep branding consistent               | Templates enforce brand consistency           |
+| No dynamic content (prices, dates, user names) | Template variables inject real-time data      |
 
 ### Use Cases
 
@@ -36,19 +36,19 @@ OGCraft is a **self-hosted Open Graph image generation service**. Instead of man
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Interactive Playground** | Live 1200×630 preview with editable content, template & gradient controls |
-| **Instant API URL** | Copy production-ready URLs with all parameters encoded |
-| **PNG Download** | Export high-resolution OG images directly from the browser |
-| **Code Integration Tabs** | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL |
-| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation |
-| **Secure API Keys** | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
-| **Row-Level Security** | Every table protected by RLS policies — users only access their own data |
-| **Dashboard** | Overview, API Keys management, Template Builder, Analytics, Billing |
-| **Usage Tracking** | Monthly quotas, per-key last-used timestamps, plan limits |
-| **Dark, High-Contrast UI** | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons |
-| **Responsive & Accessible** | Mobile-first, keyboard navigable, focus-visible, ARIA labels |
+| Feature                          | Description                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------------- |
+| **Interactive Playground**       | Live 1200×630 preview with editable content, template & gradient controls    |
+| **Instant API URL**              | Copy production-ready URLs with all parameters encoded                       |
+| **PNG Download**                 | Export high-resolution OG images directly from the browser                   |
+| **Code Integration Tabs**        | Ready-to-paste snippets for HTML `<meta>`, Next.js Metadata API, cURL        |
+| **Email/Password + Google Auth** | Full auth flow: signup, login, forgot/reset password, email confirmation     |
+| **Secure API Keys**              | Keys hashed with SHA-256, never exposed after creation, prefix + last-4 only |
+| **Row-Level Security**           | Every table protected by RLS policies — users only access their own data     |
+| **Dashboard**                    | Overview, API Keys management, Template Builder, Analytics, Billing          |
+| **Usage Tracking**               | Monthly quotas, per-key last-used timestamps, plan limits                    |
+| **Dark, High-Contrast UI**       | Tailwind v4 semantic tokens, shadcn/ui, Lucide icons                         |
+| **Responsive & Accessible**      | Mobile-first, keyboard navigable, focus-visible, ARIA labels                 |
 
 ---
 
@@ -83,20 +83,20 @@ Open http://localhost:3000 — you'll see the OGCraft landing page with the inte
 
 ## Tech Stack (Actual)
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | TanStack Start (React 19, SSR, File-based routing) |
-| **Styling** | Tailwind CSS v4 (semantic tokens), shadcn/ui primitives |
-| **Auth & Database** | Supabase (PostgreSQL + Row Level Security) |
-| **Forms & Validation** | React Hook Form + Zod |
-| **State & Data Fetching** | TanStack Query (React Query v5) |
-| **Charts & Visualization** | Recharts + custom motion-based charts |
-| **Icons** | Lucide React |
-| **Date Handling** | date-fns |
-| **Animation** | Motion (framer-motion) |
-| **Build Tool** | Vite 8 + Rolldown |
-| **Deployment Target** | Vercel (configurable) |
-| **Image Generation** | Satori + @resvg/resvg-js (SVG → PNG) |
+| Layer                      | Technology                                              |
+| -------------------------- | ------------------------------------------------------- |
+| **Framework**              | TanStack Start (React 19, SSR, File-based routing)      |
+| **Styling**                | Tailwind CSS v4 (semantic tokens), shadcn/ui primitives |
+| **Auth & Database**        | Supabase (PostgreSQL + Row Level Security)              |
+| **Forms & Validation**     | React Hook Form + Zod                                   |
+| **State & Data Fetching**  | TanStack Query (React Query v5)                         |
+| **Charts & Visualization** | Recharts + custom motion-based charts                   |
+| **Icons**                  | Lucide React                                            |
+| **Date Handling**          | date-fns                                                |
+| **Animation**              | Motion (framer-motion)                                  |
+| **Build Tool**             | Vite 8 + Rolldown                                       |
+| **Deployment Target**      | Vercel (configurable)                                   |
+| **Image Generation**       | Satori + @resvg/resvg-js (SVG → PNG)                    |
 
 ---
 
@@ -163,16 +163,16 @@ og-card-studio/
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SUPABASE_URL` | ✅ | Project URL from Supabase Dashboard → Settings → API |
-| `SUPABASE_PUBLISHABLE_KEY` | ✅ | Anon/public key (safe for client) |
-| `SUPABASE_PROJECT_ID` | ✅ | Project reference ID |
-| `VITE_SUPABASE_URL` | ✅ | Same as above, for client bundle |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Same as above, for client bundle |
-| `VITE_SUPABASE_PROJECT_ID` | ✅ | Same as above, for client bundle |
-| `SUPABASE_SERVICE_ROLE_KEY` | ❌ | Service role key (server-only, never in client) |
-| `SUPABASE_SECRET_KEY` | ❌ | Legacy alias for the service role key |
+| Variable                        | Required | Description                                          |
+| ------------------------------- | -------- | ---------------------------------------------------- |
+| `SUPABASE_URL`                  | ✅       | Project URL from Supabase Dashboard → Settings → API |
+| `SUPABASE_PUBLISHABLE_KEY`      | ✅       | Anon/public key (safe for client)                    |
+| `SUPABASE_PROJECT_ID`           | ✅       | Project reference ID                                 |
+| `VITE_SUPABASE_URL`             | ✅       | Same as above, for client bundle                     |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Same as above, for client bundle                     |
+| `VITE_SUPABASE_PROJECT_ID`      | ✅       | Same as above, for client bundle                     |
+| `SUPABASE_SERVICE_ROLE_KEY`     | ❌       | Service role key (server-only, never in client)      |
+| `SUPABASE_SECRET_KEY`           | ❌       | Legacy alias for the service role key                |
 
 > **Never commit `.env`**. Use `.env.example` as template.
 
@@ -184,12 +184,12 @@ All tables have **Row Level Security (RLS) enabled** with policies restricting a
 
 ### Tables
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `profiles` | User profile & plan | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency) |
-| `api_keys` | Hashed API keys | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
-| `usage_stats` | Monthly quota tracking | `id`, `user_id`, `period_start`, `requests_used`, `request_limit` |
-| `templates` | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default` |
+| Table         | Purpose                   | Key Columns                                                                                        |
+| ------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `profiles`    | User profile & plan       | `id` (PK, FK→auth.users), `display_name`, `avatar_url`, `plan` (free/pro/agency)                   |
+| `api_keys`    | Hashed API keys           | `id`, `user_id`, `name`, `key_prefix`, `key_hash` (SHA-256), `last_four`, `status`, `last_used_at` |
+| `usage_stats` | Monthly quota tracking    | `id`, `user_id`, `period_start`, `requests_used`, `request_limit`                                  |
+| `templates`   | User-defined OG templates | `id`, `user_id`, `name`, `theme`, `title`, `subtitle`, `logo_url`, `is_default`                    |
 
 ### Security Highlights
 
@@ -222,13 +222,13 @@ curl "https://api.ogcraft.dev/v1/og?title=Hello%20World&theme=violet" \
 
 ### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `title` | string | ✅ | Main headline text |
-| `subtitle` | string | ❌ | Supporting text |
-| `theme` | string | ❌ | Visual theme: `violet`, `ocean`, `light`, `ember`, `minimalist` |
-| `logo` | string | ❌ | Logo URL (SVG/PNG) |
-| `category` | string | ❌ | Category badge text |
+| Parameter  | Type   | Required | Description                                                     |
+| ---------- | ------ | -------- | --------------------------------------------------------------- |
+| `title`    | string | ✅       | Main headline text                                              |
+| `subtitle` | string | ❌       | Supporting text                                                 |
+| `theme`    | string | ❌       | Visual theme: `violet`, `ocean`, `light`, `ember`, `minimalist` |
+| `logo`     | string | ❌       | Logo URL (SVG/PNG)                                              |
+| `category` | string | ❌       | Category badge text                                             |
 
 ### HTML Meta Tags
 
@@ -246,10 +246,10 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: 'https://api.ogcraft.dev/v1/og?title=My%20Article&theme=violet',
+        url: "https://api.ogcraft.dev/v1/og?title=My%20Article&theme=violet",
         width: 1200,
         height: 630,
-        alt: 'My Article',
+        alt: "My Article",
       },
     ],
   },

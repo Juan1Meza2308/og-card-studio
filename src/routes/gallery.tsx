@@ -7,7 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, User, Heart, ExternalLink, Copy, GitFork, Search } from "lucide-react";
 import { OgPreview } from "@/components/ogcraft/og-preview";
-import { TEMPLATE_LABELS, THEME_LABELS } from "@/lib/og/constants";
+import {
+  TEMPLATE_IDS,
+  THEME_IDS,
+  TEMPLATE_LABELS,
+  THEME_LABELS,
+  type TemplateId,
+  type ThemeId,
+} from "@/lib/og/constants";
 import { siteUrl } from "@/lib/site";
 
 interface PublicPreset {
@@ -136,7 +143,12 @@ function Gallery() {
 
           {hasMore && !loading && (
             <div className="mt-12 text-center">
-              <Button variant="outline" size="lg" onClick={() => setPage((p) => p + 1)} disabled={loading}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={loading}
+              >
                 <Loader2 className="size-4 mr-2 animate-spin" />
                 Load more
               </Button>
@@ -177,8 +189,12 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
       <OgPreview
         title={preset.title}
         subtitle={preset.subtitle}
-        template={preset.template as any}
-        theme={preset.theme as any}
+        template={
+          TEMPLATE_IDS.includes(preset.template as TemplateId)
+            ? (preset.template as TemplateId)
+            : "tech"
+        }
+        theme={THEME_IDS.includes(preset.theme as ThemeId) ? (preset.theme as ThemeId) : "violet"}
       />
       <div className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
@@ -189,7 +205,9 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
             </p>
           </div>
           <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-mono">
-            {TEMPLATE_LABELS[preset.template as keyof typeof TEMPLATE_LABELS] ?? preset.template}
+            {TEMPLATE_IDS.includes(preset.template as TemplateId)
+              ? TEMPLATE_LABELS[preset.template as TemplateId]
+              : preset.template}
           </span>
         </div>
 
@@ -224,7 +242,11 @@ function PresetCard({ preset }: { preset: PublicPreset }) {
             disabled={forking}
             aria-label="Fork this preset"
           >
-            {forking ? <Loader2 className="size-3.5 animate-spin" /> : <GitFork className="size-3.5" />}
+            {forking ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <GitFork className="size-3.5" />
+            )}
           </Button>
         </div>
       </div>

@@ -26,7 +26,14 @@ export type OgPreviewProps = {
  * The wrapper reserves the box with `aspect-ratio`, so the height is known
  * before the measurement lands and nothing shifts when the scale resolves.
  */
-export function OgPreview({ title, subtitle, template, theme, templateOverrides, watermark }: OgPreviewProps) {
+export function OgPreview({
+  title,
+  subtitle,
+  template,
+  theme,
+  templateOverrides,
+  watermark,
+}: OgPreviewProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 

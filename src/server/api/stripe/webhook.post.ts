@@ -147,7 +147,10 @@ export default defineEventHandler(async (event) => {
   }
 });
 
-function mapPriceToPlan(priceId: string, env: ReturnType<typeof getValidatedEnv>): "free" | "pro" | "agency" | null {
+function mapPriceToPlan(
+  priceId: string,
+  env: ReturnType<typeof getValidatedEnv>,
+): "free" | "pro" | "agency" | null {
   if (priceId === env.STRIPE_PRICE_PRO_MONTHLY || priceId === env.STRIPE_PRICE_PRO_YEARLY) {
     return "pro";
   }

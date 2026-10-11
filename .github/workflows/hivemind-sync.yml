@@ -1,0 +1,99 @@
+# .github/workflows/hivemind-sync.yml
+# Copiar a cada repo en .github/workflows/hivemind-sync.yml
+# O mantener centralizado en un repo "infra" y referenciar
+
+name: 🧠 HiveMind Sync
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    # Cada lunes a las 08:00 UTC
+    - cron: "0 8 * * 1"
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+  # Si quieres que el action haga commit en el vault (repo separado):
+  # contents: write
+
+jobs:
+  sync-hivemind:
+    name: Sync Vault ↔ Repo
+    runs-on: windows-latest
+
+    env:
+      VAULT_ROOT: ${{ github.workspace }}/../HiveMind # Ajustar según estructura
+      PROJECTS_ROOT: ${{ github.workspace }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para git log --since
+
+      - name: 🔧 Setup PowerShell
+        uses: microsoft/powershell@v1
+
+      - name: 📂 Checkout HiveMind vault (si está en repo separado)
+        uses: actions/checkout@v4
+        with:
+          repository: Juan1Meza2308/HiveMind # Cambiar a tu repo vault
+          token: ${{ secrets.GH_PAT }} # Personal Access Token con repo scope
+          path: HiveMind
+          fetch-depth: 0
+
+      - name: 🔍 Detectar cambios recientes
+        id: changes
+        shell: pwsh
+        run: |
+          $since = (Get-Date).AddDays(-7).ToString("yyyy-MM-dd")
+          $commits = git log --since="$since" --pretty=format:"%h|%an|%ad|%s" --date=short
+          $count = ($commits -split "`n" | Where-Object { $_ }).Count
+          echo "commits_count=$count" >> $env:GITHUB_OUTPUT
+          echo "commits_log=$commits" >> $env:GITHUB_OUTPUT
+
+      - name: 📝 Actualizar INDICE_MAESTRO
+        if: steps.changes.outputs.commits_count > 0
+        shell: pwsh
+        run: |
+          # Ejecutar script de sync
+          $vault = "HiveMind"
+          $project = "${{ github.event.repository.name }}"
+          .\HiveMind\07_Configuracion\sync-vault-repos.ps1 `
+            -VaultRoot $vault `
+            -ProjectsRoot "." `
+            -GenerateWeeklySummary `
+            -CreateSessionNote
+
+      - name: 📤 Commit cambios en HiveMind
+        if: steps.changes.outputs.commits_count > 0
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          repository: Juan1Meza2308/HiveMind
+          token: ${{ secrets.GH_PAT }}
+          commit_message: "chore(hivemind): sync automático desde ${{ github.event.repository.name }} [skip ci]"
+          branch: main
+          file_pattern: |
+            00_Indice/INDICE_MAESTRO.md
+            03_Sesiones/*_Resumen-Semanal.md
+            03_Sesiones/*_Sync-Automatico.md
+
+---
+# ALTERNATIVA: Git Hook local (pre-push) para cada repo
+# Archivo: .git/hooks/pre-push
+#
+# #!/bin/bash
+# # Pre-push hook: actualiza vault antes de push
+#
+# VAULT_ROOT="$HOME/Documents/HiveMind"
+# PROJECT_NAME=$(basename "$(git rev-parse --show-toplevel)")
+#
+# if [ -d "$VAULT_ROOT" ]; then
+#     echo "🧠 Syncing HiveMind for $PROJECT_NAME..."
+#     pwsh -File "$VAULT_ROOT/07_Configuracion/sync-vault-repos.ps1" \
+#         -VaultRoot "$VAULT_ROOT" \
+#         -ProjectsRoot "$(dirname "$(git rev-parse --show-toplevel)")" \
+#         -CreateSessionNote
+#     echo "✅ HiveMind synced"
+# fi

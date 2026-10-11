@@ -205,9 +205,7 @@ export function OgCard({
           fontSize: 72,
           fontWeight: 700,
           letterSpacing: 4,
-          color: palette.isLight
-            ? "rgba(0, 0, 0, 0.04)"
-            : "rgba(255, 255, 255, 0.04)",
+          color: palette.isLight ? "rgba(0, 0, 0, 0.04)" : "rgba(255, 255, 255, 0.04)",
           fontFamily: FONT_FAMILY,
           textTransform: "uppercase",
         }}

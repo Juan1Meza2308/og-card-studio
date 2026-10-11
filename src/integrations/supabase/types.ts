@@ -254,18 +254,18 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "preset_forks_original_user_id_fkey",
-            columns: ["original_user_id"],
-            isOneToMany: true,
-            referencedRelation: "users",
-            referencedColumns: ["id"],
+            foreignKeyName: "preset_forks_original_user_id_fkey";
+            columns: ["original_user_id"];
+            isOneToMany: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "preset_forks_forked_by_fkey",
-            columns: ["forked_by"],
-            isOneToMany: true,
-            referencedRelation: "users",
-            referencedColumns: ["id"],
+            foreignKeyName: "preset_forks_forked_by_fkey";
+            columns: ["forked_by"];
+            isOneToMany: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -286,7 +286,7 @@ export type Database = {
           author_avatar: string | null;
         };
       };
-    },
+    };
     Functions: {
       fork_preset: {
         Args: {
@@ -296,7 +296,7 @@ export type Database = {
         };
         Returns: void;
       };
-    },
+    };
     Enums: {
       [_ in never]: never;
     };

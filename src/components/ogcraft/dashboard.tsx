@@ -32,7 +32,13 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { OgPreview } from "@/components/ogcraft/og-preview";
 import type { TemplateOverrides } from "@/lib/og/handler";
-import { TEMPLATE_IDS, THEME_IDS, TEMPLATE_LABELS, THEME_LABELS, CARD_LAYOUTS } from "@/lib/og/constants";
+import {
+  TEMPLATE_IDS,
+  THEME_IDS,
+  TEMPLATE_LABELS,
+  THEME_LABELS,
+  CARD_LAYOUTS,
+} from "@/lib/og/constants";
 import { siteHost } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import {
@@ -122,24 +128,23 @@ export function Dashboard() {
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (userData.user?.email) setEmail(userData.user.email);
-      const [{ data: keyRows, error: keyError }, { data: usageRows, error: usageError }, { data: profile }] =
-        await Promise.all([
-          supabase
-            .from("api_keys")
-            .select("id,name,key_prefix,last_four,created_at,last_used_at,status")
-            .eq("status", "active")
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("usage_stats")
-            .select("requests_used,request_limit")
-            .order("period_start", { ascending: false })
-            .limit(1),
-          supabase
-            .from("profiles")
-            .select("plan")
-            .eq("id", userData.user!.id)
-            .single(),
-        ]);
+      const [
+        { data: keyRows, error: keyError },
+        { data: usageRows, error: usageError },
+        { data: profile },
+      ] = await Promise.all([
+        supabase
+          .from("api_keys")
+          .select("id,name,key_prefix,last_four,created_at,last_used_at,status")
+          .eq("status", "active")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("usage_stats")
+          .select("requests_used,request_limit")
+          .order("period_start", { ascending: false })
+          .limit(1),
+        supabase.from("profiles").select("plan").eq("id", userData.user!.id).single(),
+      ]);
       if (keyError || usageError) {
         console.error("[Dashboard] Failed to load workspace data", { keyError, usageError });
         setLoadError(true);
@@ -449,7 +454,15 @@ export function Dashboard() {
   );
 }
 
-function Overview({ used, limit, onNavigate }: { used: number; limit: number; onNavigate: (view: View) => void }) {
+function Overview({
+  used,
+  limit,
+  onNavigate,
+}: {
+  used: number;
+  limit: number;
+  onNavigate: (view: View) => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [recentActivity, setRecentActivity] = useState<
     Array<{ date: string; requests_count: number }>
@@ -501,7 +514,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
   // Load recent activity for the activity feed
   useEffect(() => {
     async function loadRecentActivity() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
       try {
         const [{ data: daily }, { data: templates }] = await Promise.all([
@@ -552,7 +567,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
 
       {/* Quick Actions - unique to Overview */}
       <section className="dash-card" aria-labelledby="quick-actions-heading">
-        <p id="quick-actions-heading" className="dash-label">Quick actions</p>
+        <p id="quick-actions-heading" className="dash-label">
+          Quick actions
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {quickActions.map((action) => (
             <Button
@@ -582,7 +599,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
       {/* Recent Activity Feed - unique to Overview */}
       <section className="dash-card" aria-labelledby="activity-heading">
         <div className="flex items-center justify-between">
-          <p id="activity-heading" className="dash-label">Recent activity</p>
+          <p id="activity-heading" className="dash-label">
+            Recent activity
+          </p>
           <Button variant="ghost" size="sm" onClick={() => onNavigate("analytics")}>
             View all
             <ChevronRight className="size-3.5 ml-1" />
@@ -605,7 +624,11 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
                   </div>
                   <div>
                     <p className="font-medium text-sm">
-                      {new Date(day.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                      {new Date(day.date).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </p>
                     <p className="text-xs text-muted-foreground">{day.requests_count} requests</p>
                   </div>
@@ -613,7 +636,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
                 <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full"
-                    style={{ width: `${Math.min((day.requests_count / Math.max(1, ...recentActivity.map(d => d.requests_count))) * 100, 100)}%` }}
+                    style={{
+                      width: `${Math.min((day.requests_count / Math.max(1, ...recentActivity.map((d) => d.requests_count))) * 100, 100)}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -623,7 +648,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
           <div className="mt-8 text-center py-8">
             <Activity className="size-12 text-muted-foreground/50 mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">No activity yet</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">Make your first request to see activity here</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">
+              Make your first request to see activity here
+            </p>
           </div>
         )}
       </section>
@@ -631,7 +658,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
       {/* Recently Used Templates - unique to Overview */}
       <section className="dash-card" aria-labelledby="recent-templates-heading">
         <div className="flex items-center justify-between">
-          <p id="recent-templates-heading" className="dash-label">Recently used templates</p>
+          <p id="recent-templates-heading" className="dash-label">
+            Recently used templates
+          </p>
           <Button variant="ghost" size="sm" onClick={() => onNavigate("templates")}>
             View all
             <ChevronRight className="size-3.5 ml-1" />
@@ -651,7 +680,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
                 </span>
                 <div className="flex-1 text-left min-w-0">
                   <p className="font-medium truncate">{tpl.template_name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{tpl.template_type} · {tpl.requests_count} uses</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {tpl.template_type} · {tpl.requests_count} uses
+                  </p>
                 </div>
                 <ChevronRight className="size-4 text-muted-foreground" />
               </Button>
@@ -661,7 +692,9 @@ function Overview({ used, limit, onNavigate }: { used: number; limit: number; on
           <div className="mt-8 text-center py-8">
             <LayoutTemplate className="size-12 text-muted-foreground/50 mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">No templates used yet</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">Create a template or make a request to see it here</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">
+              Create a template or make a request to see it here
+            </p>
           </div>
         )}
       </section>
@@ -977,14 +1010,22 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
     isBuiltin: true as const,
   }));
 
-  const allTemplates = [...builtinTemplates, ...userTemplates.map((t) => ({ ...t, isBuiltin: false as const }))];
+  const allTemplates = [
+    ...builtinTemplates,
+    ...userTemplates.map((t) => ({ ...t, isBuiltin: false as const })),
+  ];
 
   function handleSelect(id: string) {
     setSelectedId(id);
   }
 
   function openCreate() {
-    setFormData({ name: "", theme: "violet", title: "Ship your next idea", subtitle: "Built with OGCraft" });
+    setFormData({
+      name: "",
+      theme: "violet",
+      title: "Ship your next idea",
+      subtitle: "Built with OGCraft",
+    });
     setEditingTemplate(null);
     setShowCreateDialog(true);
   }
@@ -1093,7 +1134,11 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
             <OgPreview
               title={item.isBuiltin ? "Your card title" : item.title}
               subtitle={item.isBuiltin ? "Your subtitle here" : item.subtitle}
-              template={item.isBuiltin ? (item.id as "tech" | "minimalist" | "dark-gradient" | "clean-white") : "tech"}
+              template={
+                item.isBuiltin
+                  ? (item.id as "tech" | "minimalist" | "dark-gradient" | "clean-white")
+                  : "tech"
+              }
               theme={item.theme}
               {...(!item.isBuiltin
                 ? {
@@ -1118,7 +1163,10 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7"
-                  onClick={(e) => { e.stopPropagation(); openEdit(item); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEdit(item);
+                  }}
                   aria-label="Edit template"
                 >
                   <Edit className="size-3.5" />
@@ -1127,11 +1175,18 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-destructive hover:text-destructive"
-                  onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.id);
+                  }}
                   disabled={deleting === item.id}
                   aria-label="Delete template"
                 >
-                  {deleting === item.id ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2Icon className="size-3.5" />}
+                  {deleting === item.id ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Trash2Icon className="size-3.5" />
+                  )}
                 </Button>
               </div>
             )}
@@ -1164,7 +1219,12 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
               </label>
               <label className="space-y-2">
                 <Label htmlFor="template-theme">Theme</Label>
-                <Select value={formData.theme} onValueChange={(v) => setFormData({ ...formData, theme: v as "violet" | "ocean" | "ember" | "mint" })}>
+                <Select
+                  value={formData.theme}
+                  onValueChange={(v) =>
+                    setFormData({ ...formData, theme: v as "violet" | "ocean" | "ember" | "mint" })
+                  }
+                >
                   <SelectTrigger id="template-theme">
                     <SelectValue placeholder="Select theme" />
                   </SelectTrigger>
@@ -1202,7 +1262,11 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={saving || !formData.name.trim()}>
-              {saving ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Save className="size-4 mr-2" />}
+              {saving ? (
+                <Loader2 className="size-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="size-4 mr-2" />
+              )}
               {editingTemplate ? "Save changes" : "Create template"}
             </Button>
           </DialogFooter>
@@ -1233,7 +1297,12 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
                     <td className="p-3 max-w-xs truncate">{t.title}</td>
                     <td className="p-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(t)} aria-label="Edit">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEdit(t)}
+                          aria-label="Edit"
+                        >
                           <Edit className="size-4" />
                         </Button>
                         <Button
@@ -1244,7 +1313,11 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
                           disabled={deleting === t.id}
                           aria-label="Delete"
                         >
-                          {deleting === t.id ? <Loader2 className="size-4 animate-spin" /> : <Trash2Icon className="size-4" />}
+                          {deleting === t.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2Icon className="size-4" />
+                          )}
                         </Button>
                       </div>
                     </td>
@@ -1270,13 +1343,17 @@ function Templates({ templates: userTemplates, onRefresh }: TemplatesProps) {
 
 function Analytics({ used, limit }: { used: number; limit: number }) {
   const [dailyData, setDailyData] = useState<{ date: string; requests_count: number }[]>([]);
-  const [templateData, setTemplateData] = useState<{ template_name: string; requests_count: number }[]>([]);
+  const [templateData, setTemplateData] = useState<
+    { template_name: string; requests_count: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadAnalytics() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const today = new Date();
@@ -1314,13 +1391,17 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
     return (
       <div className="grid gap-4 lg:grid-cols-3 animate-fade-up">
         <section className="dash-card lg:col-span-2" aria-labelledby="requests-heading">
-          <p id="requests-heading" className="dash-label">Requests this month</p>
+          <p id="requests-heading" className="dash-label">
+            Requests this month
+          </p>
           <div className="mt-8 h-48 flex items-center justify-center">
             <Loader2 className="size-6 animate-spin text-muted-foreground" />
           </div>
         </section>
         <section className="dash-card" aria-labelledby="top-templates-heading">
-          <p id="top-templates-heading" className="dash-label">Top templates</p>
+          <p id="top-templates-heading" className="dash-label">
+            Top templates
+          </p>
           <div className="mt-4 h-32 flex items-center justify-center">
             <Loader2 className="size-6 animate-spin text-muted-foreground" />
           </div>
@@ -1349,7 +1430,9 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
           </div>
           <span className="text-xs text-success flex items-center gap-1">
             <Activity className="size-3" aria-hidden="true" />
-            {used > 0 && limit > 0 ? `+${Math.round(((used - (limit * 0.8)) / (limit * 0.8)) * 100)}%` : "—"}
+            {used > 0 && limit > 0
+              ? `+${Math.round(((used - limit * 0.8) / (limit * 0.8)) * 100)}%`
+              : "—"}
           </span>
         </div>
 
@@ -1440,9 +1523,7 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
           <div className="flex gap-[3px] px-1 pl-10 mt-0">
             {dailyData.map((_, i) => (
               <div key={i} className="flex-1 text-center">
-                <span className="text-[10px] text-muted-foreground font-mono">
-                  D{i + 1}
-                </span>
+                <span className="text-[10px] text-muted-foreground font-mono">D{i + 1}</span>
               </div>
             ))}
           </div>
@@ -1482,7 +1563,10 @@ function Analytics({ used, limit }: { used: number; limit: number }) {
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full" style={{ background: `var(--chart-${(i % 4) + 1})` }} />
+                <span
+                  className="size-2 rounded-full"
+                  style={{ background: `var(--chart-${(i % 4) + 1})` }}
+                />
                 <span className="font-medium truncate max-w-[200px]">{item.template_name}</span>
               </div>
               <div className="flex items-center gap-3 text-right">
@@ -1507,7 +1591,9 @@ function Billing({ used, limit }: { used: number; limit: number }) {
 
   useEffect(() => {
     async function loadPlan() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase.from("profiles").select("plan").eq("id", user.id).single();
       if (data) setPlan(data.plan as "free" | "pro" | "agency");
@@ -1560,7 +1646,9 @@ function Billing({ used, limit }: { used: number; limit: number }) {
                   {current.limit.toLocaleString()} images each month
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${current.bg} ${current.color}`}>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-medium ${current.bg} ${current.color}`}
+              >
                 Active
               </span>
             </div>
@@ -1582,14 +1670,22 @@ function Billing({ used, limit }: { used: number; limit: number }) {
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               {plan !== "agency" && (
-                <Button asChild variant="outline" onClick={() => window.location.href = "/pricing"}>
+                <Button
+                  asChild
+                  variant="outline"
+                  onClick={() => (window.location.href = "/pricing")}
+                >
                   <ExternalLink className="size-4 mr-2" />
                   Upgrade plan
                 </Button>
               )}
               {plan !== "free" && (
                 <Button variant="outline" onClick={openPortal} disabled={portalLoading}>
-                  {portalLoading ? <RefreshCw className="size-4 mr-2 animate-spin" /> : <CreditCard className="size-4 mr-2" />}
+                  {portalLoading ? (
+                    <RefreshCw className="size-4 mr-2 animate-spin" />
+                  ) : (
+                    <CreditCard className="size-4 mr-2" />
+                  )}
                   Manage subscription
                 </Button>
               )}
@@ -1606,7 +1702,10 @@ function Billing({ used, limit }: { used: number; limit: number }) {
             { text: `${current.limit.toLocaleString()} image requests per month`, included: true },
             { text: "4 starter templates", included: true },
             { text: "Community support", included: true },
-            { text: plan === "free" ? "OGCraft watermark on images" : "No watermark", included: plan !== "free" },
+            {
+              text: plan === "free" ? "OGCraft watermark on images" : "No watermark",
+              included: plan !== "free",
+            },
             { text: "Custom templates", included: plan !== "free" },
             { text: "Team access & SSO", included: plan === "agency" },
             { text: "Priority support", included: plan !== "free" },
@@ -1629,7 +1728,11 @@ function Billing({ used, limit }: { used: number; limit: number }) {
               <span>{item.text}</span>
               {!item.included && (
                 <span className="ml-auto text-xs text-muted-foreground/60">
-                  {item.text.includes("watermark") ? "Pro+" : item.text.includes("Custom") ? "Pro+" : "Agency"}
+                  {item.text.includes("watermark")
+                    ? "Pro+"
+                    : item.text.includes("Custom")
+                      ? "Pro+"
+                      : "Agency"}
                 </span>
               )}
             </motion.li>

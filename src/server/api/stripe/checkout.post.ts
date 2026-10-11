@@ -11,7 +11,9 @@ import { siteUrl } from "@/lib/site";
  * Requires: authenticated user session
  */
 export default defineEventHandler(async (event) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     throw createError({ statusCode: 401, statusMessage: "Not authenticated" });
   }

@@ -25,7 +25,8 @@ export function OnboardingBanner() {
             <Tv className="size-5 mr-3" aria-hidden="true" />
             <h3 className="text-lg font-semibold tracking-tight">Bienvenido al panel de OGCraft</h3>
             <p className="text-sm text-muted-foreground/80 mt-1">
-              Esta guía desaparecerá después de la primera visita. Puedes volverla a ver borrando la clave "{ONBOARDING_KEY}" del almacenamiento local.
+              Esta guía desaparecerá después de la primera visita. Puedes volverla a ver borrando la
+              clave "{ONBOARDING_KEY}" del almacenamiento local.
             </p>
           </div>
           <Button
@@ -47,11 +48,17 @@ export function OnboardingBanner() {
         <ul className="mt-6 space-y-3 text-sm text-muted-foreground/80 max-w-2ul">
           <li>
             <Key className="size-4 mr-2" aria-hidden="true" />
-            <span>Keys: genera y gestiona tus API keys. Cada key tiene un prefijo y un hash SHA-256 nunca mostrado dos veces.</span>
+            <span>
+              Keys: genera y gestiona tus API keys. Cada key tiene un prefijo y un hash SHA-256
+              nunca mostrado dos veces.
+            </span>
           </li>
           <li>
             <Layout className="size-4 mr-2" aria-hidden="true" />
-            <span>Templates: crea y guarda estilos predeterminados para tus tarjetas. Puedes persistir ajustes en localStorage.</span>
+            <span>
+              Templates: crea y guarda estilos predeterminados para tus tarjetas. Puedes persistir
+              ajustes en localStorage.
+            </span>
           </li>
           <li>
             <AlertCircle className="size-4 mr-2" aria-hidden="true" />

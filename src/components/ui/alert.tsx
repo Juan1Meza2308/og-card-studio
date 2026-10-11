@@ -21,7 +21,11 @@ export function Alert({ className, variant = "default", children, ...props }: Al
   );
 }
 
-export function AlertDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+export function AlertDescription({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p className={cn("text-sm", className)} {...props}>
       {children}

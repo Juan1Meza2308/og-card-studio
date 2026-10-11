@@ -1,5 +1,21 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Check, Copy, Download, Loader2, Sparkles, Save, Trash2, BookOpen, FolderPlus, Upload, Download as DownloadIcon, FileJson, AlertCircle, Globe, GitFork } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Download,
+  Loader2,
+  Sparkles,
+  Save,
+  Trash2,
+  BookOpen,
+  FolderPlus,
+  Upload,
+  Download as DownloadIcon,
+  FileJson,
+  AlertCircle,
+  Globe,
+  GitFork,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,7 +104,9 @@ export function Playground() {
 
   // Check auth state
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ? { id: session.user.id, email: session.user.email ?? "" } : null);
     });
     // Initial check
@@ -170,7 +188,7 @@ export function Playground() {
   async function togglePublic(id: string, currentlyPublic: boolean) {
     try {
       setPresets((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, is_public: !currentlyPublic } : p))
+        prev.map((p) => (p.id === id ? { ...p, is_public: !currentlyPublic } : p)),
       );
       const { error } = await supabase
         .from("user_presets")
@@ -180,7 +198,7 @@ export function Playground() {
     } catch (err) {
       console.error("[Playground] Toggle public failed", err);
       setPresets((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, is_public: currentlyPublic } : p))
+        prev.map((p) => (p.id === id ? { ...p, is_public: currentlyPublic } : p)),
       );
       alert("Failed to update visibility");
     }
@@ -232,21 +250,23 @@ export function Playground() {
           throw new Error("Invalid format: missing presets array");
         }
         // Validate each preset
-        const validPresets = data.presets.filter((p: unknown) => {
-          const preset = p as Partial<UserPreset>;
-          return (
-            typeof preset.name === "string" &&
-            typeof preset.title === "string" &&
-            typeof preset.subtitle === "string" &&
-            THEME_IDS.includes(preset.theme as ThemeId) &&
-            TEMPLATE_IDS.includes(preset.template as TemplateId)
-          );
-        }).map((p: unknown) => ({
-          ...(p as Omit<UserPreset, "id">),
-          id: crypto.randomUUID(),
-          createdAt: Date.now(),
-          is_public: false,
-        }));
+        const validPresets = data.presets
+          .filter((p: unknown) => {
+            const preset = p as Partial<UserPreset>;
+            return (
+              typeof preset.name === "string" &&
+              typeof preset.title === "string" &&
+              typeof preset.subtitle === "string" &&
+              THEME_IDS.includes(preset.theme as ThemeId) &&
+              TEMPLATE_IDS.includes(preset.template as TemplateId)
+            );
+          })
+          .map((p: unknown) => ({
+            ...(p as Omit<UserPreset, "id">),
+            id: crypto.randomUUID(),
+            createdAt: Date.now(),
+            is_public: false,
+          }));
         if (validPresets.length === 0) {
           throw new Error("No valid presets found in file");
         }
@@ -276,7 +296,12 @@ export function Playground() {
           const merged = [...local];
           for (const cp of cloudPresets) {
             if (!local.some((lp) => lp.name === cp.name)) {
-              merged.unshift({ ...cp, id: crypto.randomUUID(), createdAt: Date.now(), is_public: false });
+              merged.unshift({
+                ...cp,
+                id: crypto.randomUUID(),
+                createdAt: Date.now(),
+                is_public: false,
+              });
             }
           }
           return merged;
@@ -296,7 +321,10 @@ export function Playground() {
       const data = presets.map(({ id, ...rest }) => rest); // Don't store local IDs
       const { error } = await supabase
         .from("user_presets")
-        .upsert({ user_id: user.id, data, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+        .upsert(
+          { user_id: user.id, data, updated_at: new Date().toISOString() },
+          { onConflict: "user_id" },
+        );
       if (error) throw error;
       setSyncStatus("success");
       setSyncMessage("Presets guardados en la nube");
@@ -397,7 +425,10 @@ export function Playground() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { setNewPresetName(""); setShowSaveDialog(true); }}
+                onClick={() => {
+                  setNewPresetName("");
+                  setShowSaveDialog(true);
+                }}
               >
                 <FolderPlus className="size-3.5 mr-2" />
                 Save current
@@ -453,7 +484,9 @@ export function Playground() {
                 </Alert>
               )}
               {syncStatus !== "idle" && (
-                <Alert className={`mt-2 text-xs ${syncStatus === "success" ? "" : "variant-destructive"}`}>
+                <Alert
+                  className={`mt-2 text-xs ${syncStatus === "success" ? "" : "variant-destructive"}`}
+                >
                   <AlertCircle className="size-3.5" />
                   <AlertDescription>{syncMessage}</AlertDescription>
                 </Alert>
@@ -512,7 +545,11 @@ export function Playground() {
                               aria-label={p.is_public ? "Make private" : "Make public"}
                               title={p.is_public ? "Make private" : "Make public"}
                             >
-                              {p.is_public ? <Globe className="size-3.5 text-primary" /> : <Globe className="size-3.5 text-muted-foreground" />}
+                              {p.is_public ? (
+                                <Globe className="size-3.5 text-primary" />
+                              ) : (
+                                <Globe className="size-3.5 text-muted-foreground" />
+                              )}
                             </Button>
                           </>
                         )}

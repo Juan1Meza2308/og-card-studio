@@ -85,7 +85,9 @@ function jsonError(status: number, body: ApiErrorBody, extraHeaders: HeadersInit
  * Returns { allowed: true, plan, limit, used } if under limit,
  * or { allowed: false, limit, used } if the limit would be exceeded.
  */
-async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolean; plan: "free" | "pro" | "agency"; limit: number; used: number }> {
+async function checkAndIncrementUsage(
+  userId: string,
+): Promise<{ allowed: boolean; plan: "free" | "pro" | "agency"; limit: number; used: number }> {
   const client = getServiceClient();
   if (!client) {
     // Service role not configured — allow but don't track
@@ -134,10 +136,12 @@ async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolea
 
   // Record daily usage
   const todayKey = new Date().toISOString().split("T")[0];
-  await (client as any).from("daily_usage_stats").upsert(
-    { user_id: userId, date: todayKey, requests_count: 1 },
-    { onConflict: "user_id,date", ignoreDuplicates: false }
-  );
+  await client
+    .from("daily_usage_stats")
+    .upsert(
+      { user_id: userId, date: todayKey, requests_count: 1 },
+      { onConflict: "user_id,date", ignoreDuplicates: false },
+    );
 
   return { allowed: true, plan, limit, used: used + 1 };
 }
@@ -147,7 +151,11 @@ async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolea
  * Does not persist a counter (would require IP tracking which is unreliable).
  * For now just allows — the real protection is the input caps and CDN cache.
  */
-async function checkUnauthenticatedUsage(): Promise<{ allowed: boolean; limit: number; used: number }> {
+async function checkUnauthenticatedUsage(): Promise<{
+  allowed: boolean;
+  limit: number;
+  used: number;
+}> {
   // No persistent counter for unauthenticated — rely on input caps + CDN
   return { allowed: true, limit: UNAUTHENTICATED_LIMIT, used: 0 };
 }
@@ -224,14 +232,29 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
     usageInfo = checkResult;
     userPlan = checkResult.plan;
     if (!usageInfo.allowed) {
-      return jsonError(429, {
-        error: "rate_limited",
-        issues: [{ field: "rate_limit", reason: `Monthly limit of ${usageInfo.limit} requests exceeded` }],
-      }, {
-        "retry-after": String(Math.ceil((new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).getTime() - Date.now()) / 1000)),
-        "x-ratelimit-limit": String(usageInfo.limit),
-        "x-ratelimit-remaining": "0",
-      });
+      return jsonError(
+        429,
+        {
+          error: "rate_limited",
+          issues: [
+            {
+              field: "rate_limit",
+              reason: `Monthly limit of ${usageInfo.limit} requests exceeded`,
+            },
+          ],
+        },
+        {
+          "retry-after": String(
+            Math.ceil(
+              (new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).getTime() -
+                Date.now()) /
+                1000,
+            ),
+          ),
+          "x-ratelimit-limit": String(usageInfo.limit),
+          "x-ratelimit-remaining": "0",
+        },
+      );
     }
   } else {
     usageInfo = await checkUnauthenticatedUsage();
@@ -247,21 +270,23 @@ export async function handleOgRequest(request: Request): Promise<Response | unde
 
     // Record template usage (fire and forget)
     if (userId && templateName) {
-      const templateId = (templateType === "custom" && parsed.value.templateId)
-        ? parsed.value.templateId
-        : null;
+      const templateId =
+        templateType === "custom" && parsed.value.templateId ? parsed.value.templateId : null;
       const serviceClient = getServiceClient();
       if (serviceClient) {
-        (serviceClient as any).from("template_usage").upsert(
-          {
-            user_id: userId,
-            template_id: templateId,
-            template_name: templateName,
-            template_type: templateType,
-            requests_count: 1,
-          },
-          { onConflict: "user_id,template_id,template_name", ignoreDuplicates: false }
-        ).catch((err: Error) => console.warn("[og] template usage upsert failed", err));
+        serviceClient
+          .from("template_usage")
+          .upsert(
+            {
+              user_id: userId,
+              template_id: templateId,
+              template_name: templateName,
+              template_type: templateType,
+              requests_count: 1,
+            },
+            { onConflict: "user_id,template_id,template_name", ignoreDuplicates: false },
+          )
+          .catch((err: Error) => console.warn("[og] template usage upsert failed", err));
       }
     }
 
