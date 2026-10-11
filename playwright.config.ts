@@ -42,10 +42,10 @@ export default defineConfig({
     env: {
       VITE_SITE_URL: "http://localhost:3000",
       VITE_SUPABASE_URL: "https://test.supabase.co",
-      VITE_SUPABASE_PUBLISHABLE_KEY: "test-key",
+      VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_key_for_playwright",
       VITE_SUPABASE_PROJECT_ID: "test-project",
       SUPABASE_URL: "https://test.supabase.co",
-      SUPABASE_PUBLISHABLE_KEY: "test-key",
+      SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_key_for_playwright",
       SUPABASE_PROJECT_ID: "test-project",
     },
   },
