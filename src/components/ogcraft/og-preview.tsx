@@ -57,8 +57,10 @@ export function OgPreview({
       const width = Math.round(frame.getBoundingClientRect().width);
       if (width === committedWidth) return;
       committedWidth = width;
-      // Never upscale past the card's native size.
-      setScale(Math.min(1, width / CARD_WIDTH));
+      // La tarjeta crece igualmente por encima de su tamaño nativo (1200px)
+      // para ocupar paneles muy anchos. Es DOM/CSS, así que escalarla no la
+      // desenfoca como pasaría con un raster.
+      setScale(width / CARD_WIDTH);
     };
 
     const observer = new ResizeObserver(() => {
