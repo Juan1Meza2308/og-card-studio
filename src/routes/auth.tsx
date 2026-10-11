@@ -30,6 +30,19 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+/** Mensaje legible cuando el servicio de autenticación no responde. */
+function describeAuthFailure(error: Error): string {
+  const message = error.message || "";
+  if (
+    /(fetch failed|failed to fetch|networkerror|network request failed|err_name_not_resolved|could not connect|load failed|name not resolved)/i.test(
+      message,
+    )
+  ) {
+    return "Couldn't reach the authentication service. Check your connection and try again.";
+  }
+  return message;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -106,7 +119,7 @@ function AuthPage() {
       }
     } catch (err) {
       const error = err as Error;
-      setMessage({ type: "error", text: error.message });
+      setMessage({ type: "error", text: describeAuthFailure(error) });
     } finally {
       setBusy(false);
     }
